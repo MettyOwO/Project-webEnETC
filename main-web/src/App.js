@@ -1,13 +1,9 @@
-import logo from './logo.svg';
-import './App.css';
-import Button from '@mui/material/Button';
-
-function App() {
+const App = () => {
   return (
     <div>
-      <Button variant="contained">Hello World</Button>
+      TEST
     </div>
   );
-}
+};
 
 export default App;
