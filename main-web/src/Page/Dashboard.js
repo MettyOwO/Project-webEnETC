@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function DashboardContent() {
-    
     useEffect(() => { //เช็ค Token ของ Account User
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -57,7 +56,7 @@ function DashboardContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
-                <Nav.Link>Access Point</Nav.Link>    
+                <Nav.Link href='/accesspoint'>Access Point</Nav.Link>    
                 <Nav.Link>Switch</Nav.Link>          
                 <Nav.Link>About This Website</Nav.Link>            
             </Nav>

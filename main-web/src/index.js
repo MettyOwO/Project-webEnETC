@@ -1,21 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route} from 'react-router-dom';
-
-import Login from './Page/Login';
-import Dashboard from './Page/Dashboard';
-import DashboardAdmin from './Page/DashboardAdmin';
-import AddUsers from './Page/AddUsers';
-import AccessPointList from './Page/AccessPointList';
-import SwitchList from './Page/SwitchList';
-import UserList from './Page/UserList';
-import EditAccessPoint from './Page/EditAccessPoint';
-import AddAccessPoint from './Page/AddAccessPoint';
-import ImportExcel from './Page/ImportExcel';
-import AccessConfig from './Page/AccessConfig';
-
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+
+//Login&Dashboard
+import Login from './Page/Login';
+import DashboardAdmin from './Page/DashboardAdmin';
+import Dashboard from './Page/Dashboard';
+
+//AccessPoint
+import AccessPointList from './Page/AccessPointList';
+import EditAccessPoint from './Page/EditAccessPoint';
+import AddAccessPoint from './Page/AddAccessPoint';
+import AccessPointKKU from './Page/AccessPointKKU';
+import AccessPointNKC from './Page/AccessPointNKC';
+
+//Users
+import AddUsers from './Page/AddUsers';
+import UserList from './Page/UserList';
+import UserEdit from './Page/UserEdit';
+
+//Switch
+import SwitchList from './Page/SwitchList';
+import EditSwitch from './Page/EditSwitch';
+import AddSwitch from './Page/AddSwitch';
+import SwitchKKU from './Page/SwitchKKU';
+import SwitchNKC from './Page/SwitchNKC';
+
+//Etc
+import Maps from './Page/Maps';
+import Config from './Page/Config';
+
+//Device Corrupted
+import DeviceCorrupted from './Page/DeviceCorrupted';
+import AddDeviceCorrupted from './Page/AddDeviceCorrupted';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -23,16 +42,30 @@ root.render(
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />     
-      <Route path="/dbusers" element={<Dashboard />} />
       <Route path="/dbadmin" element={<DashboardAdmin />} />
+      <Route path="/dbuser" element={<Dashboard />} />  
+      
       <Route path="/addusers" element={<AddUsers />} />
-      <Route path="/accesspoint" element={<AccessPointList />} /> 
-      <Route path="/switch" element={<SwitchList />} /> 
       <Route path="/users" element={<UserList />} />
+      <Route path="/updateuser/:id" element={<UserEdit />} />
+
+      <Route path="/accesspoint" element={<AccessPointList />} /> 
       <Route path="/updateap/:id" element={<EditAccessPoint />} />
       <Route path="/addap" element={<AddAccessPoint />} />
-      <Route path="/importexcel" element={<ImportExcel />} />
-      <Route path="/apconfig/:id" element={<AccessConfig />} />
+      <Route path="/accesspoint_kku" element={<AccessPointKKU />} /> 
+      <Route path="/accesspoint_nkc" element={<AccessPointNKC />} /> 
+
+      <Route path="/switch" element={<SwitchList />} /> 
+      <Route path="/updatesw/:id" element={<EditSwitch />} />      
+      <Route path="/addsw" element={<AddSwitch />} />
+      <Route path="/switch_nkc" element={<SwitchNKC />} /> 
+      <Route path="/switch_kku" element={<SwitchKKU />} /> 
+    
+      <Route path="/maps" element={<Maps />} />
+      <Route path="/config" element={<Config />} />
+
+      <Route path="/deviceclist" element={<DeviceCorrupted />} />
+      <Route path="/add_dc" element={<AddDeviceCorrupted />} />
 
     </Routes>
   </BrowserRouter>

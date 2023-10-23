@@ -47,11 +47,11 @@ export default function SignIn() {
       .then(response => response.json())  
       .then(data =>{
         const role = data.role;
-        if(data.status === 'ok' && role === 'admin'){
+        if(data.status === 'ok' && role === 'Admin'){
           alert('Login Sucess')
           localStorage.setItem('token', data.token)
           window.location= '/dbadmin'
-        }else if(data.status === 'ok' && role === 'customer'){
+        }else if(data.status === 'ok' && role === 'Customer'){
           alert('Login Sucess')
           localStorage.setItem('token', data.token)
           window.location= '/dbusers'

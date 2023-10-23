@@ -36,11 +36,11 @@ function AddUsersContent() {
       event.preventDefault();
       const data = new FormData(event.currentTarget);   
       const jsonData = {
-          email: data.get('email'),
-          password: data.get('password'),
-          name: data.get('name'),
-          role: data.get('role'),
-        }
+        email: data.get('email'),
+        password: data.get('password'),
+        name: data.get('name'),
+        role: data.get('role'),
+      }
       
         fetch ('http://localhost:3333/register', {
           method: "POST",
@@ -68,25 +68,17 @@ function AddUsersContent() {
         event.preventDefault();
         localStorage.removeItem('token');
         window.location = '/Login'
-    }
-    
-    //Back Function
-    const handleBack = (event) => {
-      event.preventDefault();
-      window.location = '/users'
-    }        
+    }    
     
     //UI
     return (
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="#">Add Users</Navbar.Brand>
+            <Navbar.Brand href="/users">Back To Users List</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
-            <Nav className="me-auto">
-                <Nav.Link onClick={ handleBack }>Back to user manager page</Nav.Link>
-            </Nav>
+            <Nav className="me-auto"></Nav>
             <Nav>
                 <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
             </Nav>
@@ -95,32 +87,45 @@ function AddUsersContent() {
         </Navbar>
 
         <div>
-        <form onSubmit={handleSubmit}>
-          <div class="form-group">
-            <label>Email : </label>
-            <input class="form-control" id="email" name="email" required/>
-          </div>
+          <form className="container mt-3 mb-3" onSubmit={handleSubmit}>
+            <div       
+              style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',}}>
+                <h2>Add User Data</h2>
+            </div>           
+            <div className="mb-4">
+              <label>Email</label>
+              <input class="form-control" id="email" name="email" required/>
+            </div> 
           
-          <div class="form-group">
-            <label>Password : </label>
+          <div class="mb-4">
+            <label>Password</label>
             <input class="form-control" id="password" name="password" required/>
           </div>
           
-          <div class="form-group">
-            <label>Name : </label>
+          <div class="mb-4">
+            <label>Name</label>
             <input class="form-control" id="name" name="name" required/>
           </div>
           
-          <div class="form-group">
-          <label>Role : </label>
+          <div class="mb-4">
+          <label>Role</label>
             <select class="form-control" id="role" name="role" required>
-              <option>select user role</option>
-              <option>customer</option>
-              <option>admin</option>
+              <option>Select User Role</option>
+              <option>Customer</option>
+              <option>Admin</option>
             </select>
           </div>
-
-          <button type="submit" class="btn btn-primary">Add</button>
+          <div 
+            style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <button type="submit" class="btn btn-primary">Add User</button>
+          </div>
         </form>
         </div>
         </div>          

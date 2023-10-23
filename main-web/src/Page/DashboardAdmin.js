@@ -4,6 +4,9 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Chart } from "react-google-charts";
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 
 function DashboardContent() {
     //Check Token API
@@ -68,7 +71,7 @@ function DashboardContent() {
     ];
       
     const options3 = {
-        title: "Total Device Problem",
+        title: "Total Device Corrupted",
         pieHole: 0.4,
         is3D: false,
     };
@@ -82,10 +85,19 @@ function DashboardContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
-                <Nav.Link href="/users">Users Manager</Nav.Link>
-                <Nav.Link href="/accesspoint">Access Point</Nav.Link>    
-                <Nav.Link href="#">Switch</Nav.Link>       
-                <Nav.Link href="#">About This Website</Nav.Link>            
+                <Nav.Link href="/users">Users List</Nav.Link>
+                <NavDropdown title="Access Point" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/accesspoint">Access Point List</NavDropdown.Item>
+                    <NavDropdown.Item href="/accesspoint_kku">Access Point List (KKU)</NavDropdown.Item>
+                    <NavDropdown.Item href="/accesspoint_nkc">Access Point List (NCK)</NavDropdown.Item>
+                </NavDropdown>
+                <NavDropdown title="Switch" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/switch">Switch List</NavDropdown.Item>
+                    <NavDropdown.Item href="/switch_kku">Switch List (KKU)</NavDropdown.Item>
+                    <NavDropdown.Item href="/switch_nkc">Switch List (NCK)</NavDropdown.Item>
+                </NavDropdown>                              
+                <Nav.Link href="/deviceclist">Device Corrupted</Nav.Link>       
+        
             </Nav>
             <Nav>
                 <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
@@ -94,29 +106,95 @@ function DashboardContent() {
         </Container>
         </Navbar>
         
-    <Chart
-      chartType="PieChart"
-      width="100%"
-      height="400px"
-      data={data}
-      options={options}
-    />
-
-    <Chart
-      chartType="PieChart"
-      width="100%"
-      height="400px"
-      data={data2}
-      options={options2}
-    />
-
-    <Chart
-      chartType="PieChart"
-      width="100%"
-      height="400px"
-      data={data3}
-      options={options3}
-    />              
+        <Tabs
+            defaultActiveKey="home"
+            id="justify-tab-example"
+            className="mb-3"
+            fill
+        >       
+        <Tab eventKey="home" title="Home">
+        <div 
+            style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            }}>
+                <h2>About This Website</h2>
+        </div>
+                <p>This website has been created for use by companies and organizations only.</p>
+                <p>Not seeking any benefits at all.</p>            
+        </Tab>
+        <Tab eventKey="all" title="All Device Graph">
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data}
+            options={options}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data2}
+            options={options2}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data3}
+            options={options3}
+            />                        
+        </Tab>
+        <Tab eventKey="kku" title="KKU Device Graph">
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data}
+            options={options}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data2}
+            options={options2}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data3}
+            options={options3}
+            />                        
+        </Tab>
+        <Tab eventKey="nkc" title="NKC Device Graph">
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data}
+            options={options}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data2}
+            options={options2}
+            />
+            <Chart
+            chartType="PieChart"
+            width="100%"
+            height="250px"
+            data={data3}
+            options={options3}
+            />                        
+        </Tab>
+        </Tabs>            
+        
         </div>          
       );
     }

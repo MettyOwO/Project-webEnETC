@@ -35,19 +35,15 @@ const [hostname, setHostname] = useState('');
 const [ipswitch, setIpswitch] = useState('');
 const [build_name, setBuildname] = useState('');
 const [build_group, setBuildgroup] = useState('');
-const [model, setModel] = useState('');
 const [role, setRole] = useState('');
-const [maps, setMaps] = useState('');
-const [config, setConfig] = useState('');
 const navigate = useNavigate();
 
 function handleSubmit(event) {        
     event.preventDefault();        
-    axios.post('http://localhost:3333/addap', { role, maps,
-    config, build_name, build_group, ipswitch, model, hostname})        
+    axios.post('http://localhost:3333/addap', {build_name, build_group, ipswitch, hostname, role})        
     .then(res => {            
         if(res.data.added){
-            alert("Added Access Point Data Complete!")
+            alert("Add Access Point Data Complete!")
             navigate('/accesspoint')    
         }else{
             alert("Error! Please Try Again.")
@@ -78,153 +74,66 @@ function handleSubmit(event) {
     </Container>
     </Navbar>
 
-    <div>
-        <form className="container mt-3 mb-3" onSubmit={handleSubmit}>
-        <div       
-        style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        }}>
+        <div>
+            <form className="container mt-3 mb-3" onSubmit={handleSubmit}>
+            <div       
+            style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            }}>
             <h2>Add Access Point Data</h2>
-        </div>              
-        <div className='mb-4'>
+            </div>              
+            
+            <div className='mb-4'>
             <label htmlFor='Select Site'>Site</label>
-                <select class="form-control" onChange={e => (e.target.value)} disabled>
+                <select class="form-control" disabled>
                     <option>Select Site</option>
                     <option>NKC</option>
                     <option>KKU</option>
                 </select>
-            </div>
-            
+            </div>          
             <div className='mb-4'>
-            <label htmlFor=''>Role</label>
+                <label>Building Group</label>
+                <input type="text" className='form-control'
+                onChange={e => setBuildgroup(e.target.value)}/>
+            </div>
+
+            <div className='mb-4'>
+                <label>Building Name</label>
+                <input type="text" className='form-control'
+                onChange={e => setBuildname(e.target.value)}/>
+            </div>
+
+            <div className='mb-4'>
+                <label>IP Switch</label>
+                <input type="text" className='form-control'
+                onChange={e => setIpswitch(e.target.value)}/>
+            </div>
+
+            <div className='mb-4'>
+                <label>HostName</label>
+                <input type="text" className='form-control'
+                onChange={e => setHostname(e.target.value)}/>
+            </div>
+            <div className='mb-4'>
+            <label>Role</label>
                 <select class="form-control" onChange={e => setRole(e.target.value)}>
                     <option>Select AP Role</option>
                     <option>Indoor</option>
                     <option>Outdoor</option>
                 </select>
             </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Map</label>
-                <select class="form-control" onChange={e => setMaps(e.target.value)}>
-                    <option>Select Map Link</option>
-                    <option>[Link]</option>
-                </select>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Config</label>
-                <select class="form-control" onChange={e => setConfig(e.target.value)}>
-                    <option>Select Config Link</option>
-                    <option>[Link]</option>
-                </select>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Building Name</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => setBuildname(e.target.value)}/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Building Group</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => setBuildgroup(e.target.value)}/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Floor</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>IP Switch</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => setIpswitch(e.target.value)}/>
-            </div>
-
-            <div className='mb-4'>
-            <label htmlFor='Select Model'>Model</label>
-                <select class="form-control" onChange={e => setModel(e.target.value)}>
-                    <option>Select AP Model</option>
-                    <option>AirEngine5761-21</option>
-                    <option>AirEngine6760R-51E</option>
-                </select>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Serial AP</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>HostName</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => setHostname(e.target.value)}/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>AP Box</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Cable Name</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>VLAN</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Serial Number</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>MAC Address</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Status AP</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Lasted Update</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-            <div className='mb-4'>
-                <label htmlFor=''>Note</label>
-                <input type="text" placeholder='' className='form-control'
-                onChange={e => (e.target.value)} disabled/>
-            </div>
-
-        </div>
-        <div 
+            <div 
             style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-        }}>
+            }}>
             <button className="btn btn-primary" onClick={ handleSubmit }>Add Data</button>   
         </div>
         </form>
-    </div> 
+        </div> 
     </div>
 )}
 
