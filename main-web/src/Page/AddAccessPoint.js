@@ -36,11 +36,12 @@ const [ipswitch, setIpswitch] = useState('');
 const [build_name, setBuildname] = useState('');
 const [build_group, setBuildgroup] = useState('');
 const [role, setRole] = useState('');
+const [site, setSite] = useState('');
 const navigate = useNavigate();
 
 function handleSubmit(event) {        
     event.preventDefault();        
-    axios.post('http://localhost:3333/addap', {build_name, build_group, ipswitch, hostname, role})        
+    axios.post('http://localhost:3333/addap', {site, build_name, build_group, ipswitch, hostname, role})        
     .then(res => {            
         if(res.data.added){
             alert("Add Access Point Data Complete!")
@@ -87,7 +88,7 @@ function handleSubmit(event) {
             
             <div className='mb-4'>
             <label htmlFor='Select Site'>Site</label>
-                <select class="form-control" disabled>
+                <select class="form-control" onChange={e => setSite(e.target.value)}>
                     <option>Select Site</option>
                     <option>NKC</option>
                     <option>KKU</option>

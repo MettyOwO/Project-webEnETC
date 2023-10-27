@@ -130,6 +130,7 @@ function EditSWContent() {
                 <div className='mb-4'>
                 <label htmlFor='Select Model'>Model</label>
                 <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
+                    <option>Select Role</option>
                     <option>S5735-L24P4X-A1</option>
                     <option>S5736-S24S4XC</option>
                 </select>
@@ -138,6 +139,7 @@ function EditSWContent() {
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
+                    <option>Select Role</option>                    
                     <option>Access</option>
                     <option>Distribute</option>
                 </select>

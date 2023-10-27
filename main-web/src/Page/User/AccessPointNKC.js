@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import axios from 'axios';
-import { CSVLink} from 'react-csv';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
-function APContent() {
+function APNKCContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -37,7 +36,7 @@ function APContent() {
     //Access Point List API
     const [aplist, setApList] = useState([]); 
     useEffect(()=> {
-        axios.get('http://localhost:3333/aplist')        
+        axios.get('http://localhost:3333/aplist_nkc')        
         .then(res => setApList(res.data))        
         .catch(err => console.log(err));    
     },[])
@@ -60,25 +59,14 @@ function APContent() {
         localStorage.removeItem('token');
         window.location = '/login'
     }
-
-    //Export Excel
-    const [apdata, setApdata]= useState([]); 
-    useEffect( ()=>{
-       const getapdata= async ()=>{
-         const apreq= await fetch("http://localhost:3333/aplist");
-         const apres= await apreq.json();
-         console.log(apres);
-         setApdata(apres);
-       }
-    getapdata();
-    },[]);
-
+    
     //UI
     return (
-        <div>     
+        <div>
+        
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href="/dbusers">Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
@@ -109,12 +97,8 @@ function APContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <h2>Access Point List</h2>
-                </div> 
-
-                <Link to="/addap" className='btn btn-primary'>Add Data</Link>&nbsp;
-                <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
-                <CSVLink  data={ apdata } filename="AccessPoint"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
+                    <h2>Access Point NKC List</h2>
+                </div><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
@@ -124,7 +108,7 @@ function APContent() {
                             <th scope="col">Hostname</th>
                             <th scope="col">Role</th>
                             <th scope="col">Map</th>
-                            <th scope="col">Edit & Delete</th>
+                            <th scope="col">Delete</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -136,9 +120,7 @@ function APContent() {
                                 <td>{aplist.APname}</td>
                                 <td>{aplist.Role}</td>
                                 <td><Link to="/maps" className="btn btn-info">Click</Link></td>
-                                <td><Link to= {`/updateap/${aplist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
-                                <button className='btn btn-danger ms-2' onClick={ e => handleDelete(aplist.ID)}>Delete</button>
-                                </td>
+                                <td><button className='btn btn-danger ms-2' onClick={ e => handleDelete(aplist.ID)}>Delete</button></td>
                             </tr>
                         ))}   
                     </tbody> 
@@ -150,6 +132,6 @@ function APContent() {
 }
     
 
-export default function AccessPointList() {
-    return <APContent />
+export default function AccessPointNKC() {
+    return <APNKCContent />
 }

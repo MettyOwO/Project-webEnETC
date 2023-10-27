@@ -16,6 +16,10 @@ import AddAccessPoint from './Page/AddAccessPoint';
 import AccessPointKKU from './Page/AccessPointKKU';
 import AccessPointNKC from './Page/AccessPointNKC';
 
+import UserAccessPointList from './Page/User/AccessPointList';
+import UserAccessPointKKU from './Page/User/AccessPointKKU';
+import UserAccessPointNKC from './Page/User/AccessPointNKC';
+
 //Users
 import AddUsers from './Page/AddUsers';
 import UserList from './Page/UserList';
@@ -28,6 +32,10 @@ import AddSwitch from './Page/AddSwitch';
 import SwitchKKU from './Page/SwitchKKU';
 import SwitchNKC from './Page/SwitchNKC';
 
+import UserSwitchList from './Page/User/SwitchList';
+import UserSwitchKKU from './Page/User/SwitchKKU';
+import UserSwitchNKC from './Page/User/SwitchNKC';
+
 //Etc
 import Maps from './Page/Maps';
 import Config from './Page/Config';
@@ -36,6 +44,8 @@ import Config from './Page/Config';
 import DeviceCorrupted from './Page/DeviceCorrupted';
 import AddDeviceCorrupted from './Page/AddDeviceCorrupted';
 
+import UserDeviceCorrupted from './Page/User/DeviceCorrupted';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
@@ -43,29 +53,39 @@ root.render(
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />     
       <Route path="/dbadmin" element={<DashboardAdmin />} />
-      <Route path="/dbuser" element={<Dashboard />} />  
+      <Route path="/dbusers" element={<Dashboard />} />  
       
       <Route path="/addusers" element={<AddUsers />} />
       <Route path="/users" element={<UserList />} />
       <Route path="/updateuser/:id" element={<UserEdit />} />
 
-      <Route path="/accesspoint" element={<AccessPointList />} /> 
+      <Route path="/accesspoint" element={<AccessPointList />} />
       <Route path="/updateap/:id" element={<EditAccessPoint />} />
       <Route path="/addap" element={<AddAccessPoint />} />
       <Route path="/accesspoint_kku" element={<AccessPointKKU />} /> 
       <Route path="/accesspoint_nkc" element={<AccessPointNKC />} /> 
 
+      <Route path="/useraccesspoint" element={<UserAccessPointList />} /> 
+      <Route path="/useraccesspoint_kku" element={<UserAccessPointKKU />} /> 
+      <Route path="/useraccesspoint_nkc" element={<UserAccessPointNKC />} /> 
+
       <Route path="/switch" element={<SwitchList />} /> 
       <Route path="/updatesw/:id" element={<EditSwitch />} />      
       <Route path="/addsw" element={<AddSwitch />} />
       <Route path="/switch_nkc" element={<SwitchNKC />} /> 
-      <Route path="/switch_kku" element={<SwitchKKU />} /> 
+      <Route path="/switch_kku" element={<SwitchKKU />} />
+
+      <Route path="/userswitch" element={<UserSwitchList />} />
+      <Route path="/userswitch_nkc" element={<UserSwitchNKC />} /> 
+      <Route path="/userswitch_kku" element={<UserSwitchKKU />} />  
     
       <Route path="/maps" element={<Maps />} />
       <Route path="/config" element={<Config />} />
 
       <Route path="/deviceclist" element={<DeviceCorrupted />} />
       <Route path="/add_dc" element={<AddDeviceCorrupted />} />
+
+      <Route path="/userdeviceclist" element={<UserDeviceCorrupted />} />
 
     </Routes>
   </BrowserRouter>

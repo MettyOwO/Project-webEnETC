@@ -120,10 +120,10 @@ app.get('/switchlist_nkc', (req, res) => {
 })
 //Switch Data Update
 app.put('/updatesw/:id', (req, res) => {
-  const sql = "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?  where ID = ?";
+  const sql = "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?  where ID = ?";
   const id = req.params.id;
   const values = [req.body.role,req.body.build_name, 
-  req.body.build_group, req.body.ipswitch, req.body.hostname,]
+  req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.model]
   connection.query(sql, [...values,id], (err, result) => {
     if(err) return res.json("Error");
     return res.json({updated: true})
@@ -140,8 +140,8 @@ app.delete('/deletesw/:id' ,(req,res) => {
 })
 //Switch Data Add
 app.post('/addsw', (req, res) => {    
-  const sql = "INSERT INTO switch (buildname, buildgroup, ip, hostname, role) VALUES (?)";    
-  const values = [req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
+  const sql = "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role) VALUES (?)";    
+  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
@@ -226,10 +226,10 @@ app.get('/aplist_kku', (req, res) => {
 })
 //AP Update API
 app.put('/updateap/:id', (req, res) => {
-  const sql = "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?  where ID = ?";
+  const sql = "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?  where ID = ?";
   const id = req.params.id;
   const values = [req.body.role,req.body.build_name, 
-  req.body.build_group, req.body.ipswitch, req.body.hostname,]
+  req.body.build_group, req.body.ipswitch, req.body.hostname,req.body.model]
   connection.query(sql, [...values,id], (err, result) => {
     if(err) return res.json("Error");
     return res.json({updated: true})
@@ -246,8 +246,8 @@ app.delete('/deleteap/:id' ,(req,res) => {
 })
 //AP Add API
 app.post('/addap', (req, res) => {    
-  const sql = "INSERT INTO accesspoint (Buildname, Buildgroup, IPswitch, APname, Role) VALUES (?)";    
-  const values = [req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
+  const sql = "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role) VALUES (?)";    
+  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
@@ -360,8 +360,198 @@ app.post('/adddc', (req, res) => {
     return res.json({added: true});    
   })
 })
-
 //End
+
+//Total Switch List
+app.get('/total_switch_as', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+app.get('/total_switch_ds', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitch2 FROM switch where role = 'Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+
+//Total AccessPoint List
+app.get('/total_ap_in', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numap FROM accesspoint where Role = 'Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_ap_out', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numap2 FROM accesspoint where Role = 'Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+
+//Total Device Corrupted
+app.get('/total_dc_ap', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcap FROM device_corrupted where Role = 'AP-Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_ap2', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcap2 FROM device_corrupted where Role = 'AP-Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcsw FROM device_corrupted where Role = 'SW-Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw2', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcsw2 FROM device_corrupted where Role = 'SW-Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+
+//KKU
+//Total AccessPoint List
+app.get('/total_ap_in_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numapinkku FROM accesspoint where Site = 'KKU' AND Role = 'Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_ap_out_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numapoutkku FROM accesspoint where Site = 'KKU' AND Role = 'Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+//Total Switch List
+app.get('/total_switch_as_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitchaskku FROM switch where site = 'KKU' AND role = 'Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+app.get('/total_switch_ds_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitchdskku FROM switch where site = 'KKU' AND role = 'Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+//Total Device Corrupted
+app.get('/total_dc_ap_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcapkku FROM device_corrupted where Site = 'KKU' AND Role = 'AP-Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_ap2_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcapkku2 FROM device_corrupted where Site = 'KKU' AND Role = 'AP-Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcswkku FROM device_corrupted where Site = 'KKU' AND Role = 'SW-Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw2_kku', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcswkku2 FROM device_corrupted where Site = 'KKU' AND Role = 'SW-Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+
+//NKC
+//Total AccessPoint List
+app.get('/total_ap_in_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numapinnkc FROM accesspoint where Site = 'NKC' AND Role = 'Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_ap_out_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numapoutnkc FROM accesspoint where Site = 'NKC' AND Role = 'Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+//Total Switch List
+app.get('/total_switch_as_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitchasnkc FROM switch where site = 'NKC' AND role = 'Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+app.get('/total_switch_ds_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numswitchdsnkc FROM switch where site = 'NKC' AND role = 'Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    //return res.json(result);
+    return res.send(result[0]);
+  })
+})
+//Total Device Corrupted
+app.get('/total_dc_ap_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcapnkc FROM device_corrupted where Site = 'NKC' AND Role = 'AP-Indoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_ap2_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcapnkc2 FROM device_corrupted where Site = 'NKC' AND Role = 'AP-Outdoor'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcswnkc FROM device_corrupted where Site = 'NKC' AND Role = 'SW-Access'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+app.get('/total_dc_sw2_nkc', (req, res) => {
+  const sql = "SELECT COUNT(ID) as numdcswnkc2 FROM device_corrupted where Site = 'NKC' AND Role = 'SW-Distribute'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+
 app.listen(3333, jsonParser, function () {
   console.log('CORS-enabled web server listening on port 3333')
 })

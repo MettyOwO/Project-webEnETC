@@ -130,6 +130,7 @@ function EditAPContent() {
                 <div className='mb-4'>
                 <label htmlFor='Select Model'>Model</label>
                 <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
+                    <option>Select Role</option>                    
                     <option>AirEngine5761-21</option>
                     <option>AirEngine6760R-51E</option>
                 </select>
@@ -138,6 +139,7 @@ function EditAPContent() {
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
+                    <option>Select Role</option>                  
                     <option>Indoor</option>
                     <option>Outdoor</option>
                 </select>
