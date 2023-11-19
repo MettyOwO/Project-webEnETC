@@ -28,6 +28,7 @@ app.use(bodyParser.urlencoded({
 
 //mysql2 connection
 const mysql = require('mysql2');
+const { error } = require('console')
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -371,6 +372,14 @@ app.post('/adddc', (req, res) => {
 
 //Graph Start
 //Total Switch List
+app.get('/site_name',(req , res) => {
+  const sql = "SELECT DISTINCT name FROM sitename";
+  connection.query(sql , (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
 app.get('/total_switch_as', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
   connection.query(sql, (err, result) => {
