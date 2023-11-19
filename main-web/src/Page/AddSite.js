@@ -84,7 +84,7 @@ function AddSiteContent() {
                       
             <div className='mb-4'>
             <label htmlFor='Select DeviceType'>Device Type</label>
-                <select class="form-control" onChange={e => setType(e.target.value)}>
+                <select className="form-control" onChange={e => setType(e.target.value)}>
                     <option>Select Device Type</option>
                     <option>AP</option>
                     <option>SW</option>

@@ -11,10 +11,8 @@ function DCContent() {
     //Check Token API
     const location = useLocation();
     const navigate = useNavigate();
-  
-    const [paramPath,setParamPath] = useState(location.state.site)
+    const [paramSite,setParamSite] = useState(location.state.site) 
     const [deviceclist, setDcList] = useState([]); 
-
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -47,9 +45,9 @@ function DCContent() {
         console.log(getDc.data);
 
         getDc.data.map((item)=>{
-            if(paramPath === item.Site){
+            if(paramSite === item.Site){
                 dataSite.push(item)
-            }else if(paramPath === 'DCList'){
+            }else if(paramSite === 'DCList'){
                 dataSite.push(item)   
             }
         })
@@ -96,7 +94,13 @@ function DCContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramSite != "DCList" && <>
+                    <h2>Switch {paramSite}</h2>
+                    </>}
+                    {paramSite === "DCList" && <>
                     <h2>Device Corrupted List</h2>
+                    </>}
+                    
                 </div><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">

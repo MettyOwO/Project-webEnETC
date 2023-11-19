@@ -6,17 +6,17 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import NavDropdown from 'react-bootstrap/NavDropdown';
 import { useNavigate, useLocation } from "react-router-dom";
+import NavDropdown from 'react-bootstrap/NavDropdown';
 function APContent() {
-    const location = useLocation();
-  const navigate = useNavigate();
-
-  const [paramPath,setParamPath] = useState(location.state.site)
-  const [apdata, setApdata]= useState([]); 
-  const [aplist, setApList] = useState([]); 
 
     //Check Token API
+    const location = useLocation();
+    const [paramPath,setParamPath] = useState(location.state.site)
+    const navigate = useNavigate();
+    const [aplist, setApList] = useState([]); 
+    const [apdata, setApdata]= useState([]); 
+    
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -80,9 +80,10 @@ function APContent() {
 
     //Export Excel
  
+ 
 
     //const res = api;
-  
+    
 
     //UI
     return (
@@ -120,11 +121,20 @@ function APContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramPath != "APList" && <>
+                    <h2>Switch {paramPath}</h2>
+                    </>}
+                    {paramPath === "APList" && <>
                     <h2>Access Point List</h2>
+                    </>}
+                    
                 </div> 
 
                 <Link to="/addap" className='btn btn-primary'>Add AP Data</Link>&nbsp;
-                <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                {paramPath === "APList" && <>
+                    <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                </>}
+               
                 <CSVLink  data={ apdata } filename="AccessPoint"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">

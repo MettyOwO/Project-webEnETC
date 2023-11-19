@@ -38,26 +38,36 @@ function SwitchContent() {
         })
         .catch((error) => {
         console.log("Error:", error);
+        
         });
-        getDataSW()
+        getSwitchData()
     },[])
-
-    //SW API
-    async function getDataSW(){
-        const getSw = await axios.get("http://localhost:3333/swlist")  
+ 
+    async function getSwitchData(){
+        const dataSw = await axios("http://localhost:3333/swlist")
+        console.log(dataSw.data);
         const dataSite = []
-        getSw.data.map((item)=>{
-            if(paramPath === item.Site){
+        dataSw.data.map((item)=>{
+            if(paramPath === item.site){
                 dataSite.push(item)
-            }else if(paramPath === 'SWList'){
-                dataSite.push(item)   
+            }else if(paramPath === "SWList"){
+                dataSite.push(item)
             }
         })
+        console.log(dataSite);
         setSwList(dataSite)
         setSwdata(dataSite);
-
     }
-  
+    //SW API
+    // useEffect(() => {
+    //     fetch("http://localhost:3333/swlist")
+    //       .then(res => res.json())
+    //       .then(
+    //         (result) => {
+    //           setSwList(result);
+    //         }
+    //       )
+    //   }, [])
 
     //ฟังก์ชั่น Log Out
     const handleLogout = (event) => {
@@ -113,13 +123,21 @@ function SwitchContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramPath != "SWList" && <>
+                    <h2>Switch {paramPath}</h2>
+                    </>}
+                    {paramPath === "SWList" && <>
                     <h2>Switch List</h2>
+                    </>}
                 </div> 
                 <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
+                {paramPath === "SWList" && <>
                 <Link to="http://localhost:3333/import-switch" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                </>}
+               
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
-                <table class="table table-bordered">
-                    <thead class="thead-light">
+                <table className="table table-bordered">
+                    <thead className="thead-light">
                         <tr>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
@@ -133,8 +151,8 @@ function SwitchContent() {
                         </tr>
                     </thead>
                     {swlist.map ((swlist,index) => (
-                        <tbody>
-                            <tr key={index}>
+                        <tbody key={index}>
+                            <tr >
                                 <td>{swlist.buildgroup}</td>
                                 <td>{swlist.buildname}</td>
                                 <td>{swlist.hostname}</td>
