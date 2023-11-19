@@ -86,8 +86,6 @@ root.render(
       <Route path="/users" element={<UserList />} />
       <Route path="/updateuser/:id" element={<UserEdit />} />
 
-      {/* <Route path="/accesspoint" element={<AccessPointList />} /> */}
-      {/* <Route path="/accesspoint/:site" render={(props) => <AccessPointList {...props} />}/>  */}
       <Route path="/accesspoint/:site" element={<AccessPointList />} />
       <Route path="/accesspoint_kku" element={<AccessPointKKU />} /> 
       <Route path="/accesspoint_nkc" element={<AccessPointNKC />} />

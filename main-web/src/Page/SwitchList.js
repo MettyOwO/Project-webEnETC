@@ -8,13 +8,15 @@ import { CSVLink} from 'react-csv';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
 import { useNavigate, useLocation } from "react-router-dom";
+
 function SwitchContent() {
     //Check Token API
     const location = useLocation();
-    const navigate = useNavigate();
-    const [paramSite,setParamSite] = useState(location.state.site) 
-    const [swlist, setSwList] = useState([]);   
-    const [swdata, setSwdata]= useState([]); 
+  const navigate = useNavigate();
+  const [swdata, setSwdata]= useState([]); 
+  const [swlist, setSwList] = useState([]);   
+  const [paramPath,setParamPath] = useState(location.state.site)
+
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -46,9 +48,9 @@ function SwitchContent() {
         console.log(dataSw.data);
         const dataSite = []
         dataSw.data.map((item)=>{
-            if(paramSite === item.site){
+            if(paramPath === item.site){
                 dataSite.push(item)
-            }else if(paramSite === "SWList"){
+            }else if(paramPath === "SWList"){
                 dataSite.push(item)
             }
         })
@@ -76,22 +78,6 @@ function SwitchContent() {
 
     //Export Excel
 
-    // useEffect( ()=>{
-    //    const getswdata= async ()=>{
-    //      const swreq= await fetch("http://localhost:3333/swlist");
-
-    //      const dataSite = []
-    //      swreq.data.map((item)=>{
-   
-    //            if(paramSite === item.site){
-    //                dataSite.push(item)
-    //            }
-    //        })
-    //        console.log(dataSite);
-    //      setSwdata(dataSite);
-    //    }
-    // getswdata();
-    // },[]);
 
     //AP Delete Function
     const handleDelete = async (id) => {

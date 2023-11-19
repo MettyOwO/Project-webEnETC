@@ -35,25 +35,31 @@ function DCContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
-        getDChData()
+        getDataDC()
     },[])
 
     //Access Point List API
-    async function getDChData(){
-        const dataSw = await  axios.get('http://localhost:3333/deviceclist')      
-        console.log(dataSw.data);
+    async function getDataDC(){
+        const getDc = await axios.get('http://localhost:3333/deviceclist')   
         const dataSite = []
-        dataSw.data.map((item)=>{
+        console.log(getDc.data);
+
+        getDc.data.map((item)=>{
             if(paramSite === item.Site){
                 dataSite.push(item)
-            }else if(paramSite === "DCList"){
-                dataSite.push(item)
+            }else if(paramSite === 'DCList'){
+                dataSite.push(item)   
             }
         })
         console.log(dataSite);
         setDcList(dataSite)
-    }
 
+    }
+    // useEffect(()=> {
+    //     axios.get('http://localhost:3333/deviceclist')        
+    //     .then(res => setDcList(res.data))        
+    //     .catch(err => console.log(err));    
+    // },[])
 
     //Log Out
     const handleLogout = (event) => {

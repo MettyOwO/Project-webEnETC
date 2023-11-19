@@ -8,16 +8,15 @@ import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
 import NavDropdown from 'react-bootstrap/NavDropdown';
-
 function APContent() {
+
     //Check Token API
     const location = useLocation();
+    const [paramPath,setParamPath] = useState(location.state.site)
     const navigate = useNavigate();
-    const [paramSite,setParamSite] = useState(location.state.site) 
     const [aplist, setApList] = useState([]); 
     const [apdata, setApdata]= useState([]); 
     
-    console.log(paramSite);
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -40,29 +39,25 @@ function APContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
-        getData()
+        getDataAP()
     },[])
 
     //Access Point List API
-    async function getData(){
-        const dataAP = await axios.get('http://localhost:3333/aplist') 
-        console.log(dataAP.data);
+    async function getDataAP(){
+        const getAP = await axios.get('http://localhost:3333/aplist')   
         const dataSite = []
-        dataAP.data.map((item)=>{
-
-            if(paramSite === item.Site){
+        getAP.data.map((item)=>{
+            if(paramPath === item.Site){
                 dataSite.push(item)
-            }else if(paramSite === "APList"){
-                dataSite.push(item)
+            }else if(paramPath === 'APList'){
+                dataSite.push(item)   
             }
         })
         console.log(dataSite);
         setApList(dataSite)
         setApdata(dataSite);
 
-        // paramSite
     }
-
 
     //AP Delete Function
     const handleDelete = async (id) => {
