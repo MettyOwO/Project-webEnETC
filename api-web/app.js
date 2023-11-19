@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path')
 const multer = require('multer')
 const csv = require('fast-csv');
+const readXlsxFile = require('read-excel-file/node');
 //Import Excel-Data const
 
 app.use(express.static("./public"))
@@ -39,7 +40,7 @@ const connection = mysql.createConnection({
 //Import Excel-Data Multer Function
 var storage = multer.diskStorage({
     destination: (req, file, callBack) => {
-        callBack(null, './uploads/')    
+        callBack(null, 'C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page/uploads/')    
     },
     filename: (req, file, callBack) => {
         callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
@@ -149,21 +150,25 @@ app.post('/addsw', (req, res) => {
 })
 //Switch Import Excel
 app.get('/import-switch', (req, res) => {
-  res.sendFile(__dirname + '/import-switch.html');
+  res.sendFile('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/import-switch.html');
 });
 app.post('/import-csv2', upload.single("import-csv"), (req, res) =>{
-    uploadCsv2(__dirname + '/uploads/' + req.file.filename);
+    uploadCsv2('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/uploads/' + req.file.filename);
     console.log(res);
 }); 
+
+
 function uploadCsv2(uriFile){
-    let stream = fs.createReadStream(uriFile);
-    let csvDataColl = [];
-    let fileStream = csv
+    let stream = fs.createReadStream(uriFile); //ระบุเส้นทางไปยังไฟล์ที่อัพโหลด
+    let csvDataColl = []; //สร้างตัวแปร์เป็น [] เปล่าๆ
+    let fileStream = csv 
         .parse()
         .on("data", function (data) {
             csvDataColl.push(data);
         })
         .on("end", function () {
+            
+            // Remove Header Coll
             csvDataColl.shift();
             connection.connect((error) => {
                 if (error) {
@@ -178,7 +183,12 @@ function uploadCsv2(uriFile){
             fs.unlinkSync(uriFile)
         });  
     stream.pipe(fileStream);
+    connection.end;
 }
+
+
+
+
 //Switch API End
 
 //Access Point API Start
@@ -246,10 +256,10 @@ app.post('/addap', (req, res) => {
 })
 //AP Import Excel
 app.get('/import-accesspoint', (req, res) => {
-  res.sendFile(__dirname + '/import-accesspoint.html');
+  res.sendFile('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/import-accesspoint.html');
 });
 app.post('/import-csv', upload.single("import-csv"), (req, res) =>{
-    uploadCsv(__dirname + '/uploads/' + req.file.filename);
+    uploadCsv('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/uploads/' + req.file.filename);
     console.log(res);
 }); 
 function uploadCsv(uriFile){

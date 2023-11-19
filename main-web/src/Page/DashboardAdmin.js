@@ -474,27 +474,11 @@ function DashboardAdminContent() {
         </Navbar>
         
         <Tabs
-            defaultActiveKey="home"
+            defaultActiveKey="all"
             id="justify-tab-example"
             className="mb-3"
             fill
         >       
-        <Tab eventKey="home" title="Home">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <h2>Welcome To Network Maintenance Information System Website</h2>
-        </div>
-        <br/>
-        <p>Hello! This website is a for collecting information about various devices used in Network work,
-          such as Access Point (AP) or Switch (SW), etc. Under Of G-Able Company</p>
-          <p>You can also add, edit, delete information of various devices and can also choose to view 
-          the datasheet and model of the device.</p>
-          <p>This website has been created for use by company and organization only and not seeking any benefits at all.</p>
-
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="https://imagebee.org/movies/thank-you/thank-you-wallpaper-12-1024x538.jpg" alt="thanks_image" /> 
-        </div>
-                
-        </Tab>
         <Tab eventKey="all" title="All Device Graph">
             <Chart
             chartType="PieChart"
