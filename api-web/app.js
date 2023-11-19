@@ -380,6 +380,16 @@ app.get('/site_name',(req , res) => {
   })
 })
 
+//select ap with site
+app.get('/getSiteAP/:site', (req,res) => {
+  const site = req.params.site
+  const sql = "SELECT COUNT(ID) FROM accesspoint WHERE Site = ? AND Role = 'Indoor'";
+  connection.query(sql ,site,(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
 app.get('/total_switch_as', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
   connection.query(sql, (err, result) => {

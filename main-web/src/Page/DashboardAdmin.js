@@ -361,13 +361,13 @@ function DashboardAdminContent() {
     ["AP Outdoor", apoutCount],
   ];
 
-  const data2 = [
+  const dataAllSW = [
     ["Device", "1 per Units"],
     ["Switch Access", switchCount],
     ["Switch Dist", switchCount2],
   ];
 
-  const data3 = [
+  const dataAllDC = [
     ["Device", "1 per Units"],
     ["Switch", dcswCount + dcswCount2],
     ["AP", dcapCount + dcapCount2],
@@ -411,8 +411,11 @@ function DashboardAdminContent() {
     ["AP", dcapnkcCount + dcapnkcCount2],
   ];
 
-  function get(){
-    
+  function getSiteAP(site){
+    console.log(site);
+    // const a = await axios.get(`http://localhost:3333/getSiteAP/${site}`)
+    // console.log(a);
+    return site
   }
 
   const options = {
@@ -638,7 +641,7 @@ function DashboardAdminContent() {
       <div className="row">
         <div className="col">
           <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
-            <option defaultValue>=== Select sites ===</option>
+            <option defaultValue>Select Site</option>
             <option value="all">All Sites</option>
             {siteName.map((item, index) => (                 
                   <option key={index}>
@@ -649,7 +652,7 @@ function DashboardAdminContent() {
         </div>
         <div className="col">
           <select className="form-select" onChange={(e) => {setDevices(e.target.value)}}>
-            <option defaultValue>=== Select devices ===</option>
+            <option defaultValue>Select Device</option>
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
             <option value="switch">Switch</option>
@@ -660,7 +663,7 @@ function DashboardAdminContent() {
         {/* Show Chart */}
         {
           selectSite == "all" &&
-          <div>
+          <div className="my-3">
             {
               devices == "all" && 
               <div>
@@ -675,19 +678,83 @@ function DashboardAdminContent() {
                   chartType="PieChart"
                   width="100%"
                   height="250px"
-                  data={dataAllAP}
+                  data={dataAllSW}
                   options={options}
                 />
                 <Chart
                   chartType="PieChart"
                   width="100%"
                   height="250px"
-                  data={dataAllAP}
+                  data={dataAllDC}
                   options={options}
                 />
               </div>
             }
-            {}
+            {
+               devices == "access-point" && 
+               <div>
+                  <h1>All Access Point</h1>
+                  <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllAP}
+                  options={options}
+                />
+               </div>
+            }
+            {
+               devices == "switch" && 
+               <div>
+                  <h1>All Switch</h1>
+                  <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllSW}
+                  options={options}
+                />
+               </div>
+            }
+            {
+               devices == "device-corrupted" && 
+               <div>
+                  <h1>All Devices Corrupted</h1> 
+                  <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllDC}
+                  options={options}
+                />
+               </div>
+            }
+          </div>
+        }
+        {
+          selectSite != "all" && 
+          <div>
+            { devices == "all" &&
+              <div>
+                  <h1>{selectSite} : {devices}</h1>
+              </div>
+            }
+            { devices == "access-point" &&
+              <div>
+                  <h1>{selectSite} : {devices}</h1>
+                  <h1>{getSiteAP(selectSite)}</h1>
+              </div>
+            }
+            { devices == "switch" &&
+              <div>
+                  <h1>{selectSite} : {devices}</h1>
+              </div>
+            }
+            { devices == "device-corrupted" &&
+              <div>
+                  <h1>{selectSite} : {devices}</h1>
+              </div>
+            }
           </div>
         }
       </div>
