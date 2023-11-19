@@ -121,11 +121,20 @@ function APContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramPath != "APList" && <>
+                    <h2>Switch {paramPath}</h2>
+                    </>}
+                    {paramPath === "APList" && <>
                     <h2>Access Point List</h2>
+                    </>}
+                    
                 </div> 
 
                 <Link to="/addap" className='btn btn-primary'>Add AP Data</Link>&nbsp;
-                <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                {paramPath === "APList" && <>
+                    <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                </>}
+               
                 <CSVLink  data={ apdata } filename="AccessPoint"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">

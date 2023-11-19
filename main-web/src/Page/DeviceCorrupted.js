@@ -94,7 +94,13 @@ function DCContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramSite != "DCList" && <>
+                    <h2>Switch {paramSite}</h2>
+                    </>}
+                    {paramSite === "DCList" && <>
                     <h2>Device Corrupted List</h2>
+                    </>}
+                    
                 </div><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">

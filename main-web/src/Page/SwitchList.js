@@ -123,10 +123,18 @@ function SwitchContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
+                    {paramPath != "SWList" && <>
+                    <h2>Switch {paramPath}</h2>
+                    </>}
+                    {paramPath === "SWList" && <>
                     <h2>Switch List</h2>
+                    </>}
                 </div> 
                 <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
+                {paramPath === "SWList" && <>
                 <Link to="http://localhost:3333/import-switch" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                </>}
+               
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">
