@@ -7,9 +7,16 @@ import { Link } from "react-router-dom";
 import { CSVLink} from 'react-csv';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
+import { useNavigate, useLocation } from "react-router-dom";
 
 function SwitchContent() {
     //Check Token API
+    const location = useLocation();
+  const navigate = useNavigate();
+  const [swdata, setSwdata]= useState([]); 
+  const [swlist, setSwList] = useState([]);   
+  const [paramPath,setParamPath] = useState(location.state.site)
+
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -32,19 +39,25 @@ function SwitchContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getDataSW()
     },[])
 
     //SW API
-    const [swlist, setSwList] = useState([]);   
-    useEffect(() => {
-        fetch("http://localhost:3333/swlist")
-          .then(res => res.json())
-          .then(
-            (result) => {
-              setSwList(result);
+    async function getDataSW(){
+        const getSw = await axios.get("http://localhost:3333/swlist")  
+        const dataSite = []
+        getSw.data.map((item)=>{
+            if(paramPath === item.Site){
+                dataSite.push(item)
+            }else if(paramPath === 'SWList'){
+                dataSite.push(item)   
             }
-          )
-      }, [])
+        })
+        setSwList(dataSite)
+        setSwdata(dataSite);
+
+    }
+  
 
     //ฟังก์ชั่น Log Out
     const handleLogout = (event) => {
@@ -54,16 +67,7 @@ function SwitchContent() {
     }
 
     //Export Excel
-    const [swdata, setSwdata]= useState([]); 
-    useEffect( ()=>{
-       const getswdata= async ()=>{
-         const swreq= await fetch("http://localhost:3333/swlist");
-         const swres= await swreq.json();
-         console.log(swres);
-         setSwdata(swres);
-       }
-    getswdata();
-    },[]);
+
 
     //AP Delete Function
     const handleDelete = async (id) => {

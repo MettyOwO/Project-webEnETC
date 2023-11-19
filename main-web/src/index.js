@@ -86,7 +86,7 @@ root.render(
       <Route path="/users" element={<UserList />} />
       <Route path="/updateuser/:id" element={<UserEdit />} />
 
-      <Route path="/accesspoint" element={<AccessPointList />} />
+      <Route path="/accesspoint/:site" element={<AccessPointList />} />
       <Route path="/accesspoint_kku" element={<AccessPointKKU />} /> 
       <Route path="/accesspoint_nkc" element={<AccessPointNKC />} />
       
@@ -100,7 +100,7 @@ root.render(
       <Route path="/updateap2/:id" element={<UserEditAccessPoint />} />
       <Route path="/addap2" element={<UserAddAccessPoint />} />
 
-      <Route path="/switch" element={<SwitchList />} /> 
+      <Route path="/switch/:site" element={<SwitchList />} /> 
       <Route path="/switch_nkc" element={<SwitchNKC />} /> 
       <Route path="/switch_kku" element={<SwitchKKU />} />
 
@@ -120,7 +120,7 @@ root.render(
       <Route path="/maps2" element={<UserMaps />} />
       <Route path="/config2" element={<UserConfig />} />
 
-      <Route path="/deviceclist" element={<DeviceCorrupted />} />
+      <Route path="/deviceclist/:site" element={<DeviceCorrupted />} />
       <Route path="/deviceclist_kku" element={<DeviceCorruptedKKU />} />
       <Route path="/deviceclist_nkc" element={<DeviceCorruptedNKC />} />
 
