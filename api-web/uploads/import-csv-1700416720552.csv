@@ -1,0 +1,5 @@
+﻿site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress
+KKU,D01,อุทยานเกษตร,อาคารสำนักงานอุทยานเทคโนโลยีการเกษตร,1,Distribute,1,KKU65_AGg1_FL1-Dist01,KKU65_AGg1_FL1-R01,10.248.31.254,S5736-S24S4XC,3G22B0024991,C0E01821F0E0
+KKU,SW01,อุทยานเกษตร,อาคารสำนักงานอุทยานเทคโนโลยีการเกษตร,1,Access,1,KKU65_AGg1_FL1-SW01,KKU65_AGg1_FL1-R01,10.248.31.1,S5735-L24P4X-A1,2S22B0009260,3C54478E9E70
+NKC,NS1,อาคารสำนักงานบริหาร,อาคารสำนักงานบริหาร,1,Access,1,NKC65_ADMIN_FL1-SW01,NKC65_ADMIN_FL1-R01,10.30.249.1,S5735-L24P4X-A1,2S22B0008524,3C5447EEDF00
+NKC,ND1,อาคารสำนักงานบริหาร,อาคารสำนักงานบริหาร,2,Distribute,1,NKC65_ADMIN_FL2-Dist01,NKC65_ADMIN_FL2-R01,10.30.252.254,S5736-S24S4XC,3G22B0025083,C0E01821DEC0

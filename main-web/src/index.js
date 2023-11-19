@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
+import ImportSwitch from './Page/ImportSwitch';
+
 //Login&Dashboard
 import Login from './Page/Login';
 import DashboardAdmin from './Page/DashboardAdmin';
@@ -78,6 +80,8 @@ root.render(
     <Routes>
       <Route path="/" element={<Login />} />
       
+      <Route path="/switch-excel" element={<ImportSwitch />} />
+
       <Route path="/login" element={<Login />} />     
       <Route path="/dbadmin" element={<DashboardAdmin />} />
       <Route path="/dbusers" element={<Dashboard />} />  
