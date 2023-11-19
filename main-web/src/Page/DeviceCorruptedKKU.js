@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function DCContent() {
+function DCKKUContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -35,7 +35,7 @@ function DCContent() {
     //Access Point List API
     const [deviceclist, setDcList] = useState([]); 
     useEffect(()=> {
-        axios.get('http://localhost:3333/deviceclist')        
+        axios.get('http://localhost:3333/deviceclist_kku')        
         .then(res => setDcList(res.data))        
         .catch(err => console.log(err));    
     },[])
@@ -73,7 +73,7 @@ function DCContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <h2>Device Corrupted List</h2>
+                    <h2>Device Corrupted KKU</h2>
                 </div><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">
@@ -114,6 +114,6 @@ function DCContent() {
 }
     
 
-export default function DeviceCorrupted() {
-    return <DCContent />
+export default function DeviceCorruptedKKU() {
+    return <DCKKUContent />
 }

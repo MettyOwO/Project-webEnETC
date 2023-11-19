@@ -61,7 +61,7 @@ function EditAPContent() {
         .then(res => {
             if(res.data.updated){
                 alert("Update Access Point Data Complete!")
-                navigate('/accesspoint')    
+                navigate('/useraccesspoint')    
             }else{
                 alert("Error! Please Try Again.")
             }                
@@ -81,7 +81,7 @@ function EditAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/accesspoint">Back To Access Point List</Navbar.Brand>
+            <Navbar.Brand href="/useraccesspoint">Back To Access Point List</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>

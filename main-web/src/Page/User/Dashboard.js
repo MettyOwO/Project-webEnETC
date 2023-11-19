@@ -316,7 +316,7 @@ function DashboardContent() {
     const options = {
         title: "Total AP Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
   
     const data2 = [
@@ -327,7 +327,7 @@ function DashboardContent() {
     const options2 = {
         title: "Total Switch Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
  
     const data3 = [
@@ -338,7 +338,7 @@ function DashboardContent() {
     const options3 = {
         title: "Total Device Corrupted",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
 
     //KKU Device
@@ -350,7 +350,7 @@ function DashboardContent() {
     const options4 = {
         title: "Total AP KKU Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
 
     const data5 = [
@@ -361,7 +361,7 @@ function DashboardContent() {
     const options5 = {
       title: "Total Switch KKU Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data6 = [
@@ -372,7 +372,7 @@ function DashboardContent() {
     const options6 = {
       title: "Total KKU Device Corrupted",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
   
     //NKC Device
@@ -384,7 +384,7 @@ function DashboardContent() {
     const options7 = {
       title: "Total AP NKC Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data8 = [
@@ -395,7 +395,7 @@ function DashboardContent() {
     const options8 = {
       title: "Total Switch NKC Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data9 = [
@@ -406,7 +406,7 @@ function DashboardContent() {
     const options9 = {
       title: "Total NKC Device Corrupted",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };    
 
     //Log Out
@@ -415,6 +415,27 @@ function DashboardContent() {
         localStorage.removeItem('token');
         window.location = '/Login'
     }
+
+    const [apsite, setAPSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/ap_site2')        
+        .then(res => setAPSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
+
+    const [swsite, setSWSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/sw_site2')        
+        .then(res => setSWSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
+
+    const [dcsite, setDCSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/dc_site2')        
+        .then(res => setDCSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
 
     return (
         <div>
@@ -426,15 +447,23 @@ function DashboardContent() {
             <Nav className="me-auto">
                 <NavDropdown title="Access Point" id="basic-nav-dropdown">
                     <NavDropdown.Item href="/useraccesspoint">Access Point List</NavDropdown.Item>
-                    <NavDropdown.Item href="/useraccesspoint_kku">Access Point List (KKU)</NavDropdown.Item>
-                    <NavDropdown.Item href="/useraccesspoint_nkc">Access Point List (NCK)</NavDropdown.Item>
+                    {apsite.map ((apsite) => (                  
+                      <NavDropdown.Item href={apsite.href}>{apsite.name}</NavDropdown.Item>
+                    ))}
                 </NavDropdown>
                 <NavDropdown title="Switch" id="basic-nav-dropdown">
                     <NavDropdown.Item href="/userswitch">Switch List</NavDropdown.Item>
-                    <NavDropdown.Item href="/userswitch_kku">Switch List (KKU)</NavDropdown.Item>
-                    <NavDropdown.Item href="/userswitch_nkc">Switch List (NCK)</NavDropdown.Item>
+                    {swsite.map ((swsite) => ( 
+                    <NavDropdown.Item href={swsite.href}>{swsite.name}</NavDropdown.Item>
+                    ))}       
                 </NavDropdown>                              
-                <Nav.Link href="/userdeviceclist">Device Corrupted</Nav.Link>             
+                <NavDropdown title="Device Corrupted" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/userdeviceclist">Device Corrupted</NavDropdown.Item>
+                    {dcsite.map ((dcsite) => ( 
+                    <NavDropdown.Item href={dcsite.href}>{dcsite.name}</NavDropdown.Item>
+                    ))}   
+                </NavDropdown>  
+                <Nav.Link href="/addsite2">Add New Site For Device</Nav.Link>            
             </Nav>
             <Nav>
                 <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
@@ -449,16 +478,20 @@ function DashboardContent() {
             fill
         >       
         <Tab eventKey="home" title="Home">
-        <div 
-            style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            }}>
-                <h2>Welcome To Network Maintenance Information System Website</h2>
-        </div><br/>
-                <p>This website has been created for use by companies and organizations only.</p>
-                <p>Not seeking any benefits at all.</p>            
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h2>Welcome To Network Maintenance Information System Website</h2>
+        </div>
+        <br/>
+          <p>Hello! This website is a for collecting information about various devices used in Network work,
+          such as Access Point (AP) or Switch (SW), etc. Under Of G-Able Company</p>
+          <p>You can also add, edit, delete information of various devices and can also choose to view 
+          the datasheet and model of the device.</p>
+          <p>This website has been created for use by company and organization only and not seeking any benefits at all.</p>
+
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="https://imagebee.org/movies/thank-you/thank-you-wallpaper-12-1024x538.jpg" alt="thanks_image" /> 
+        </div>
+    
         </Tab>
         <Tab eventKey="all" title="All Device Graph">
             <Chart

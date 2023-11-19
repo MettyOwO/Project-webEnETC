@@ -111,7 +111,7 @@ function SwitchContent() {
                 }}>
                     <h2>Switch List</h2>
                 </div> 
-                <Link to="/addsw" className='btn btn-primary'>Add Data</Link>&nbsp;
+                <Link to="/addsw2" className='btn btn-primary'>Add Data</Link>&nbsp;
                 <Link to="http://localhost:3333/import-switch" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table class="table table-bordered">
@@ -125,6 +125,7 @@ function SwitchContent() {
                             <th scope="col">Map</th>
                             <th scope="col">Config</th>
                             <th scope="col">Edit & Delete</th>
+                            <th scope="col">Report Deivce</th>
                         </tr>
                     </thead>
                     {swlist.map ((swlist) => (
@@ -135,11 +136,12 @@ function SwitchContent() {
                                 <td>{swlist.hostname}</td>
                                 <td>{swlist.ip}</td>
                                 <td>{swlist.role}</td>
-                                <td><Link to="/maps" className="btn btn-info">Click</Link></td>
-                                <td><Link to="/config" className="btn btn-info">Click</Link></td>
-                                <td><Link to= {`/updatesw/${swlist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
+                                <td><Link to="/maps2" className="btn btn-info">Click</Link></td>
+                                <td><Link to="/config2" className="btn btn-info">Click</Link></td>
+                                <td><Link to= {`/updatesw2/${swlist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
                                 <button className='btn btn-danger ms-2' onClick={ e => handleDelete(swlist.ID)}>Delete</button>
                                 </td>
+                                <td><Link to={`/report_sw/${swlist.ID}`} className="btn btn-dark">Click</Link></td>
                             </tr>
                         </tbody>
                     ))}    

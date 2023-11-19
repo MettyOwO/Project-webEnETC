@@ -112,7 +112,7 @@ function APContent() {
                     <h2>Access Point List</h2>
                 </div> 
 
-                <Link to="/addap" className='btn btn-primary'>Add Data</Link>&nbsp;
+                <Link to="/addap2" className='btn btn-primary'>Add Data</Link>&nbsp;
                 <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 <CSVLink  data={ apdata } filename="AccessPoint"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table className="table table-bordered">
@@ -125,6 +125,7 @@ function APContent() {
                             <th scope="col">Role</th>
                             <th scope="col">Map</th>
                             <th scope="col">Edit & Delete</th>
+                            <th scope="col">Report Deivce</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -135,10 +136,11 @@ function APContent() {
                                 <td>{aplist.IPswitch}</td>
                                 <td>{aplist.APname}</td>
                                 <td>{aplist.Role}</td>
-                                <td><Link to="/maps" className="btn btn-info">Click</Link></td>
-                                <td><Link to= {`/updateap/${aplist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
+                                <td><Link to="/maps2" className="btn btn-info">Click</Link></td>
+                                <td><Link to= {`/updateap2/${aplist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
                                 <button className='btn btn-danger ms-2' onClick={ e => handleDelete(aplist.ID)}>Delete</button>
                                 </td>
+                                <td><Link to={`/report_ap/${aplist.ID}`} className="btn btn-dark">Click</Link></td>
                             </tr>
                         ))}   
                     </tbody> 

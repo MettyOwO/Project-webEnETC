@@ -111,7 +111,7 @@ function SwitchContent() {
                 }}>
                     <h2>Switch List</h2>
                 </div> 
-                <Link to="/addsw" className='btn btn-primary'>Add Data</Link>&nbsp;
+                <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
                 <Link to="http://localhost:3333/import-switch" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table class="table table-bordered">
@@ -125,11 +125,12 @@ function SwitchContent() {
                             <th scope="col">Map</th>
                             <th scope="col">Config</th>
                             <th scope="col">Edit & Delete</th>
+                            <th scope="col">Report Deivce</th>
                         </tr>
                     </thead>
-                    {swlist.map ((swlist) => (
+                    {swlist.map ((swlist,index) => (
                         <tbody>
-                            <tr key={swlist.ID}>
+                            <tr key={index}>
                                 <td>{swlist.buildgroup}</td>
                                 <td>{swlist.buildname}</td>
                                 <td>{swlist.hostname}</td>
@@ -140,6 +141,7 @@ function SwitchContent() {
                                 <td><Link to= {`/updatesw/${swlist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
                                 <button className='btn btn-danger ms-2' onClick={ e => handleDelete(swlist.ID)}>Delete</button>
                                 </td>
+                                <td><Link to={`/report_sw/${swlist.ID}`} className="btn btn-dark">Click</Link></td>
                             </tr>
                         </tbody>
                     ))}    

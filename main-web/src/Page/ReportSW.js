@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function EditAPContent() {
+function ReportSWContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -31,37 +31,38 @@ function EditAPContent() {
         });
     },[])
 
-    //Access Point List With AP_ID API
+    //..
     const {id} = useParams();
+    const [site, setSite] = useState('');
+    const [build_group, setBuildgroup] = useState('');
+    const [build_name, setBuildname] = useState('');
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
-    const [build_name, setBuildname] = useState('');
-    const [build_group, setBuildgroup] = useState('');
-    const [model, setModel] = useState('');
     const [role, setRole] = useState('');
+    const [serial_number, setSR] = useState('');
+    const [detail, setDetail] = useState('');
     useEffect(() => {
-        axios.get('http://localhost:3333/aplistwithid/'+id)
+        axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
-            setHostname(res.data[0].APname);
-            setIpswitch(res.data[0].IPswitch);
-            setBuildname(res.data[0].Buildname);
-            setBuildgroup(res.data[0].Buildgroup);
-            setModel(res.data[0].Model);
-            setRole(res.data[0].Role);
+            setSite(res.data[0].site)
+            setHostname(res.data[0].hostname);
+            setBuildname(res.data[0].buildname);
+            setBuildgroup(res.data[0].buildgroup);
+            setIpswitch(res.data[0].ip)
         })
         .catch(err => console.log(err));
     },[])
 
-    //Update AP API
+    //...
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3333/updateap/'+id, {role, build_name, 
-        build_group, ipswitch, model, hostname}) 
+        axios.post('http://localhost:3333/addreport_sw/'+ id, {site, build_group, build_name,
+        ipswitch, hostname, role, serial_number, detail}) 
         .then(res => {
-            if(res.data.updated){
-                alert("Update Access Point Data Complete!")
-                navigate('/accesspoint')    
+            if(res.data.added){
+                alert("Add Device Corrupted Data!")
+                navigate('/deviceclist')    
             }else{
                 alert("Error! Please Try Again.")
             }                
@@ -81,7 +82,7 @@ function EditAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/accesspoint">Back To Access Point List</Navbar.Brand>
+            <Navbar.Brand href="/switch">Back To Switch List</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -100,57 +101,69 @@ function EditAPContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Edit Access Point Data</h2>
+                <h2>Report Switch Device Corrupted</h2>
             </div> 
-
+     
                 <div className='mb-4'>
-                    <label htmlFor=''>HostName</label>
+                    <label htmlFor=''>Site</label>
                     <input type="text" placeholder='' className='form-control'
-                    value={hostname} onChange={e => setHostname(e.target.value)}/>
-                </div>
- 
-                <div className='mb-4'>
-                    <label htmlFor=''>IP Switch</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={ipswitch} onChange={e => setIpswitch(e.target.value)}/>
+                    value={site} onChange={e => setSite(e.target.value)} disabled/>
                 </div>
                 
                 <div className='mb-4'>
-                    <label htmlFor=''>Building Name</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_name} onChange={e => setBuildname(e.target.value)}/>
-                </div>
-
-                <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
                     <input type="text" placeholder='' className='form-control'
-                    value={build_group} onChange={e => setBuildgroup(e.target.value)}/>
+                    value={build_group} onChange={e => setBuildgroup(e.target.value)} disabled/>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor='Select Model'>Model</label>
-                <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
-                    <option>Select Role</option>                    
-                    <option>AirEngine5761-21</option>
-                    <option>AirEngine6760R-51E</option>
-                </select>
+                    <label htmlFor=''>Building Name</label>
+                    <input type="text" placeholder='' className='form-control'
+                    value={build_name} onChange={e => setBuildname(e.target.value)} disabled/>
+                </div>
+
+                <div className='mb-4'>
+                    <label>IP Address (IP Switch)</label>
+                    <input type="text" className='form-control'
+                    value={ipswitch} onChange={e => setIpswitch(e.target.value)} disabled/>
+                </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Hostname</label>
+                    <input type="text" placeholder='' className='form-control'
+                    value={hostname} onChange={e => setHostname(e.target.value)} disabled/>
                 </div>
 
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
-                <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
-                    <option>Select Role</option>                  
-                    <option>Indoor</option>
-                    <option>Outdoor</option>
+                <select class="form-control" onChange={e => setRole(e.target.value)}>
+                    <option>Select Role Device</option>                  
+                    <option>AP-Indoor</option>
+                    <option>AP-Outdoor</option>
+                    <option>SW-Access</option>
+                    <option>SW-Distribute</option>      
                 </select>
                 </div>
+
+                <div className='mb-4'>
+                    <label>Replace With Serial Number</label>
+                    <input type="text" className='form-control'
+                    onChange={e => setSR(e.target.value)}/>
+                </div>
+
+                <div className='mb-4'>
+                    <label>Detail Device Corrupted</label>
+                    <input type="text" className='form-control'
+                    onChange={e => setDetail(e.target.value)}/>
+                </div>
+
                 <div
                     style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Add!</button>  
                 </div>
                  
             </form>
@@ -159,6 +172,6 @@ function EditAPContent() {
       );
     }
     
-export default function EditAccessPoint() {
-    return <EditAPContent />
+export default function ReportSW() {
+    return <ReportSWContent />
 }

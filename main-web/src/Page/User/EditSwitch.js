@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function EditAPContent() {
+function EditSWContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -40,14 +40,14 @@ function EditAPContent() {
     const [model, setModel] = useState('');
     const [role, setRole] = useState('');
     useEffect(() => {
-        axios.get('http://localhost:3333/aplistwithid/'+id)
+        axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
-            setHostname(res.data[0].APname);
-            setIpswitch(res.data[0].IPswitch);
-            setBuildname(res.data[0].Buildname);
-            setBuildgroup(res.data[0].Buildgroup);
-            setModel(res.data[0].Model);
-            setRole(res.data[0].Role);
+            setHostname(res.data[0].hostname);
+            setIpswitch(res.data[0].ip);
+            setBuildname(res.data[0].buildname);
+            setBuildgroup(res.data[0].buildgroup);
+            setModel(res.data[0].model);
+            setRole(res.data[0].role);
         })
         .catch(err => console.log(err));
     },[])
@@ -56,12 +56,12 @@ function EditAPContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3333/updateap/'+id, {role, build_name, 
+        axios.put('http://localhost:3333/updatesw/'+id, {role, build_name, 
         build_group, ipswitch, model, hostname}) 
         .then(res => {
             if(res.data.updated){
-                alert("Update Access Point Data Complete!")
-                navigate('/accesspoint')    
+                alert("Update Switch Data Complete!")
+                navigate('/userswitch')    
             }else{
                 alert("Error! Please Try Again.")
             }                
@@ -81,7 +81,7 @@ function EditAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/accesspoint">Back To Access Point List</Navbar.Brand>
+            <Navbar.Brand href="/userswitch">Back To Switch List</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -100,7 +100,7 @@ function EditAPContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Edit Access Point Data</h2>
+                <h2>Edit Switch Data</h2>
             </div> 
 
                 <div className='mb-4'>
@@ -110,7 +110,7 @@ function EditAPContent() {
                 </div>
  
                 <div className='mb-4'>
-                    <label htmlFor=''>IP Switch</label>
+                    <label htmlFor=''>IP Address</label>
                     <input type="text" placeholder='' className='form-control'
                     value={ipswitch} onChange={e => setIpswitch(e.target.value)}/>
                 </div>
@@ -130,18 +130,18 @@ function EditAPContent() {
                 <div className='mb-4'>
                 <label htmlFor='Select Model'>Model</label>
                 <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
-                    <option>Select Role</option>                    
-                    <option>AirEngine5761-21</option>
-                    <option>AirEngine6760R-51E</option>
+                    <option>Select Role</option>
+                    <option>S5735-L24P4X-A1</option>
+                    <option>S5736-S24S4XC</option>
                 </select>
                 </div>
 
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
-                    <option>Select Role</option>                  
-                    <option>Indoor</option>
-                    <option>Outdoor</option>
+                    <option>Select Role</option>                    
+                    <option>Access</option>
+                    <option>Distribute</option>
                 </select>
                 </div>
                 <div
@@ -159,6 +159,6 @@ function EditAPContent() {
       );
     }
     
-export default function EditAccessPoint() {
-    return <EditAPContent />
+export default function EditSwitch() {
+    return <EditSWContent />
 }

@@ -322,7 +322,7 @@ function DashboardAdminContent() {
     const options = {
         title: "Total AP Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
   
     const data2 = [
@@ -333,7 +333,7 @@ function DashboardAdminContent() {
     const options2 = {
         title: "Total Switch Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
  
     const data3 = [
@@ -344,7 +344,7 @@ function DashboardAdminContent() {
     const options3 = {
         title: "Total Device Corrupted",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
 
     //KKU Device
@@ -356,7 +356,7 @@ function DashboardAdminContent() {
     const options4 = {
         title: "Total AP KKU Install",
         pieHole: 0.4,
-        is3D: false,
+        is3D: true,
     };
 
     const data5 = [
@@ -367,7 +367,7 @@ function DashboardAdminContent() {
     const options5 = {
       title: "Total Switch KKU Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data6 = [
@@ -378,7 +378,7 @@ function DashboardAdminContent() {
     const options6 = {
       title: "Total KKU Device Corrupted",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
   
     //NKC Device
@@ -390,7 +390,7 @@ function DashboardAdminContent() {
     const options7 = {
       title: "Total AP NKC Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data8 = [
@@ -401,7 +401,7 @@ function DashboardAdminContent() {
     const options8 = {
       title: "Total Switch NKC Install",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
 
     const data9 = [
@@ -412,8 +412,30 @@ function DashboardAdminContent() {
     const options9 = {
       title: "Total NKC Device Corrupted",
       pieHole: 0.4,
-      is3D: false,
+      is3D: true,
     };
+
+    const [apsite, setAPSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/ap_site')        
+        .then(res => setAPSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
+
+    const [swsite, setSWSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/sw_site')        
+        .then(res => setSWSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
+
+    const [dcsite, setDCSite] = useState([]); 
+    useEffect(()=> {
+        axios.get('http://localhost:3333/dc_site')        
+        .then(res => setDCSite(res.data))        
+        .catch(err => console.log(err));    
+    },[])
+
     //UI
     return (
         <div>
@@ -426,15 +448,23 @@ function DashboardAdminContent() {
                 <Nav.Link href="/users">Users List</Nav.Link>
                 <NavDropdown title="Access Point" id="basic-nav-dropdown">
                     <NavDropdown.Item href="/accesspoint">Access Point List</NavDropdown.Item>
-                    <NavDropdown.Item href="/accesspoint_kku">Access Point List (KKU)</NavDropdown.Item>
-                    <NavDropdown.Item href="/accesspoint_nkc">Access Point List (NCK)</NavDropdown.Item>
+                    {apsite.map ((apsite) => (                  
+                      <NavDropdown.Item href={apsite.href}>{apsite.name}</NavDropdown.Item>
+                    ))}
                 </NavDropdown>
                 <NavDropdown title="Switch" id="basic-nav-dropdown">
                     <NavDropdown.Item href="/switch">Switch List</NavDropdown.Item>
-                    <NavDropdown.Item href="/switch_kku">Switch List (KKU)</NavDropdown.Item>
-                    <NavDropdown.Item href="/switch_nkc">Switch List (NKC)</NavDropdown.Item>
+                    {swsite.map ((swsite) => ( 
+                    <NavDropdown.Item href={swsite.href}>{swsite.name}</NavDropdown.Item>
+                    ))}       
                 </NavDropdown>                              
-                <Nav.Link href="/deviceclist">Device Corrupted</Nav.Link>            
+                <NavDropdown title="Device Corrupted" id="basic-nav-dropdown">
+                    <NavDropdown.Item href="/deviceclist">Device Corrupted</NavDropdown.Item>
+                    {dcsite.map ((dcsite) => ( 
+                    <NavDropdown.Item href={dcsite.href}>{dcsite.name}</NavDropdown.Item>
+                    ))}   
+                </NavDropdown>  
+                <Nav.Link href="/addsite">Add New Site For Device</Nav.Link>            
             </Nav>
             <Nav>
                 <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
@@ -450,16 +480,20 @@ function DashboardAdminContent() {
             fill
         >       
         <Tab eventKey="home" title="Home">
-        <div 
-            style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            }}>
-                <h2>Welcome To Network Maintenance Information System Website</h2>
-        </div><br/>
-                <p>This website has been created for use by companies and organizations only.</p>
-                <p>Not seeking any benefits at all.</p>            
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <h2>Welcome To Network Maintenance Information System Website</h2>
+        </div>
+        <br/>
+        <p>Hello! This website is a for collecting information about various devices used in Network work,
+          such as Access Point (AP) or Switch (SW), etc. Under Of G-Able Company</p>
+          <p>You can also add, edit, delete information of various devices and can also choose to view 
+          the datasheet and model of the device.</p>
+          <p>This website has been created for use by company and organization only and not seeking any benefits at all.</p>
+
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="https://imagebee.org/movies/thank-you/thank-you-wallpaper-12-1024x538.jpg" alt="thanks_image" /> 
+        </div>
+                
         </Tab>
         <Tab eventKey="all" title="All Device Graph">
             <Chart
@@ -530,8 +564,7 @@ function DashboardAdminContent() {
             options={options9}
             />                        
         </Tab>
-        </Tabs>            
-        
+        </Tabs>                  
         </div>          
       );
     }

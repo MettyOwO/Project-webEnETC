@@ -190,17 +190,8 @@ app.get('/aplist', (req, res) => {
     return res.json(result);
   })
 })
-//AP Edit With AP_ID API
-app.get('/editap/:id', (req, res) => {
-  const sql = "SELECT * FROM accesspoint where ID = ?";
-  const id = req.params.id;
-  connection.query(sql,[id], (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.json(result);
-  })
-})
 //AP List With AP_ID API
-app.get('/aplist2/:id', (req, res) => {
+app.get('/aplistwithid/:id', (req, res) => {
   const sql = "SELECT * FROM accesspoint where ID = ?";
   const id = req.params.id;
   connection.query(sql,[id], (err, result) => {
@@ -351,6 +342,22 @@ app.get('/deviceclist', (req, res) => {
   })
 })
 
+app.get('/deviceclist_nkc', (req, res) => {
+  const sql = "SELECT * FROM device_corrupted where Site = 'NKC'";
+  connection.query(sql,(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.json(result);
+  })
+})
+
+app.get('/deviceclist_kku', (req, res) => {
+  const sql = "SELECT * FROM device_corrupted where Site = 'KKU'";
+  connection.query(sql,(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.json(result);
+  })
+})
+
 app.post('/adddc', (req, res) => {    
   const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
   const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
@@ -362,12 +369,12 @@ app.post('/adddc', (req, res) => {
 })
 //End
 
+//Graph Start
 //Total Switch List
 app.get('/total_switch_as', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -375,7 +382,6 @@ app.get('/total_switch_ds', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch2 FROM switch where role = 'Distribute'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -447,7 +453,6 @@ app.get('/total_switch_as_kku', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitchaskku FROM switch where site = 'KKU' AND role = 'Access'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -455,7 +460,6 @@ app.get('/total_switch_ds_kku', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitchdskku FROM switch where site = 'KKU' AND role = 'Distribute'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -510,7 +514,6 @@ app.get('/total_switch_as_nkc', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitchasnkc FROM switch where site = 'NKC' AND role = 'Access'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -518,7 +521,6 @@ app.get('/total_switch_ds_nkc', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitchdsnkc FROM switch where site = 'NKC' AND role = 'Distribute'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
-    //return res.json(result);
     return res.send(result[0]);
   })
 })
@@ -549,6 +551,94 @@ app.get('/total_dc_sw2_nkc', (req, res) => {
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
     return res.send(result[0]);
+  })
+})
+//Graph End
+
+//--
+app.get('/ap_site', (req, res) => {
+  const sql = "SELECT * FROM sitename where type = 'AP'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/sw_site', (req, res) => {
+  const sql = "SELECT * FROM sitename where type = 'SW'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/dc_site', (req, res) => {
+  const sql = "SELECT * FROM sitename where type = 'DC'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
+app.get('/ap_site2', (req, res) => {
+  const sql = "SELECT * FROM sitename_user where type = 'AP'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/sw_site2', (req, res) => {
+  const sql = "SELECT * FROM sitename_user where type = 'SW'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/dc_site2', (req, res) => {
+  const sql = "SELECT * FROM sitename_user where type = 'DC'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
+app.post('/addsitedevice', (req, res) => {    
+  const sql = "INSERT INTO sitename (type, name) VALUES (?)";    
+  const values = [req.body.type, req.body.sitename]    
+  connection.query(sql, [values], (err) => {        
+    if(err) return res.json("Error");        
+    return res.json({added: true});    
+  })
+})
+app.post('/addreport_ap/:id', (req, res) => {    
+  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
+  const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
+  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail]    
+  connection.query(sql, [values], (err) => {        
+    if(err) return res.json("Error");        
+    return res.json({added: true});    
+  })
+})
+app.post('/addreport_sw/:id', (req, res) => {    
+  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
+  const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
+  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail]    
+  connection.query(sql, [values], (err) => {        
+    if(err) return res.json("Error");        
+    return res.json({added: true});    
+  })
+})
+
+app.get('/test1', (req, res) => {
+  const sql = "SELECT * FROM graph_data where value = 'apinCount'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/test2', (req, res) => {
+  const sql = "SELECT * FROM graph_data where value = 'apoutCount'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
   })
 })
 

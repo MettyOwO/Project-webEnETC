@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function AddDeviceCorruptedContent() {
+function AddAPContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -32,23 +32,20 @@ function AddDeviceCorruptedContent() {
     },[])
 
 const [hostname, setHostname] = useState('');
-const [ipaddress, setIpAddress] = useState('');
+const [ipswitch, setIpswitch] = useState('');
 const [build_name, setBuildname] = useState('');
 const [build_group, setBuildgroup] = useState('');
 const [role, setRole] = useState('');
-const [serial_number, setSR] = useState('');
-const [detail, setDetail] = useState('');
 const [site, setSite] = useState('');
 const navigate = useNavigate();
 
 function handleSubmit(event) {        
     event.preventDefault();        
-    axios.post('http://localhost:3333/adddc', {site, build_group, build_name, ipaddress, 
-    hostname, role, serial_number, detail})        
+    axios.post('http://localhost:3333/addap', {site, build_name, build_group, ipswitch, hostname, role})        
     .then(res => {            
         if(res.data.added){
-            alert("Add Device Corrupted Data Complete!")
-            navigate('/deviceclist')    
+            alert("Add Access Point Data Complete!")
+            navigate('/useraccesspoint')    
         }else{
             alert("Error! Please Try Again.")
         }       
@@ -67,7 +64,7 @@ function handleSubmit(event) {
     <div>
     <Navbar variant="dark" bg="dark" expand="lg">
     <Container fluid>
-        <Navbar.Brand href="/deviceclist">Back To Device Corrupted List</Navbar.Brand>
+        <Navbar.Brand href="/useraccesspoint">Back To Access Point List</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
         <Nav className="me-auto"></Nav>
@@ -86,7 +83,7 @@ function handleSubmit(event) {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-            <h2>Add Device Corrupted Data</h2>
+            <h2>Add Access Point Data</h2>
             </div>              
             
             <div className='mb-4'>
@@ -110,40 +107,24 @@ function handleSubmit(event) {
             </div>
 
             <div className='mb-4'>
-                <label>IP Address</label>
+                <label>IP Switch</label>
                 <input type="text" className='form-control'
-                onChange={e => setIpAddress(e.target.value)}/>
+                onChange={e => setIpswitch(e.target.value)}/>
             </div>
 
             <div className='mb-4'>
-                <label>Hostname</label>
+                <label>HostName</label>
                 <input type="text" className='form-control'
                 onChange={e => setHostname(e.target.value)}/>
             </div>
-            
             <div className='mb-4'>
             <label>Role</label>
                 <select class="form-control" onChange={e => setRole(e.target.value)}>
-                    <option>Select Device Role</option>
-                    <option>AP-Indoor</option>
-                    <option>AP-Outdoor</option>
-                    <option>SW-Access</option>
-                    <option>SW-Distribute</option>
+                    <option>Select AP Role</option>
+                    <option>Indoor</option>
+                    <option>Outdoor</option>
                 </select>
             </div>
-
-            <div className='mb-4'>
-                <label>Replace With Serial Number</label>
-                <input type="text" className='form-control'
-                onChange={e => setSR(e.target.value)}/>
-            </div>
-
-            <div className='mb-4'>
-                <label>Detail Device Corrupted</label>
-                <input type="text" className='form-control'
-                onChange={e => setDetail(e.target.value)}/>
-            </div>
-
             <div 
             style={{
             display: 'flex',
@@ -157,6 +138,6 @@ function handleSubmit(event) {
     </div>
 )}
 
-export default function AddDeviceCorrupted() {
-    return <AddDeviceCorruptedContent />
+export default function AddAccessPoint() {
+    return <AddAPContent />
 }

@@ -52,7 +52,7 @@ function UserListContent() {
     //User Delete Function
     const handleDelete = async (id) => {
         try {           
-            alert("Delete User Complete")
+            alert("Delete User ID : " + (id) + " Complete")
             axios.delete('http://localhost:3333/deleteuser/'+id)
             window.location.reload();          
         }

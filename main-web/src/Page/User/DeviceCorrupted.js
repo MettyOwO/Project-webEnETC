@@ -74,9 +74,7 @@ function DCContent() {
                     justifyContent: 'center',
                 }}>
                     <h2>Device Corrupted List</h2>
-                </div> 
-
-                <Link to="/add_dc" className='btn btn-primary'>Add Data</Link>&nbsp;<br/><br/>
+                </div><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
