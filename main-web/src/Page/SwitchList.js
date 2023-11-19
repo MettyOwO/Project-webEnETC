@@ -59,15 +59,6 @@ function SwitchContent() {
         setSwdata(dataSite);
     }
     //SW API
-    // useEffect(() => {
-    //     fetch("http://localhost:3333/swlist")
-    //       .then(res => res.json())
-    //       .then(
-    //         (result) => {
-    //           setSwList(result);
-    //         }
-    //       )
-    //   }, [])
 
     //ฟังก์ชั่น Log Out
     const handleLogout = (event) => {

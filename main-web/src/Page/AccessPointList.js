@@ -122,7 +122,7 @@ function APContent() {
                     justifyContent: 'center',
                 }}>
                     {paramPath != "APList" && <>
-                    <h2>Switch {paramPath}</h2>
+                    <h2>Access Point {paramPath}</h2>
                     </>}
                     {paramPath === "APList" && <>
                     <h2>Access Point List</h2>
