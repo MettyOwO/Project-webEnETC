@@ -355,38 +355,23 @@ function DashboardAdminContent() {
   };
 
   //All Device
-  const data = [
+  const dataAllAP = [
     ["Device", "1 per Units"],
     ["AP Indoor", apinCount],
     ["AP Outdoor", apoutCount],
   ];
-  const options = {
-    title: "Total AP Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data2 = [
     ["Device", "1 per Units"],
     ["Switch Access", switchCount],
     ["Switch Dist", switchCount2],
   ];
-  const options2 = {
-    title: "Total Switch Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data3 = [
     ["Device", "1 per Units"],
     ["Switch", dcswCount + dcswCount2],
     ["AP", dcapCount + dcapCount2],
   ];
-  const options3 = {
-    title: "Total Device Corrupted",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   //KKU Device
   const data4 = [
@@ -394,33 +379,18 @@ function DashboardAdminContent() {
     ["AP Indoor", apinkkuCount],
     ["AP Outdoor", apoutkkuCount],
   ];
-  const options4 = {
-    title: "Total AP KKU Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data5 = [
     ["Device", "1 per Units"],
     ["Switch Access", switchCountkku],
     ["Switch Dist", switchCountkku2],
   ];
-  const options5 = {
-    title: "Total Switch KKU Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data6 = [
     ["Device", "1 per Units"],
     ["Switch", dcswkkuCount + dcswkkuCount2],
     ["AP", dcapkkuCount + dcapkkuCount2],
   ];
-  const options6 = {
-    title: "Total KKU Device Corrupted",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   //NKC Device
   const data7 = [
@@ -428,44 +398,44 @@ function DashboardAdminContent() {
     ["AP Indoor", apinnkcCount],
     ["AP Outdoor", apoutnkcCount],
   ];
-  const options7 = {
-    title: "Total AP NKC Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data8 = [
     ["Device", "1 per Units"],
     ["Switch Access", switchCountnkc],
     ["Switch Dist", switchCountnkc2],
   ];
-  const options8 = {
-    title: "Total Switch NKC Install",
-    pieHole: 0.4,
-    is3D: true,
-  };
 
   const data9 = [
     ["Device", "1 per Units"],
     ["Switch", dcswnkcCount + dcswnkcCount2],
     ["AP", dcapnkcCount + dcapnkcCount2],
   ];
-  const options9 = {
-    title: "Total NKC Device Corrupted",
+
+  function get(){
+    
+  }
+
+  const options = {
+    title: `Total AP Install`,
     pieHole: 0.4,
     is3D: true,
   };
+
   const [apsite, setAPSite] = useState([]);
   const [swsite, setSWSite] = useState([]);
   const [dcsite, setDCSite] = useState([]);
+  const [siteName,setSiteName] = useState([])
   async function getData() {
     const getAPSite = await axios.get("http://localhost:3333/ap_site");
     const getSWSite = await axios.get("http://localhost:3333/sw_site");
     const getDCSite = await axios.get("http://localhost:3333/dc_site");
-    console.log(getSWSite.data);
+    const getSiteName = await axios.get("http://localhost:3333/site_name")
+    //console.log(getSWSite.data);
     setAPSite(getAPSite.data);
     setSWSite(getSWSite.data);
     setDCSite(getDCSite.data);
+    setSiteName(getSiteName.data)
+    //console.log(getSiteName.data);
   }
   useEffect(() => {
     getData();
@@ -483,6 +453,9 @@ function DashboardAdminContent() {
       navigate(`/deviceclist/${site}`, { state: { site } });
     }
   }
+
+  const [devices,setDevices] = useState([])
+  const [selectSite,setSelectSite] = useState([])
   //UI
   return (
     <div>
@@ -547,7 +520,7 @@ function DashboardAdminContent() {
         </Container>
       </Navbar>
 
-      <Tabs
+      {/* <Tabs
         defaultActiveKey="home"
         id="justify-tab-example"
         className="mb-3"
@@ -660,7 +633,65 @@ function DashboardAdminContent() {
             options={options9}
           />
         </Tab>
-      </Tabs>
+      </Tabs> */}
+      <Container className="my-3">
+      <div className="row">
+        <div className="col">
+          <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
+            <option defaultValue>=== Select sites ===</option>
+            <option value="all">All Sites</option>
+            {siteName.map((item, index) => (                 
+                  <option key={index}>
+                    {item.name}
+                  </option> 
+            ))}
+          </select>
+        </div>
+        <div className="col">
+          <select className="form-select" onChange={(e) => {setDevices(e.target.value)}}>
+            <option defaultValue>=== Select devices ===</option>
+            <option value="all">All Devices</option>
+            <option value="access-point">Access Point</option>
+            <option value="switch">Switch</option>
+            <option value="device-corrupted">DeviceCorrupted</option>
+          </select>
+        </div>
+
+        {/* Show Chart */}
+        {
+          selectSite == "all" &&
+          <div>
+            {
+              devices == "all" && 
+              <div>
+                <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllAP}
+                  options={options}
+                />
+                <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllAP}
+                  options={options}
+                />
+                <Chart
+                  chartType="PieChart"
+                  width="100%"
+                  height="250px"
+                  data={dataAllAP}
+                  options={options}
+                />
+              </div>
+            }
+            {}
+          </div>
+        }
+      </div>
+      </Container>
     </div>
   );
 }
