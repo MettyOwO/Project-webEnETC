@@ -7,9 +7,14 @@ import { Link } from "react-router-dom";
 import { CSVLink} from 'react-csv';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
-
+import { useNavigate, useLocation } from "react-router-dom";
 function SwitchContent() {
     //Check Token API
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [paramSite,setParamSite] = useState(location.state.site) 
+    const [swlist, setSwList] = useState([]);   
+    const [swdata, setSwdata]= useState([]); 
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -31,20 +36,36 @@ function SwitchContent() {
         })
         .catch((error) => {
         console.log("Error:", error);
+        
         });
+        getSwitchData()
     },[])
-
-    //SW API
-    const [swlist, setSwList] = useState([]);   
-    useEffect(() => {
-        fetch("http://localhost:3333/swlist")
-          .then(res => res.json())
-          .then(
-            (result) => {
-              setSwList(result);
+ 
+    async function getSwitchData(){
+        const dataSw = await axios("http://localhost:3333/swlist")
+        console.log(dataSw.data);
+        const dataSite = []
+        dataSw.data.map((item)=>{
+            if(paramSite === item.site){
+                dataSite.push(item)
+            }else if(paramSite === "SWList"){
+                dataSite.push(item)
             }
-          )
-      }, [])
+        })
+        console.log(dataSite);
+        setSwList(dataSite)
+        setSwdata(dataSite);
+    }
+    //SW API
+    // useEffect(() => {
+    //     fetch("http://localhost:3333/swlist")
+    //       .then(res => res.json())
+    //       .then(
+    //         (result) => {
+    //           setSwList(result);
+    //         }
+    //       )
+    //   }, [])
 
     //ฟังก์ชั่น Log Out
     const handleLogout = (event) => {
@@ -54,16 +75,23 @@ function SwitchContent() {
     }
 
     //Export Excel
-    const [swdata, setSwdata]= useState([]); 
-    useEffect( ()=>{
-       const getswdata= async ()=>{
-         const swreq= await fetch("http://localhost:3333/swlist");
-         const swres= await swreq.json();
-         console.log(swres);
-         setSwdata(swres);
-       }
-    getswdata();
-    },[]);
+
+    // useEffect( ()=>{
+    //    const getswdata= async ()=>{
+    //      const swreq= await fetch("http://localhost:3333/swlist");
+
+    //      const dataSite = []
+    //      swreq.data.map((item)=>{
+   
+    //            if(paramSite === item.site){
+    //                dataSite.push(item)
+    //            }
+    //        })
+    //        console.log(dataSite);
+    //      setSwdata(dataSite);
+    //    }
+    // getswdata();
+    // },[]);
 
     //AP Delete Function
     const handleDelete = async (id) => {
@@ -114,8 +142,8 @@ function SwitchContent() {
                 <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
                 <Link to="http://localhost:3333/import-switch" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
-                <table class="table table-bordered">
-                    <thead class="thead-light">
+                <table className="table table-bordered">
+                    <thead className="thead-light">
                         <tr>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
@@ -129,8 +157,8 @@ function SwitchContent() {
                         </tr>
                     </thead>
                     {swlist.map ((swlist,index) => (
-                        <tbody>
-                            <tr key={index}>
+                        <tbody key={index}>
+                            <tr >
                                 <td>{swlist.buildgroup}</td>
                                 <td>{swlist.buildname}</td>
                                 <td>{swlist.hostname}</td>

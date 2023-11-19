@@ -5,9 +5,14 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate, useLocation } from "react-router-dom";
 
 function DCContent() {
     //Check Token API
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [paramSite,setParamSite] = useState(location.state.site) 
+    const [deviceclist, setDcList] = useState([]); 
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -30,15 +35,25 @@ function DCContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getDChData()
     },[])
 
     //Access Point List API
-    const [deviceclist, setDcList] = useState([]); 
-    useEffect(()=> {
-        axios.get('http://localhost:3333/deviceclist')        
-        .then(res => setDcList(res.data))        
-        .catch(err => console.log(err));    
-    },[])
+    async function getDChData(){
+        const dataSw = await  axios.get('http://localhost:3333/deviceclist')      
+        console.log(dataSw.data);
+        const dataSite = []
+        dataSw.data.map((item)=>{
+            if(paramSite === item.Site){
+                dataSite.push(item)
+            }else if(paramSite === "DCList"){
+                dataSite.push(item)
+            }
+        })
+        console.log(dataSite);
+        setDcList(dataSite)
+    }
+
 
     //Log Out
     const handleLogout = (event) => {

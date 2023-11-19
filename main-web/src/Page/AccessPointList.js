@@ -6,10 +6,18 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate, useLocation } from "react-router-dom";
 import NavDropdown from 'react-bootstrap/NavDropdown';
 
 function APContent() {
     //Check Token API
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [paramSite,setParamSite] = useState(location.state.site) 
+    const [aplist, setApList] = useState([]); 
+    const [apdata, setApdata]= useState([]); 
+    
+    console.log(paramSite);
     useEffect(() => {
         const token = localStorage.getItem('token')
         fetch ('http://localhost:3333/authen', {
@@ -32,15 +40,29 @@ function APContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getData()
     },[])
 
     //Access Point List API
-    const [aplist, setApList] = useState([]); 
-    useEffect(()=> {
-        axios.get('http://localhost:3333/aplist')        
-        .then(res => setApList(res.data))        
-        .catch(err => console.log(err));    
-    },[])
+    async function getData(){
+        const dataAP = await axios.get('http://localhost:3333/aplist') 
+        console.log(dataAP.data);
+        const dataSite = []
+        dataAP.data.map((item)=>{
+
+            if(paramSite === item.Site){
+                dataSite.push(item)
+            }else if(paramSite === "APList"){
+                dataSite.push(item)
+            }
+        })
+        console.log(dataSite);
+        setApList(dataSite)
+        setApdata(dataSite);
+
+        // paramSite
+    }
+
 
     //AP Delete Function
     const handleDelete = async (id) => {
@@ -62,27 +84,11 @@ function APContent() {
     }
 
     //Export Excel
-    const [apdata, setApdata]= useState([]); 
-    useEffect( ()=>{
-       const getapdata= async ()=>{
-         const apreq= await fetch("http://localhost:3333/aplist");
-         const apres= await apreq.json();
-         console.log(apres);
-         setApdata(apres);
-       }
-    getapdata();
-    },[]);
+ 
+ 
 
     //const res = api;
-    const array = [];
-    const [test1, setTest1] = useState([]); 
-    useEffect(()=> {
-        axios.get('http://localhost:3333/aplist')        
-        .then((res)=>{
-            console.log(res.data);
-        })  
-        .catch(err => console.log(err));    
-    },[])
+    
 
     //UI
     return (
@@ -140,8 +146,8 @@ function APContent() {
                         </tr>
                     </thead>
                     <tbody>
-                        { aplist.map ((aplist) => (
-                            <tr key={aplist.ID}>
+                        { aplist.map ((aplist,index) => (
+                            <tr key={index}>
                                 <td>{aplist.Buildgroup}</td>
                                 <td>{aplist.Buildname}</td>
                                 <td>{aplist.IPswitch}</td>
