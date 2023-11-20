@@ -390,6 +390,43 @@ app.get('/site_name',(req , res) => {
   })
 })
 
+//select ap with site
+app.get('/getSiteAP_IN/:site', (req,res) => {
+  const sql = "SELECT COUNT(ID) as allAP FROM accesspoint WHERE Site = ? AND Role = 'Indoor'";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result[0]);
+  })
+})
+
+app.get('/getSiteAP/:site', (req,res) => {
+  const sql = "SELECT * FROM accesspoint WHERE Site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
+app.get('/getSiteSW/:site', (req,res) => {
+  const sql = "SELECT * FROM switch WHERE site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
+app.get('/getSiteDC/:site', (req,res) => {
+  const sql = "SELECT * FROM device_corrupted WHERE Site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+
 app.get('/total_switch_as', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
   connection.query(sql, (err, result) => {
