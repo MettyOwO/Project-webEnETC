@@ -411,15 +411,20 @@ function DashboardAdminContent() {
     ["AP", dcapnkcCount + dcapnkcCount2],
   ];
 
-  function getSiteAP(site){
-    console.log(site);
-    // const a = await axios.get(`http://localhost:3333/getSiteAP/${site}`)
-    // console.log(a);
-    return site
-  }
+  const optionAP = {
+    title: `Total Access Point Install`,
+    pieHole: 0.4,
+    is3D: true,
+  };
 
-  const options = {
-    title: `Total AP Install`,
+  const optionSW = {
+    title: `Total Switch Install`,
+    pieHole: 0.4,
+    is3D: true,
+  };
+
+  const optionDC = {
+    title: `Total Device Corrupted`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -457,8 +462,105 @@ function DashboardAdminContent() {
     }
   }
 
-  const [devices,setDevices] = useState([])
+  const [selectDevices,setSelectDevices] = useState([])
   const [selectSite,setSelectSite] = useState([])
+  const [dataAPSite,setDataAPSite] = useState([])
+  const [dataSWSite,setDataSWSite] = useState([])
+  const [dataDCSite,setDataDCSite] = useState([])
+  useEffect(() => {
+    if(selectSite.length != 0 && selectDevices == "access-point" || selectDevices == "all"){
+      axios.get('http://localhost:3333/getSiteAP/' + selectSite).then(res => {
+        //console.log(res.data);
+        const data = res.data
+        let inDoorCount = 0
+        let outDoorCount = 0
+        data.map((item) => {
+          if(item.Role == 'Indoor'){
+            inDoorCount++
+          }
+          if(item.Role == 'Outdoor'){
+            outDoorCount++
+          }
+        })
+        //console.log('Indoor : ' + inDoorCount + " | Outdoor : " + outDoorCount);
+        //console.log(dataAPChart(inDoorCount,outDoorCount));
+        setDataAPSite(dataAPChart(inDoorCount,outDoorCount))
+      }).catch(err => console.log(err))
+    }
+    if(selectSite.length != 0 && selectDevices == "switch" || selectDevices == "all"){
+      axios.get('http://localhost:3333/getSiteSW/' + selectSite).then(res => {
+        //console.log(res.data);
+        const data = res.data
+        let accessCount = 0
+        let distributeCount = 0
+        data.map((item) => {
+          if(item.role == "Access"){
+            accessCount++
+          }
+          if(item.role == "Distribute"){
+            distributeCount++
+          }
+        })
+        //console.log('Access : ' + accessCount + " | Distribute : " + distributeCount);
+        setDataSWSite(dataSWChart(accessCount,distributeCount))
+      }).catch(err => console.log(err))
+    }
+    if(selectSite.length != 0 && selectDevices == "device-corrupted" || selectDevices == "all"){
+      axios.get('http://localhost:3333/getSiteDC/' + selectSite).then(res => {
+        //console.log(res.data);
+        const data = res.data
+        let apIndoor = 0
+        let apOutdoor = 0
+        let swAccess = 0
+        let swDistribute = 0
+        data.map((item) => {
+          //console.log(item);
+          if(item.Role == "AP-Indoor"){
+            apIndoor++
+          }
+          if(item.Role == "AP-Outdoor"){
+            apOutdoor++
+          }
+          if(item.Role == "SW-Access"){
+            swAccess++
+          }
+          if(item.Role == "SW-Distribute"){
+            swDistribute++
+          }
+        })
+        //console.log('Access : ' + parseInt(apIndoor+apOutdoor) + " | Distribute : " + parseInt(swAccess+swDistribute));
+        setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
+      }).catch(err => console.log(err))
+    }
+  },[selectSite,selectDevices])
+
+  function dataAPChart(value1,value2){
+    const data = [
+      ["Device", "1 per Units"],
+      ["AP Indoor", value1],
+      ["AP Outdoor", value2],
+    ]
+    return data
+  }
+
+  function dataSWChart(value1,value2){
+    const data = [
+      ["Device", "1 per Units"],
+      ["Switch Access", value1],
+      ["Switch Distribute", value2],
+    ]
+    return data
+  }
+
+  function dataDCChart(value1,value2){
+    const data = [
+      ["Device", "1 per Units"],
+      ["Access Point", value1],
+      ["Switch", value2],
+    ]
+    return data
+  }
+  
   //UI
   return (
     <div>
@@ -651,7 +753,7 @@ function DashboardAdminContent() {
           </select>
         </div>
         <div className="col">
-          <select className="form-select" onChange={(e) => {setDevices(e.target.value)}}>
+          <select className="form-select" onChange={(e) => {setSelectDevices(e.target.value)}}>
             <option defaultValue>Select Device</option>
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
@@ -665,68 +767,65 @@ function DashboardAdminContent() {
           selectSite == "all" &&
           <div className="my-3">
             {
-              devices == "all" && 
+              selectDevices == "all" && 
               <div>
                 <Chart
                   chartType="PieChart"
                   width="100%"
                   height="250px"
                   data={dataAllAP}
-                  options={options}
+                  options={optionAP}
                 />
                 <Chart
                   chartType="PieChart"
                   width="100%"
                   height="250px"
                   data={dataAllSW}
-                  options={options}
+                  options={optionSW}
                 />
                 <Chart
                   chartType="PieChart"
                   width="100%"
                   height="250px"
                   data={dataAllDC}
-                  options={options}
+                  options={optionDC}
                 />
               </div>
             }
             {
-               devices == "access-point" && 
+               selectDevices == "access-point" && 
                <div>
-                  <h1>All Access Point</h1>
                   <Chart
-                  chartType="PieChart"
-                  width="100%"
-                  height="250px"
-                  data={dataAllAP}
-                  options={options}
-                />
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataAllAP}
+                    options={optionAP}
+                  />
                </div>
             }
             {
-               devices == "switch" && 
+               selectDevices == "switch" && 
                <div>
-                  <h1>All Switch</h1>
                   <Chart
-                  chartType="PieChart"
-                  width="100%"
-                  height="250px"
-                  data={dataAllSW}
-                  options={options}
-                />
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataAllSW}
+                    options={optionSW}
+                  />
                </div>
             }
             {
-               devices == "device-corrupted" && 
+               selectDevices == "device-corrupted" && 
                <div>
-                  <h1>All Devices Corrupted</h1> 
                   <Chart
-                  chartType="PieChart"
-                  width="100%"
-                  height="250px"
-                  data={dataAllDC}
-                  options={options}
-                />
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataAllDC}
+                    options={optionDC}
+                  />
                </div>
             }
           </div>
@@ -734,25 +833,66 @@ function DashboardAdminContent() {
         {
           selectSite != "all" && 
           <div>
-            { devices == "all" &&
+            { selectDevices == "all" &&
               <div>
-                  <h1>{selectSite} : {devices}</h1>
+                  <h1>{selectSite} : {selectDevices}</h1>
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataAPSite}
+                    options={optionAP}
+                  />
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataSWSite}
+                    options={optionSW}
+                  />
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataDCSite}
+                    options={optionDC}
+                  />
               </div>
             }
-            { devices == "access-point" &&
+            { selectDevices == "access-point" &&
               <div>
-                  <h1>{selectSite} : {devices}</h1>
-                  <h1>{getSiteAP(selectSite)}</h1>
+                  <h1>{selectSite} : {selectDevices}</h1>
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataAPSite}
+                    options={optionAP}
+                  />
               </div>
             }
-            { devices == "switch" &&
+            { selectDevices == "switch" &&
               <div>
-                  <h1>{selectSite} : {devices}</h1>
+                  <h1>{selectSite} : {selectDevices}</h1>
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataSWSite}
+                    options={optionSW}
+                  />
               </div>
             }
-            { devices == "device-corrupted" &&
+            { selectDevices == "device-corrupted" &&
               <div>
-                  <h1>{selectSite} : {devices}</h1>
+                  <h1>{selectSite} : {selectDevices}</h1>
+                  <Chart
+                    chartType="PieChart"
+                    width="100%"
+                    height="250px"
+                    data={dataDCSite}
+                    options={optionDC}
+                  />
               </div>
             }
           </div>
