@@ -6,7 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function AddSiteContent() {
+function AddModelContent() {
   //Check Token API
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -28,22 +28,23 @@ function AddSiteContent() {
         }
       })
       .catch((error) => {
-        console.log("Error:", error);
+      console.log("Error:", error);
       });
   }, []);
 
   const [type, setType] = useState("Select Device Type");
-  const [sitename, setSiteName] = useState("");
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
   const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (type != "Select Device Type" && sitename != "") {
+    if (type != "Select Device Type" && name != "" && url != "") {
       axios
-        .post("http://localhost:3333/addsitedevice", { type, sitename })
+        .post("http://localhost:3333/addmodel", { type, name, url })
         .then((res) => {
           if (res.data.added) {
-            alert("Add Site : " + (sitename) + ", Device Type : " + (type) + " Complete!");
+            alert("Add Model : " + (name) + " Device : " + (type) + " Complete!");
             navigate("/dbadmin");
           } else {
             alert("Error! Please Try Again.");
@@ -86,7 +87,7 @@ function AddSiteContent() {
               justifyContent: "center",
             }}
           >
-            <h2>Add New Site For Device</h2>
+            <h2>Add New Model For Device</h2>
           </div>
 
           <div className="mb-4">
@@ -98,17 +99,26 @@ function AddSiteContent() {
               <option>Select Device Type</option>
               <option value="AP">Access Point</option>
               <option value="SW">Switch</option>
-              <option value="DC">Device Corrupted</option>
             </select>
-          </div>
+          </div>       
 
           <div className="mb-4">
-            <label>Site Name</label>
+            <label>Name</label>
             <input
               type="text"
               className="form-control"
               required
-              onChange={(e) => setSiteName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+        
+          <div className="mb-4">
+            <label>Url</label>
+            <input
+              type="text"
+              className="form-control"
+              required
+              onChange={(e) => setUrl(e.target.value)}
             />
           </div>
 
@@ -120,7 +130,7 @@ function AddSiteContent() {
             }}
           >
             <button className="btn btn-primary" onClick={handleSubmit}>
-              Add Site
+              Add Model
             </button>
           </div>
         </form>
@@ -129,6 +139,6 @@ function AddSiteContent() {
   );
 }
 
-export default function AddSite() {
-  return <AddSiteContent />;
+export default function AddModel() {
+  return <AddModelContent />;
 }

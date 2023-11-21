@@ -31,7 +31,6 @@ function UserEditContent() {
         });
     },[])
 
-    //Access Point List With AP_ID API
     const {id} = useParams();
     const [name, setName] = useState('');
     const [role, setRole] = useState('');
@@ -42,7 +41,7 @@ function UserEditContent() {
             setRole(res.data[0].role);
         })
         .catch(err => console.log(err));
-    },[])
+    },[id])
 
     //Update AP API
     const navigate = useNavigate();
@@ -72,7 +71,7 @@ function UserEditContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/users">Back To User List</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>

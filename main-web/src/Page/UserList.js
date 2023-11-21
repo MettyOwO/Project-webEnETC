@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import axios from 'axios';
-
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -22,7 +21,7 @@ function UserListContent() {
         .then(response => response.json())
         .then(data => {
         if(data.status === 'ok'){
-            //ไม่ต้องทำอะไร
+
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
@@ -32,24 +31,23 @@ function UserListContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getDataUser()
     },[])
 
-    //User List API
     const [userlist, setUserList] = useState([]); 
-    useEffect(() => {
-        axios.get('http://localhost:3333/users')        
-        .then(res => setUserList(res.data))        
-        .catch(err => console.log(err));   
-      }, [])
+    async function getDataUser(){
+        const getUser = await axios.get('http://localhost:3333/users')
+        setUserList(getUser.data);
+    };
 
-    //Log Out Function
+    //Log Out
     const handleLogout = (event) => {
         event.preventDefault();
         localStorage.removeItem('token');
         window.location = '/login'
     }
 
-    //User Delete Function
+    //User Delete
     const handleDelete = async (id) => {
         try {           
             alert("Delete User ID : " + (id) + " Complete")
@@ -60,13 +58,7 @@ function UserListContent() {
             console.log(err);        
         }
     }
-
-    //Back Function
-    const handleBack = (event) => {
-        event.preventDefault();
-        window.location = '/dbadmin'
-    }        
-
+   
     return (
     <div>
         <Navbar variant="dark" bg="dark" expand="lg">
@@ -93,8 +85,8 @@ function UserListContent() {
                     <h2>Users List</h2>
                 </div> 
                 <Link to="/addusers" className='btn btn-success'>Add Data</Link><br/><br/>
-                    <table class="table table-bordered">
-                        <thead class="thead-light">
+                    <table className="table table-bordered">
+                        <thead className="thead-light">
                             <tr>
                                 <th scope="col">Email</th>
                                 <th scope="col">Name</th>
@@ -102,9 +94,9 @@ function UserListContent() {
                                 <th scope="col">Edit & Delete</th>
                             </tr>
                         </thead>
-                        {userlist.map (userlist => (
-                            <tbody>
-                                <tr key={userlist.ID}>
+                        <tbody>
+                        {userlist.map ((userlist,index) => (                          
+                                <tr key={index}>
                                     <td>{userlist.email}</td>
                                     <td>{userlist.name}</td>
                                     <td>{userlist.role}</td>
@@ -112,12 +104,12 @@ function UserListContent() {
                                     <button className='btn btn-danger ms-2' onClick={ e => handleDelete(userlist.ID)}>Delete</button>
                                     </td>
                                 </tr>
-                            </tbody>
-                        ))}    
+                            ))}
+                        </tbody>    
                     </table>
+                </div>
             </div>
-        </div>
-    </div>          
+        </div>          
     );
 }
     

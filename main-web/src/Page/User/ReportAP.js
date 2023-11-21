@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function ReportAPContent() {
+function UserReportAPContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -31,43 +31,48 @@ function ReportAPContent() {
         });
     },[])
 
-    //..
     const {id} = useParams();
     const [site, setSite] = useState('');
     const [build_group, setBuildgroup] = useState('');
     const [build_name, setBuildname] = useState('');
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
-    const [role, setRole] = useState('');
+    const [role, setRole] = useState("Select Role Device");
     const [serial_number, setSR] = useState('');
     const [detail, setDetail] = useState('');
+    const [url, SetUrl] = useState('');
     useEffect(() => {
         axios.get('http://localhost:3333/aplistwithid/'+id)
         .then(res => {
-            setSite(res.data[0].Site)
+            setSite(res.data[0].Site);
             setHostname(res.data[0].APname);
             setBuildname(res.data[0].Buildname);
             setBuildgroup(res.data[0].Buildgroup);
-            setIpswitch(res.data[0].IPswitch)
+            setIpswitch(res.data[0].IPswitch);
+            SetUrl(res.data[0].urlmap);
         })
         .catch(err => console.log(err));
-    },[])
+    },[id])
 
-    //...
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name,
-        ipswitch, hostname, role, serial_number, detail}) 
+        if (role !== "Select Role Device" && serial_number !== '' && detail !== ''){
+        axios
+        .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, ipswitch, hostname, role, serial_number, detail, url}) 
         .then(res => {
             if(res.data.added){
                 alert("Add Device Corrupted Data!")
-                navigate('/userdeviceclist')    
+                //navigate('/deviceclist')
+                navigate('/dbusers')
             }else{
                 alert("Error! Please Try Again.")
             }                
         })
         .catch(err => console.log(err));
+        }else{
+            alert("Please Complete The Information!");
+        }
     }
     
     //Log Out
@@ -82,7 +87,7 @@ function ReportAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/accesspoint">Back To Access Point List</Navbar.Brand>
+            <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -106,57 +111,82 @@ function ReportAPContent() {
      
                 <div className='mb-4'>
                     <label htmlFor=''>Site</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={site} onChange={e => setSite(e.target.value)} disabled/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={site} 
+                    onChange={e => setSite(e.target.value)} 
+                    disabled/>
                 </div>
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_group} onChange={e => setBuildgroup(e.target.value)} disabled/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={build_group} 
+                    onChange={e => setBuildgroup(e.target.value)} 
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Name</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_name} onChange={e => setBuildname(e.target.value)} disabled/>
+                    <input 
+                    type="text" placeholder='' 
+                    className='form-control'
+                    value={build_name} 
+                    onChange={e => setBuildname(e.target.value)} 
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
                     <label>IP Address (IP Switch)</label>
-                    <input type="text" className='form-control'
-                    value={ipswitch} onChange={e => setIpswitch(e.target.value)} disabled/>
+                    <input type="text" 
+                    className='form-control'
+                    value={ipswitch} 
+                    onChange={e => setIpswitch(e.target.value)} 
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
                     <label htmlFor=''>Hostname</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={hostname} onChange={e => setHostname(e.target.value)} disabled/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={hostname} 
+                    onChange={e => setHostname(e.target.value)} 
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor=''>Role</label>
-                <select class="form-control" onChange={e => setRole(e.target.value)}>
-                    <option>Select Role Device</option>                  
-                    <option>AP-Indoor</option>
-                    <option>AP-Outdoor</option>
-                    <option>SW-Access</option>
-                    <option>SW-Distribute</option>      
+                    <label htmlFor=''>Role</label>
+                    <select 
+                    className="form-control" 
+                    onChange={e => setRole(e.target.value)}>
+                        <option>Select Role Device</option>                  
+                        <option>AP-Indoor</option>
+                        <option>AP-Outdoor</option>
+                        <option>SW-Access</option>
+                        <option>SW-Distribute</option>      
                 </select>
                 </div>
 
                 <div className='mb-4'>
                     <label>Replace With Serial Number</label>
-                    <input type="text" className='form-control'
-                    onChange={e => setSR(e.target.value)}/>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    onChange={e => setSR(e.target.value)}
+                    required/>
                 </div>
 
                 <div className='mb-4'>
                     <label>Detail Device Corrupted</label>
-                    <input type="text" className='form-control'
-                    onChange={e => setDetail(e.target.value)}/>
+                    <input type="text" 
+                    className='form-control'
+                    onChange={e => setDetail(e.target.value)}
+                    required/>
                 </div>
-
                 <div
                     style={{
                     display: 'flex',
@@ -164,14 +194,13 @@ function ReportAPContent() {
                     justifyContent: 'center',
                 }}>
                     <button className="btn btn-primary" onClick={ handleSubmit }>Add!</button>  
-                </div>
-                 
+                </div>          
             </form>
         </div> 
-        </div>
-      );
-    }
+    </div>
+    );
+}
     
 export default function ReportAP() {
-    return <ReportAPContent />
+    return <UserReportAPContent />
 }

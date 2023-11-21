@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function EditSWContent() {
+function UserEditSWContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -37,10 +37,13 @@ function EditSWContent() {
     const [ipswitch, setIpswitch] = useState('');
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
-    const [model, setModel] = useState('');
-    const [role, setRole] = useState('');
+    const [model, setModel] = useState("Select Model");
+    const [role, setRole] = useState("Select Role");
+    const [url, setUrl] = useState("");
+    const [urlconfig, setUrlConfig] = useState("");
     useEffect(() => {
-        axios.get('http://localhost:3333/switchlistwithid/'+id)
+        axios
+        .get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
             setHostname(res.data[0].hostname);
             setIpswitch(res.data[0].ip);
@@ -48,6 +51,8 @@ function EditSWContent() {
             setBuildgroup(res.data[0].buildgroup);
             setModel(res.data[0].model);
             setRole(res.data[0].role);
+            setUrl(res.data[0].urlmap);
+            setUrlConfig(res.data[0].urlconfig);
         })
         .catch(err => console.log(err));
     },[])
@@ -56,17 +61,24 @@ function EditSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3333/updatesw/'+id, {role, build_name, 
-        build_group, ipswitch, model, hostname}) 
+        if (model !== "Select Model" && model !== '' && role !== "Select Role" && hostname !== ''
+        && ipswitch !== '' && build_name !== '' && build_group !== ''){
+        axios
+        .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group, ipswitch, model, hostname
+        ,url, urlconfig}) 
         .then(res => {
             if(res.data.updated){
-                alert("Update Switch Data Complete!")
-                navigate('/userswitch')    
+                alert("Update Switch ID : " + (id) + " Complete!")
+                //navigate('/switch')
+                navigate('/dbusers')  
             }else{
                 alert("Error! Please Try Again.")
             }                
         })
         .catch(err => console.log(err));
+        }else{
+            alert("Please Complete The Information!");
+        }
     }
     
     //Log Out
@@ -81,7 +93,7 @@ function EditSWContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/userswitch">Back To Switch List</Navbar.Brand>
+            <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -105,32 +117,50 @@ function EditSWContent() {
 
                 <div className='mb-4'>
                     <label htmlFor=''>HostName</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={hostname} onChange={e => setHostname(e.target.value)}/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={hostname} 
+                    onChange={e => setHostname(e.target.value)}/>
                 </div>
  
                 <div className='mb-4'>
                     <label htmlFor=''>IP Address</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={ipswitch} onChange={e => setIpswitch(e.target.value)}/>
+                    <input 
+                    type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={ipswitch} 
+                    onChange={e => setIpswitch(e.target.value)}/>
                 </div>
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Name</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_name} onChange={e => setBuildname(e.target.value)}/>
+                    <input 
+                    type="text"
+                    placeholder='' 
+                    className='form-control'
+                    value={build_name} 
+                    onChange={e => setBuildname(e.target.value)}/>
                 </div>
 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_group} onChange={e => setBuildgroup(e.target.value)}/>
+                    <input 
+                    type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={build_group} 
+                    onChange={e => setBuildgroup(e.target.value)}/>
                 </div>
 
                 <div className='mb-4'>
                 <label htmlFor='Select Model'>Model</label>
-                <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
-                    <option>Select Role</option>
+                <select 
+                className="form-control" 
+                value={model} 
+                onChange={e => setModel(e.target.value)}>
+                    <option>Select Model</option>
                     <option>S5735-L24P4X-A1</option>
                     <option>S5736-S24S4XC</option>
                 </select>
@@ -138,11 +168,32 @@ function EditSWContent() {
 
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
-                <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
+                <select 
+                className="form-control" 
+                value={role} 
+                onChange={e => setRole(e.target.value)}>
                     <option>Select Role</option>                    
                     <option>Access</option>
                     <option>Distribute</option>
                 </select>
+                </div>
+                
+                <div className='mb-4'>
+                    <label htmlFor=''>Map Url</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={url} 
+                    onChange={e => setUrl(e.target.value)}/>
+                </div>
+            
+                <div className='mb-4'>
+                    <label htmlFor=''>Config Url</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={urlconfig} 
+                    onChange={e => setUrlConfig(e.target.value)}/>
                 </div>
                 <div
                     style={{
@@ -160,5 +211,5 @@ function EditSWContent() {
     }
     
 export default function EditSwitch() {
-    return <EditSWContent />
+    return <UserEditSWContent />
 }

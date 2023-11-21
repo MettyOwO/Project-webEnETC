@@ -8,14 +8,15 @@ import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
 import NavDropdown from 'react-bootstrap/NavDropdown';
-function APContent() {
+import AddUrl from "./AddUrl";
 
+function APContent() {
     //Check Token API
     const location = useLocation();
     const [paramPath,setParamPath] = useState(location.state.site)
     const navigate = useNavigate();
     const [aplist, setApList] = useState([]); 
-    const [apdata, setApdata]= useState([]); 
+    const [apdata, setApdata]= useState([]);
     
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -39,7 +40,8 @@ function APContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
-        getDataAP()
+        getDataAP();
+        getDataAP2();
     },[])
 
     //Access Point List API
@@ -54,15 +56,24 @@ function APContent() {
             }
         })
         console.log(dataSite);
-        setApList(dataSite)
+        console.log(paramPath);
+        setApList(dataSite);
         setApdata(dataSite);
-
     }
+
+    const [ap_models, setApModel] = useState([]);
+    const [ap_datasheets, setApDataSheet] = useState([]);
+    async function getDataAP2(){
+        const getModel = await axios.get('http://localhost:3333/ap_model')
+        const getSheet = await axios.get('http://localhost:3333/ap_datasheet')
+        setApModel(getModel.data);
+        setApDataSheet(getSheet.data)
+    };
 
     //AP Delete Function
     const handleDelete = async (id) => {
         try {           
-            alert("Delete Access Switch Data Complete!")
+            alert("Delete Access Point ID : " + (id) + " Complete!")
             axios.delete('http://localhost:3333/deleteap/'+id)
             window.location.reload();          
         }
@@ -78,13 +89,6 @@ function APContent() {
         window.location = '/login'
     }
 
-    //Export Excel
- 
- 
-
-    //const res = api;
-    
-
     //UI
     return (
         <div>     
@@ -96,15 +100,16 @@ function APContent() {
             <Nav className="me-auto">
             
             <NavDropdown title="Access Point Datasheet" id="basic-nav-dropdown">
-                <NavDropdown.Item href="https://e.huawei.com/en/material/networking/campus-network/wlan/5d086921ffd04ae4b77cda33408f84c7" target="_blank">Type-Indoor (AirEngine5761-21)</NavDropdown.Item>
-                <NavDropdown.Item href="https://e.huawei.com/en/material/networking/campus-network/wlan/11050655dd4d404f9aebeeeb8de4b832" target="_blank">Type-Outdoor (AirEngine6760R-51E)</NavDropdown.Item>
+            {ap_datasheets.map ((ap_datasheets,index) => (
+                <NavDropdown.Item key={index} href={ap_datasheets.href} target="_blank">Datasheet : {ap_datasheets.name}</NavDropdown.Item>        
+            ))}    
             </NavDropdown>
 
             <NavDropdown title="Access Point Model" id="basic-nav-dropdown">
-                <NavDropdown.Item href="https://e.huawei.com/en/products/wlan/indoor-access-points/airengine-5761-21" target="_blank">Type-Indoor (AirEngine5761-21)</NavDropdown.Item>
-                <NavDropdown.Item href="https://e.huawei.com/en/products/wlan/outdoor-access-points/airengine-6760r-51-airengine-6760r-51e" target="_blank">Type-Outdoor (AirEngine6760R-51E)</NavDropdown.Item>
-            </NavDropdown>
-
+            {ap_models.map ((ap_models,index) => (
+                <NavDropdown.Item key={index} href={ap_models.href} target="_blank">Model : {ap_models.name}</NavDropdown.Item>        
+            ))}    
+            </NavDropdown>  
             </Nav>
             <Nav>
                 <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
@@ -129,10 +134,10 @@ function APContent() {
                     </>}
                     
                 </div> 
-
-                <Link to="/addap" className='btn btn-primary'>Add AP Data</Link>&nbsp;
+             
                 {paramPath === "APList" && <>
-                    <Link to="http://localhost:3333/import-accesspoint" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                    <Link to="/addap" className='btn btn-primary'>Add AP Data</Link>&nbsp;
+                    <Link to="/accesspoint-excel" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 </>}
                
                 <CSVLink  data={ apdata } filename="AccessPoint"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
@@ -157,7 +162,12 @@ function APContent() {
                                 <td>{aplist.IPswitch}</td>
                                 <td>{aplist.APname}</td>
                                 <td>{aplist.Role}</td>
-                                <td><Link to="/maps" className="btn btn-info">Click</Link></td>
+                                {aplist.urlmap && <>
+                                    <td><Link to={aplist.urlmap} className="btn btn-info" target="_blank">Click</Link></td>
+                                </>}
+                                {!aplist.urlmap && <>
+                                    <td><AddUrl id={aplist.ID} status="AP"/></td>
+                                </>}                                                                                                      
                                 <td><Link to= {`/updateap/${aplist.ID}`} className="btn btn-warning">Edit</Link> &nbsp;
                                 <button className='btn btn-danger ms-2' onClick={ e => handleDelete(aplist.ID)}>Delete</button>
                                 </td>
@@ -172,7 +182,6 @@ function APContent() {
     );
 }
     
-
 export default function AccessPointList() {
     return <APContent />
 }

@@ -4,7 +4,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function ImportSwitchContent() {
+function UserImportSwitchContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -38,7 +38,7 @@ function ImportSwitchContent() {
         
     const handleSubmit = () => {       
         alert('Added Data!');
-        window.location.href = '/dbadmin'
+        window.location.href = '/dbusers'
     }
 
     //UI
@@ -46,7 +46,7 @@ function ImportSwitchContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/dbadmin">Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href="/dbusers">Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">          
@@ -93,5 +93,5 @@ function ImportSwitchContent() {
     }
     
 export default function ImportSwitch() {
-    return <ImportSwitchContent />
+    return <UserImportSwitchContent />
 }

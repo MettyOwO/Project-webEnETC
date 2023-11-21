@@ -9,15 +9,12 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 var jwt = require('jsonwebtoken');
 const secret = 'Project-Network-2023'
-//token user const
 
 //Import Excel-Data const
 const fs = require('fs');
 const path = require('path')
 const multer = require('multer')
 const csv = require('fast-csv');
-const readXlsxFile = require('read-excel-file/node');
-//Import Excel-Data const
 
 app.use(express.static("./public"))
 app.use(express.json())
@@ -36,12 +33,11 @@ const connection = mysql.createConnection({
   password : '',
   database: 'project_network'
 });
-//mysql2 connection
 
-//Import Excel-Data Multer Function
+//Import Excel-Data Multer,Storage Function
 var storage = multer.diskStorage({
     destination: (req, file, callBack) => {
-        callBack(null, 'C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page/uploads/')    
+        callBack(null, 'C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/uploads/')    
     },
     filename: (req, file, callBack) => {
         callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
@@ -50,7 +46,6 @@ var storage = multer.diskStorage({
 var upload = multer({
     storage: storage
 });
-//Import Excel-Data Multer Function 
 
 //Login-API
 app.post('/login', jsonParser, function (req, res, next) {
@@ -73,7 +68,6 @@ app.post('/login', jsonParser, function (req, res, next) {
     }
   );
 })
-//Login-API
 
 //Authen Token API
 app.post('/authen', jsonParser, function (req, res, next) {
@@ -85,9 +79,8 @@ app.post('/authen', jsonParser, function (req, res, next) {
     res.json({status: 'error', message: err.message})
   }
 })
-//Authen Token API
 
-//Switch API Start
+//Switch API
 //Switch List
 app.get('/swlist', function (req, res, next) {
   connection.query('SELECT * FROM switch', function(err, results, fields){
@@ -122,10 +115,11 @@ app.get('/switchlist_nkc', (req, res) => {
 })
 //Switch Data Update
 app.put('/updatesw/:id', (req, res) => {
-  const sql = "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?  where ID = ?";
+  const sql = "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?  where ID = ?";
   const id = req.params.id;
   const values = [req.body.role,req.body.build_name, 
-  req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.model]
+  req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.model
+  ,req.body.url, req.body.urlconfig]
   connection.query(sql, [...values,id], (err, result) => {
     if(err) return res.json("Error");
     return res.json({updated: true})
@@ -142,57 +136,51 @@ app.delete('/deletesw/:id' ,(req,res) => {
 })
 //Switch Data Add
 app.post('/addsw', (req, res) => {    
-  const sql = "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role) VALUES (?)";    
-  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
+  const sql = "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model) VALUES (?)";    
+  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role
+  ,req.body.model]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
   })
 })
 //Switch Import Excel
-app.get('/import-switch', (req, res) => {
-  res.sendFile('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/import-switch.html');
-});
-app.post('/import-csv2', upload.single("import-csv"), (req, res) =>{
-    uploadCsv2('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/uploads/' + req.file.filename);
+app.post('/import-switch-csv', upload.single("import-csv"), (req, res) =>{
+    uploadSwitchExcel
+    ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + 'uploads/' + req.file.filename);
     console.log(res);
 }); 
-
-
-function uploadCsv2(uriFile){
-    let stream = fs.createReadStream(uriFile); //ระบุเส้นทางไปยังไฟล์ที่อัพโหลด
-    let csvDataColl = []; //สร้างตัวแปร์เป็น [] เปล่าๆ
-    let fileStream = csv 
-        .parse()
-        .on("data", function (data) {
-            csvDataColl.push(data);
-        })
-        .on("end", function () {
-            
-            // Remove Header Coll
-            csvDataColl.shift();
-            connection.connect((error) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    let query = 'INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress) VALUES ?';
-                    connection.query(query, [csvDataColl], (error, res) => {
-                        console.log(error || res);
-                    });
-                }
-            });            
-            fs.unlinkSync(uriFile)
-        });  
-    stream.pipe(fileStream);
-    connection.end;
+function uploadSwitchExcel(filePath){
+  let stream = fs.createReadStream(filePath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
+  let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
+  let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
+    .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดจากไฟล์ excel ให้เป็น Arrays
+    .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
+      csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
+      console.log(data);
+    })
+    .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
+      csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
+      connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
+      if (error) {
+        console.error(error);
+      }else{
+        // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง switch
+        let query = 'INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?';
+        connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
+        if(error){
+          console.log(error);
+        }
+        console.log(result);
+        });
+      }
+    });            
+    fs.unlinkSync(filePath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
+  });  
+  stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
 }
 
-
-
-
-//Switch API End
-
-//Access Point API Start
+//Access Point API
 //AP List
 app.get('/aplist', (req, res) => {
   const sql = "SELECT * FROM accesspoint";
@@ -228,10 +216,10 @@ app.get('/aplist_kku', (req, res) => {
 })
 //AP Update API
 app.put('/updateap/:id', (req, res) => {
-  const sql = "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?  where ID = ?";
+  const sql = "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?  where ID = ?";
   const id = req.params.id;
   const values = [req.body.role,req.body.build_name, 
-  req.body.build_group, req.body.ipswitch, req.body.hostname,req.body.model]
+  req.body.build_group, req.body.ipswitch, req.body.hostname,req.body.model,req.body.url]
   connection.query(sql, [...values,id], (err, result) => {
     if(err) return res.json("Error");
     return res.json({updated: true})
@@ -248,49 +236,51 @@ app.delete('/deleteap/:id' ,(req,res) => {
 })
 //AP Add API
 app.post('/addap', (req, res) => {    
-  const sql = "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role) VALUES (?)";    
-  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role]    
+  const sql = "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model) VALUES (?)";    
+  const values = [req.body.site, req.body.build_name, req.body.build_group, req.body.ipswitch, req.body.hostname, req.body.role, req.body.model]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
   })
 })
 //AP Import Excel
-app.get('/import-accesspoint', (req, res) => {
-  res.sendFile('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/import-accesspoint.html');
-});
-app.post('/import-csv', upload.single("import-csv"), (req, res) =>{
-    uploadCsv('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/Page' + '/uploads/' + req.file.filename);
-    console.log(res);
+app.post('/import-accesspoint-csv', upload.single("import-csv"), (req, res) =>{
+  uploadAccessPointExcel
+  ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + '/uploads/' + req.file.filename);
+  console.log(res);
 }); 
-function uploadCsv(uriFile){
-    let stream = fs.createReadStream(uriFile);
-    let csvDataColl = [];
-    let fileStream = csv
-        .parse()
-        .on("data", function (data) {
-            csvDataColl.push(data);
-        })
-        .on("end", function () {
-            csvDataColl.shift();
-            connection.connect((error) => {
-                if (error) {
-                    console.error(error);
-                } else {
-                    let query = 'INSERT INTO accesspoint (Site,Buildgroup,Buildname,Floor,Switchname,IPSwitch,Model,Seriesap,Apid,Vlan,APname,APbox,Cablename,Serialnumber,MACaddress,Role) VALUES ?';
-                    connection.query(query, [csvDataColl], (error, res) => {
-                        console.log(error || res);
-                    });
-                }
-            });            
-            fs.unlinkSync(uriFile)
-        });  
-    stream.pipe(fileStream);
+function uploadAccessPointExcel(filePath){
+  let stream = fs.createReadStream(filePath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
+  let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
+  let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
+    .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดให้เป็น Arrays
+    .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
+      csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
+      console.log(data);
+    })
+    .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
+      csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
+      connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
+      if (error) {
+        console.error(error);
+      }else{
+        // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง accesspoint
+        let query = 'INSERT INTO accesspoint (Site,Buildgroup,Buildname,Floor,Switchname,IPSwitch,Model,Seriesap,Apid,Vlan,APname,APbox,Cablename,Serialnumber,MACaddress,Role,urlmap) VALUES ?';
+        connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
+        if(error){
+          console.log(error);
+        }
+        console.log(result);
+        });
+      }
+    });            
+    fs.unlinkSync(filePath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
+  });  
+  stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream และ fileStream  ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
 }
-//Access Point API End
 
-//User API Start
-//User List API
+//User API
+//User List
 app.get('/users', (req, res) => {
   const sql = "SELECT * FROM users";
   connection.query(sql, (err, result) => {
@@ -298,23 +288,18 @@ app.get('/users', (req, res) => {
     return res.json(result);
   })
 })
-//Add Users API
-app.post('/register', jsonParser, function (req, res, next) {
+//Add Users
+app.post('/register', (req, res) => {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-    connection.execute(
-      'INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)',
-      [req.body.email, hash, req.body.name, req.body.role],
-      function(err, results, fields) {
-        if(err){
-          res.json({status: 'error', message : err})
-          return
-        }
-        res.json({status : 'ok'})
-      }
-    );
+    const sql = "INSERT INTO users (email, password, name, role) VALUES (?)";
+    const values = [req.body.email, hash, req.body.name, req.body.role]
+    connection.query(sql, [values], (err) => {        
+      if(err) return res.json("Error");        
+      return res.json({added: true});    
+    })
   });
 })
-//Delete Users API
+//Delete Users
 app.delete('/deleteuser/:id' ,(req,res) => {
   const sql = "DELETE FROM users where ID = ?";
   const id = req.params.id;
@@ -332,7 +317,7 @@ app.get('/userlist2/:id', (req, res) => {
     return res.json(result);
   })
 })
-//User Update API
+//User Update
 app.put('/updateuser/:id', (req, res) => {
   const sql = "UPDATE users SET name = ?, role = ? where ID = ?";
   const id = req.params.id;
@@ -342,9 +327,8 @@ app.put('/updateuser/:id', (req, res) => {
     return res.json({updated: true})
   })
 })
-//User API END
 
-//Start
+//device corrupted api
 app.get('/deviceclist', (req, res) => {
   const sql = "SELECT * FROM device_corrupted";
   connection.query(sql, (err, result) => {
@@ -352,44 +336,60 @@ app.get('/deviceclist', (req, res) => {
     return res.json(result);
   })
 })
-
-app.get('/deviceclist_nkc', (req, res) => {
-  const sql = "SELECT * FROM device_corrupted where Site = 'NKC'";
-  connection.query(sql,(err, result) => {
-    if(err) return res.json({Error: err});
-    return res.json(result);
-  })
-})
-
-app.get('/deviceclist_kku', (req, res) => {
-  const sql = "SELECT * FROM device_corrupted where Site = 'KKU'";
-  connection.query(sql,(err, result) => {
-    if(err) return res.json({Error: err});
-    return res.json(result);
-  })
-})
-
-app.post('/adddc', (req, res) => {    
-  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
+app.post('/addreport_ap/:id', (req, res) => {    
+  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap) VALUES (?)";    
   const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
-  req.body.ipaddress, req.body.role, req.body.serial_number, req.body.detail]    
+  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail, req.body.url]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
   })
 })
-//End
+app.post('/addreport_sw/:id', (req, res) => {    
+  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap, urlconfig) VALUES (?)";    
+  const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
+  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail, req.body.url, req.body.urlconfig]    
+  connection.query(sql, [values], (err) => {        
+    if(err) return res.json("Error");        
+    return res.json({added: true});    
+  })
+})
+app.delete('/deletedc/:id' ,(req,res) => {
+  const sql = "DELETE FROM device_corrupted where ID = ?";
+  const id = req.params.id;
+  connection.query(sql,[id], (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.json(result);
+  })
+})
 
-//Graph Start
-//Total Switch List
-app.get('/site_name',(req , res) => {
-  const sql = "SELECT DISTINCT name FROM sitename";
-  connection.query(sql , (err, result) => {
+//Graph
+app.get('/getSiteAP/:site', (req,res) => {
+  const sql = "SELECT * FROM accesspoint WHERE Site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/getSiteSW/:site', (req,res) => {
+  const sql = "SELECT * FROM switch WHERE site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/getSiteDC/:site', (req,res) => {
+  const sql = "SELECT * FROM device_corrupted WHERE Site = ?";
+  const site = req.params.site
+  connection.query(sql ,[site],(err, result) => {
     if(err) return res.json({Error: err});
     return res.send(result);
   })
 })
 
+//Count Switch
 app.get('/total_switch_as', (req, res) => {
   const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
   connection.query(sql, (err, result) => {
@@ -405,7 +405,7 @@ app.get('/total_switch_ds', (req, res) => {
   })
 })
 
-//Total AccessPoint List
+//Count Access Point
 app.get('/total_ap_in', (req, res) => {
   const sql = "SELECT COUNT(ID) as numap FROM accesspoint where Role = 'Indoor'";
   connection.query(sql, (err, result) => {
@@ -421,7 +421,7 @@ app.get('/total_ap_out', (req, res) => {
   })
 })
 
-//Total Device Corrupted
+//Count Device Corrupted
 app.get('/total_dc_ap', (req, res) => {
   const sql = "SELECT COUNT(ID) as numdcap FROM device_corrupted where Role = 'AP-Indoor'";
   connection.query(sql, (err, result) => {
@@ -451,130 +451,14 @@ app.get('/total_dc_sw2', (req, res) => {
   })
 })
 
-//KKU
-//Total AccessPoint List
-app.get('/total_ap_in_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numapinkku FROM accesspoint where Site = 'KKU' AND Role = 'Indoor'";
-  connection.query(sql, (err, result) => {
+//Site
+app.get('/site_name',(req , res) => {
+  const sql = "SELECT DISTINCT name FROM sitename";
+  connection.query(sql , (err, result) => {
     if(err) return res.json({Error: err});
-    return res.send(result[0]);
+    return res.send(result);
   })
 })
-app.get('/total_ap_out_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numapoutkku FROM accesspoint where Site = 'KKU' AND Role = 'Outdoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-//Total Switch List
-app.get('/total_switch_as_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numswitchaskku FROM switch where site = 'KKU' AND role = 'Access'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_switch_ds_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numswitchdskku FROM switch where site = 'KKU' AND role = 'Distribute'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-//Total Device Corrupted
-app.get('/total_dc_ap_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcapkku FROM device_corrupted where Site = 'KKU' AND Role = 'AP-Indoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_ap2_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcapkku2 FROM device_corrupted where Site = 'KKU' AND Role = 'AP-Outdoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_sw_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcswkku FROM device_corrupted where Site = 'KKU' AND Role = 'SW-Access'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_sw2_kku', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcswkku2 FROM device_corrupted where Site = 'KKU' AND Role = 'SW-Distribute'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-
-//NKC
-//Total AccessPoint List
-app.get('/total_ap_in_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numapinnkc FROM accesspoint where Site = 'NKC' AND Role = 'Indoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_ap_out_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numapoutnkc FROM accesspoint where Site = 'NKC' AND Role = 'Outdoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-//Total Switch List
-app.get('/total_switch_as_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numswitchasnkc FROM switch where site = 'NKC' AND role = 'Access'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_switch_ds_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numswitchdsnkc FROM switch where site = 'NKC' AND role = 'Distribute'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-//Total Device Corrupted
-app.get('/total_dc_ap_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcapnkc FROM device_corrupted where Site = 'NKC' AND Role = 'AP-Indoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_ap2_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcapnkc2 FROM device_corrupted where Site = 'NKC' AND Role = 'AP-Outdoor'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_sw_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcswnkc FROM device_corrupted where Site = 'NKC' AND Role = 'SW-Access'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-app.get('/total_dc_sw2_nkc', (req, res) => {
-  const sql = "SELECT COUNT(ID) as numdcswnkc2 FROM device_corrupted where Site = 'NKC' AND Role = 'SW-Distribute'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result[0]);
-  })
-})
-//Graph End
-
-//--
 app.get('/ap_site', (req, res) => {
   const sql = "SELECT * FROM sitename where type = 'AP'";
   connection.query(sql, (err, result) => {
@@ -596,29 +480,6 @@ app.get('/dc_site', (req, res) => {
     return res.send(result);
   })
 })
-
-app.get('/ap_site2', (req, res) => {
-  const sql = "SELECT * FROM sitename_user where type = 'AP'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result);
-  })
-})
-app.get('/sw_site2', (req, res) => {
-  const sql = "SELECT * FROM sitename_user where type = 'SW'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result);
-  })
-})
-app.get('/dc_site2', (req, res) => {
-  const sql = "SELECT * FROM sitename_user where type = 'DC'";
-  connection.query(sql, (err, result) => {
-    if(err) return res.json({Error: err});
-    return res.send(result);
-  })
-})
-
 app.post('/addsitedevice', (req, res) => {    
   const sql = "INSERT INTO sitename (type, name) VALUES (?)";    
   const values = [req.body.type, req.body.sitename]    
@@ -627,37 +488,114 @@ app.post('/addsitedevice', (req, res) => {
     return res.json({added: true});    
   })
 })
-app.post('/addreport_ap/:id', (req, res) => {    
-  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
-  const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
-  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail]    
+
+//AP Model&Datasheet
+app.get('/ap_model', (req, res) => {
+  const sql = "SELECT * FROM model where type = 'AP'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.get('/ap_datasheet', (req, res) => {
+  const sql = "SELECT * FROM datasheet where type = 'AP'";
+  connection.query(sql, (err, result) => {
+    if(err) return res.json({Error: err});
+    return res.send(result);
+  })
+})
+app.post('/addmodel', (req, res) => {    
+  const sql = "INSERT INTO model (type, name, href) VALUES (?)";    
+  const values = [req.body.type, req.body.name, req.body.url]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
   })
 })
-app.post('/addreport_sw/:id', (req, res) => {    
-  const sql = "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details) VALUES (?)";    
-  const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname, 
-  req.body.ipswitch, req.body.role, req.body.serial_number, req.body.detail]    
+app.post('/adddatasheet', (req, res) => {    
+  const sql = "INSERT INTO datasheet (type, name, href) VALUES (?)";    
+  const values = [req.body.type, req.body.name, req.body.url]    
   connection.query(sql, [values], (err) => {        
     if(err) return res.json("Error");        
     return res.json({added: true});    
   })
 })
 
-app.get('/test1', (req, res) => {
-  const sql = "SELECT * FROM graph_data where value = 'apinCount'";
+//SW Model&Datasheet
+app.get('/sw_model', (req, res) => {
+  const sql = "SELECT * FROM model where type = 'SW'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
     return res.send(result);
   })
 })
-app.get('/test2', (req, res) => {
-  const sql = "SELECT * FROM graph_data where value = 'apoutCount'";
+app.get('/sw_datasheet', (req, res) => {
+  const sql = "SELECT * FROM datasheet where type = 'SW'";
   connection.query(sql, (err, result) => {
     if(err) return res.json({Error: err});
     return res.send(result);
+  })
+})
+
+//Map and Config URL API
+app.put('/updateaplink/:id',(req,res) => {
+  const url = req.body.url;
+  const id = req.params.id;
+  console.log(req.body);
+  connection.query("UPDATE accesspoint SET urlmap = ? WHERE ID = ?",[url, id] , (err,result) => {
+      if (err) {
+          console.log(err);
+      }else {
+          res.send(result);
+      }
+  })
+})
+app.put('/updateswlink/:id',(req,res) => {
+  const url = req.body.url;
+  const id = req.params.id;
+  console.log(req.body);
+  connection.query("UPDATE switch SET urlmap = ? WHERE ID = ?",[url, id] , (err,result) => {
+      if (err) {
+          console.log(err);
+      }else {
+          res.send(result);
+      }
+  })
+})
+app.put('/updatedclink/:id',(req,res) => {
+  const url = req.body.url;
+  const id = req.params.id;
+  console.log(req.body);
+  connection.query("UPDATE device_corrupted SET urlmap = ? WHERE ID = ?",[url, id] , (err,result) => {
+      if (err) {
+          console.log(err);
+      }else {
+          res.send(result);
+      }
+  })
+})
+app.put('/updateconfiglink/:id',(req,res) => {
+  const url = req.body.url;
+  const id = req.params.id;
+  console.log(req.body);
+  connection.query("UPDATE switch SET urlconfig = ? WHERE ID = ?",[url, id] , (err,result) => {
+      if (err) {
+          console.log(err);
+      }else {
+          res.send(result);
+      }
+  })
+})
+app.put('/updateconfiglink2/:id',(req,res) => {
+  const url = req.body.url;
+  const id = req.params.id;
+  console.log(req.body);
+  connection.query("UPDATE device_corrupted SET urlconfig = ? WHERE ID = ?",[url, id] , (err,result) => {
+      if (err) {
+          console.log(err);
+      }else {
+          res.send(result);
+      }
   })
 })
 

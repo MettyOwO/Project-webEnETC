@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from "react-router-dom";
 
 function AddUsersContent() {
     //Check Token API
@@ -19,7 +20,7 @@ function AddUsersContent() {
         .then(response => response.json())
         .then(data => {
         if(data.status === 'ok'){
-            //ไม่ต้องทำอะไร
+            
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
@@ -32,36 +33,30 @@ function AddUsersContent() {
     },[])    
     
     //Register API
-    const handleSubmit = (event) => {
+    const [role, setUserRole] = useState("Select User Role");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const navigate = useNavigate();  
+
+    function handleSubmit(event) {
       event.preventDefault();
-      const data = new FormData(event.currentTarget);   
-      const jsonData = {
-        email: data.get('email'),
-        password: data.get('password'),
-        name: data.get('name'),
-        role: data.get('role'),
+      if (role !== "Select User Role" && email !== '' && password !== '' && name !== '') {
+        axios
+          .post("http://localhost:3333/register", { email, password, name, role })
+          .then((res) => {
+            if (res.data.added) {
+              alert("Register User Sucess!");
+              navigate("/users");
+            } else {
+              alert("Register User Failed!");
+            }
+          })
+          .catch((err) => console.log(err));
+      }else{
+          alert("Please Complete The Information!");
       }
-      
-        fetch ('http://localhost:3333/register', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(jsonData),
-        })   
-        .then(response => response.json())
-        .then(data => {
-          if(data.status === 'ok'){
-            alert('Register Sucess')
-            window.location = '/users'
-          }else{
-            alert('Register Failed')
-          }
-        })
-        .catch((error) => {
-          console.log("Error:", error);
-        });
-    };
+    }
 
     //Log Out Function
     const handleLogout = (event) => {
@@ -75,7 +70,7 @@ function AddUsersContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/users">Back To Users List</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -92,42 +87,63 @@ function AddUsersContent() {
               style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',}}>
-                <h2>Add User Data</h2>
-            </div>           
-            <div className="mb-4">
-              <label>Email</label>
-              <input class="form-control" id="email" name="email" required/>
-            </div> 
-          
-          <div class="mb-4">
-            <label>Password</label>
-            <input class="form-control" id="password" name="password" required/>
+              justifyContent: 'center',}}
+            >
+              <h2>Add User Data</h2>
+            </div>
+              <div className="mb-4">
+                <label>Email</label>
+                <input
+                type="text"
+                className="form-control"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+               />
+              </div>
+              
+              <div className="mb-4">
+                <label>Password</label>
+                <input
+                type="text"
+                className="form-control"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+               />
+              </div>
+              
+              <div className="mb-4">
+                <label>Name</label>
+                <input
+                type="text"
+                className="form-control"
+                required
+                onChange={(e) => setName(e.target.value)}
+               />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="Select UserRole">Role</label>
+                <select
+                className="form-control"
+                onChange={(e) => setUserRole(e.target.value)}
+                >
+                  <option>Select User Role</option>
+                  <option>Customer</option>
+                  <option>Admin</option>
+                </select>
+              </div>
+              <div
+                style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              >
+                <button className="btn btn-primary" onClick={handleSubmit}>
+                  Add User
+                </button>
+              </div>                           
+            </form>
           </div>
-          
-          <div class="mb-4">
-            <label>Name</label>
-            <input class="form-control" id="name" name="name" required/>
-          </div>
-          
-          <div class="mb-4">
-          <label>Role</label>
-            <select class="form-control" id="role" name="role" required>
-              <option>Select User Role</option>
-              <option>Customer</option>
-              <option>Admin</option>
-            </select>
-          </div>
-          <div 
-            style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-            <button type="submit" class="btn btn-primary">Add User</button>
-          </div>
-        </form>
-        </div>
         </div>          
       );
     }

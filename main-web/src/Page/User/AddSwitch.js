@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function AddSWContent() {
+function UserAddSWContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -29,29 +29,44 @@ function AddSWContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getDataSite()
     },[])
 
-const [hostname, setHostname] = useState('');
-const [ipswitch, setIpswitch] = useState('');
-const [build_name, setBuildname] = useState('');
-const [build_group, setBuildgroup] = useState('');
-const [role, setRole] = useState('');
-const [site, setSite] = useState('');
-const navigate = useNavigate();
+    const [hostname, setHostname] = useState('');
+    const [ipswitch, setIpswitch] = useState('');
+    const [build_name, setBuildname] = useState('');
+    const [build_group, setBuildgroup] = useState('');
+    const [role, setRole] = useState("Select SW Role");
+    const [site, setSite] = useState("Select Site");
+    const [model, setModel] = useState("Select Model");
+    const navigate = useNavigate();
 
-function handleSubmit(event) {        
-    event.preventDefault();        
-    axios.post('http://localhost:3333/addsw', {site ,build_name, build_group, ipswitch, hostname, role})        
-    .then(res => {            
-        if(res.data.added){
-            alert("Add Switch Data Complete!")
-            navigate('/switch')    
+    function handleSubmit(event) {        
+        event.preventDefault();        
+        if(hostname != '' && ipswitch != '' && build_name != ''
+        && build_group != '' && role != "Select SW Role" && site != "Select Site" && model != "Select Model"){
+        axios
+        .post('http://localhost:3333/addsw', {site ,build_name, build_group, ipswitch, hostname, role, model})        
+        .then(res => {            
+            if(res.data.added){
+                alert("Add Switch Data Complete!")
+                //navigate('/switch')
+                navigate('/dbusers')      
+            }else{
+                alert("Error! Please Try Again.")
+            }       
+        })
+        .catch(err => console.log(err));
         }else{
-            alert("Error! Please Try Again.")
-        }       
-    })
-    .catch(err => console.log(err));    
+            alert("Please Complete The Information!");
+        } 
     }
+
+    const [siteName,setSiteName] = useState([])
+    async function getDataSite(){
+        const getSiteName = await axios.get("http://localhost:3333/site_name")
+        setSiteName(getSiteName.data)
+    };
 
     //Log Out
     const handleLogout = (event) => {
@@ -64,7 +79,7 @@ function handleSubmit(event) {
     <div>
     <Navbar variant="dark" bg="dark" expand="lg">
     <Container fluid>
-        <Navbar.Brand href="/userswitch">Back To Switch List</Navbar.Brand>
+        <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
         <Nav className="me-auto"></Nav>
@@ -83,46 +98,76 @@ function handleSubmit(event) {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-            <h2>Add Switch Data</h2>
+                <h2>Add Switch Data</h2>
             </div>              
             
             <div className='mb-4'>
             <label htmlFor='Select Site'>Site</label>
-                <select class="form-control" onChange={e => setSite(e.target.value)}>
+                <select 
+                className="form-control" 
+                onChange={e => setSite(e.target.value)}>
                     <option>Select Site</option>
-                    <option>NKC</option>
-                    <option>KKU</option>
+                    {siteName.map ((siteName,index) => (        
+                        <option key={index}>{siteName.name}</option>           
+                    ))}
                 </select>
             </div>          
+            
             <div className='mb-4'>
                 <label>Building Group</label>
-                <input type="text" className='form-control'
+                <input 
+                type="text" 
+                className='form-control'
+                required
                 onChange={e => setBuildgroup(e.target.value)}/>
             </div>
 
             <div className='mb-4'>
                 <label>Building Name</label>
-                <input type="text" className='form-control'
+                <input 
+                type="text" 
+                className='form-control'
+                required
                 onChange={e => setBuildname(e.target.value)}/>
             </div>
 
             <div className='mb-4'>
                 <label>IP Address</label>
-                <input type="text" className='form-control'
+                <input 
+                type="text" 
+                className='form-control'
+                required
                 onChange={e => setIpswitch(e.target.value)}/>
             </div>
 
             <div className='mb-4'>
                 <label>HostName</label>
-                <input type="text" className='form-control'
+                <input 
+                type="text" 
+                className='form-control'
+                required
                 onChange={e => setHostname(e.target.value)}/>
             </div>
+           
             <div className='mb-4'>
             <label>Role</label>
-                <select class="form-control" onChange={e => setRole(e.target.value)}>
+                <select 
+                className="form-control" 
+                onChange={e => setRole(e.target.value)}>
                     <option>Select SW Role</option>
                     <option>Access</option>
                     <option>Distribute</option>
+                </select>
+            </div>
+
+            <div className='mb-4'>
+            <label>Model</label>
+                <select className="form-control" 
+                onChange={e => setModel(e.target.value)}
+                >
+                    <option>Select Model</option>
+                    <option>S5735-L24P4X-A1</option>
+                    <option>S5736-S24S4XC</option>
                 </select>
             </div>
             <div 
@@ -131,13 +176,13 @@ function handleSubmit(event) {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-            <button className="btn btn-primary" onClick={ handleSubmit }>Add Data</button>   
-        </div>
-        </form>
+                <button className="btn btn-primary" onClick={ handleSubmit }>Add Data</button>   
+            </div>
+            </form>
         </div> 
     </div>
 )}
 
 export default function AddSwitch() {
-    return <AddSWContent />
+    return <UserAddSWContent />
 }

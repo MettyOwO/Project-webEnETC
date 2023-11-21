@@ -4,7 +4,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function ImportSwitchContent() {
+function ImportAccessPointContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -64,12 +64,12 @@ function ImportSwitchContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Import Switch Excel Data To Database</h2>
+                <h2>Import Access Point Excel Data To Database</h2>
             </div> 
             <form 
             className="container mt-3 mb-3"
             encType="multipart/form-data"
-            action="http://localhost:3333/import-switch-csv" 
+            action="http://localhost:3333/import-accesspoint-csv" 
             method="post">
             <div className="mb-3">
                 <input
@@ -92,6 +92,6 @@ function ImportSwitchContent() {
       );
     }
     
-export default function ImportSwitch() {
-    return <ImportSwitchContent />
+export default function ImportAccessPoint() {
+    return <ImportAccessPointContent />
 }

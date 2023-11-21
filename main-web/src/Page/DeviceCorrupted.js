@@ -6,6 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
+import AddUrl from "./AddUrl";
 
 function DCContent() {
     //Check Token API
@@ -38,12 +39,10 @@ function DCContent() {
         getDataDC()
     },[])
 
-    //Access Point List API
     async function getDataDC(){
         const getDc = await axios.get('http://localhost:3333/deviceclist')   
         const dataSite = []
-        console.log(getDc.data);
-
+        //console.log(getDc.data);
         getDc.data.map((item)=>{
             if(paramSite === item.Site){
                 dataSite.push(item)
@@ -55,11 +54,18 @@ function DCContent() {
         setDcList(dataSite)
 
     }
-    // useEffect(()=> {
-    //     axios.get('http://localhost:3333/deviceclist')        
-    //     .then(res => setDcList(res.data))        
-    //     .catch(err => console.log(err));    
-    // },[])
+
+    //Delete Function
+    const handleDelete = async (id) => {
+        try {           
+            alert("Delete Device Corrupted ID : " + (id) + " Complete!")
+            axios.delete('http://localhost:3333/deletedc/'+id)
+            window.location.reload();          
+        }
+        catch(err){            
+            console.log(err);        
+        }
+    }
 
     //Log Out
     const handleLogout = (event) => {
@@ -70,8 +76,7 @@ function DCContent() {
 
     //UI
     return (
-        <div>
-        
+        <div>       
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
             <Navbar.Brand href="/dbadmin">Back To Dashboard</Navbar.Brand>
@@ -115,10 +120,12 @@ function DCContent() {
                             <th scope="col">Detail Device Corrupted</th>
                             <th scope="col">DateTime Device Change</th>
                             <th scope="col">Maps</th>
+                            <th scope="col">Config</th>
+                            <th scope="col">Delete</th>
                         </tr>
                     </thead>
                     <tbody>
-                        { deviceclist.map ((deviceclist, i) => (
+                        {deviceclist.map ((deviceclist, i) => (
                             <tr key={i}>
                                 <td>{deviceclist.Site}</td>
                                 <td>{deviceclist.Buildgroup}</td>
@@ -129,7 +136,19 @@ function DCContent() {
                                 <td>{deviceclist.Serialnumber}</td>
                                 <td>{deviceclist.Details}</td>
                                 <td>{deviceclist.Datatime1}</td>
-                                <td><Link to="/maps" className="btn btn-info">Click</Link></td>
+                                {deviceclist.urlmap && <>
+                                    <td><Link to={deviceclist.urlmap} className="btn btn-info" target="_blank">Click</Link></td>
+                                </>}
+                                {!deviceclist.urlmap && <>
+                                    <td><AddUrl id={deviceclist.ID} status="DC"/></td>
+                                </>}
+                                {deviceclist.urlconfig && <>
+                                    <td><Link to={deviceclist.urlconfig} className="btn btn-info" target="_blank">Click</Link></td>
+                                </>}
+                                {!deviceclist.urlconfig && <>
+                                    <td><AddUrl id={deviceclist.ID} status="DCSWConfig"/></td>
+                                </>}
+                                <td><button className='btn btn-danger ms-2' onClick={ e => handleDelete(deviceclist.ID)}>Delete</button></td>    
                             </tr>
                         ))}   
                     </tbody> 

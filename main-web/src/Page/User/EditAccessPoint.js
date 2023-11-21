@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function EditAPContent() {
+function UserEditAPContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -39,8 +39,10 @@ function EditAPContent() {
     const [build_group, setBuildgroup] = useState('');
     const [model, setModel] = useState('');
     const [role, setRole] = useState('');
+    const [url, setUrl] = useState("");
     useEffect(() => {
-        axios.get('http://localhost:3333/aplistwithid/'+id)
+        axios
+        .get('http://localhost:3333/aplistwithid/'+id)
         .then(res => {
             setHostname(res.data[0].APname);
             setIpswitch(res.data[0].IPswitch);
@@ -48,27 +50,34 @@ function EditAPContent() {
             setBuildgroup(res.data[0].Buildgroup);
             setModel(res.data[0].Model);
             setRole(res.data[0].Role);
+            setUrl(res.data[0].urlmap);
         })
         .catch(err => console.log(err));
-    },[])
+    },[id])
 
     //Update AP API
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3333/updateap/'+id, {role, build_name, 
-        build_group, ipswitch, model, hostname}) 
-        .then(res => {
-            if(res.data.updated){
-                alert("Update Access Point Data Complete!")
-                navigate('/useraccesspoint')    
-            }else{
-                alert("Error! Please Try Again.")
-            }                
-        })
-        .catch(err => console.log(err));
+        if (model != "Select Model" && model !== '' && role !== "Select Role" && hostname !== ''
+        && ipswitch !== '' && build_name !== '' && build_group !== '') {
+            axios
+            .put('http://localhost:3333/updateap/'+id, {role, build_name, build_group, ipswitch, model, hostname, url}) 
+            .then(res => {
+                if(res.data.updated){
+                    alert("Update Access Point ID : " + (id) + " Complete!")
+                    //navigate('/accesspoint')
+                    navigate('/dbusers')     
+                }else{
+                    alert("Error! Please Try Again.")
+                }                
+            })
+            .catch(err => console.log(err));
+        }else{
+            alert("Please Complete The Information!");
+        }    
     }
-    
+
     //Log Out
     const handleLogout = (event) => {
         event.preventDefault();
@@ -81,8 +90,8 @@ function EditAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/useraccesspoint">Back To Access Point List</Navbar.Brand>
-            <Navbar.Toggle aria-controls="navbar-dark-example" />
+            <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Toggle aria-controls="navbar-dark-example"/>
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
             <Nav>
@@ -102,47 +111,73 @@ function EditAPContent() {
             }}>
                 <h2>Edit Access Point Data</h2>
             </div> 
-
                 <div className='mb-4'>
                     <label htmlFor=''>HostName</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={hostname} onChange={e => setHostname(e.target.value)}/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={hostname} 
+                    onChange={e => setHostname(e.target.value)}/>
                 </div>
  
                 <div className='mb-4'>
                     <label htmlFor=''>IP Switch</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={ipswitch} onChange={e => setIpswitch(e.target.value)}/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={ipswitch} 
+                    onChange={e => setIpswitch(e.target.value)}/>
                 </div>
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Name</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_name} onChange={e => setBuildname(e.target.value)}/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={build_name} 
+                    onChange={e => setBuildname(e.target.value)}/>
                 </div>
 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={build_group} onChange={e => setBuildgroup(e.target.value)}/>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={build_group} 
+                    onChange={e => setBuildgroup(e.target.value)}/>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor='Select Model'>Model</label>
-                <select class="form-control" value={model} onChange={e => setModel(e.target.value)}>
-                    <option>Select Role</option>                    
-                    <option>AirEngine5761-21</option>
-                    <option>AirEngine6760R-51E</option>
-                </select>
+                    <label htmlFor='Select Model'>Model</label>
+                    <select 
+                    className="form-control" 
+                    value={model} 
+                    onChange={e => setModel(e.target.value)}>
+                        <option>Select Model</option>                    
+                        <option>AirEngine5761-21</option>
+                        <option>AirEngine6760R-51E</option>
+                    </select>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor=''>Role</label>
-                <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
-                    <option>Select Role</option>                  
-                    <option>Indoor</option>
-                    <option>Outdoor</option>
-                </select>
+                    <label htmlFor=''>Role</label>
+                    <select 
+                    className="form-control" 
+                    value={role} 
+                    onChange={e => setRole(e.target.value)}>
+                        <option>Select Role</option>                  
+                        <option>Indoor</option>
+                        <option>Outdoor</option>
+                    </select>
+                </div>
+                
+                <div className='mb-4'>
+                    <label htmlFor=''>Map Url</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={url} 
+                    onChange={e => setUrl(e.target.value)}/>
                 </div>
                 <div
                     style={{
@@ -151,8 +186,7 @@ function EditAPContent() {
                     justifyContent: 'center',
                 }}>
                     <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
-                </div>
-                 
+                </div>             
             </form>
         </div> 
         </div>
@@ -160,5 +194,5 @@ function EditAPContent() {
     }
     
 export default function EditAccessPoint() {
-    return <EditAPContent />
+    return <UserEditAPContent />
 }
