@@ -100,7 +100,7 @@ function DCContent() {
                     justifyContent: 'center',
                 }}>
                     {paramSite != "DCList" && <>
-                    <h2>Switch {paramSite}</h2>
+                    <h2>Device Corrupted {paramSite}</h2>
                     </>}
                     {paramSite === "DCList" && <>
                     <h2>Device Corrupted List</h2>
