@@ -52,11 +52,13 @@ export default function SignIn() {
           alert('Login Sucess')
           localStorage.setItem('token', data.token)
           localStorage.setItem('email', data.email)
+          localStorage.setItem('site', data.site)
           window.location= '/dbadmin'
         }else if(data.status === 'ok' && role === 'Customer'){
           alert('Login Sucess')
           localStorage.setItem('token', data.token)
           localStorage.setItem('email', data.email)
+          localStorage.setItem('site', data.site)
           window.location= '/dbusers'
         }else{
           alert('Login Failed')

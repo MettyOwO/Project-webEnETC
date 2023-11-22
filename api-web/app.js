@@ -60,8 +60,9 @@ app.post('/login', jsonParser, function (req, res, next) {
         bcrypt.compare(req.body.password, users[0].password, function(err, isLogin) {
         if (isLogin){
           var token = jwt.sign({ email: users[0].email }, 'secret' ,{ expiresIn: '2h' });
-          var email = [req.body.email]
-          res.json({status: 'ok', role: users[0].role, message: 'login success', token, email})
+          var email = [users[0].email]
+          var site = [users[0].site]
+          res.json({status: 'ok', role: users[0].role, message: 'login success', token, email, site})
         }else{
           res.json({status: 'error', message: 'login failed'})
         }
