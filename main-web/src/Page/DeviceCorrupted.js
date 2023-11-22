@@ -110,6 +110,7 @@ function DCContent() {
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">Serial Number</th>
                             <th scope="col">Site</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
@@ -127,6 +128,7 @@ function DCContent() {
                     <tbody>
                         {deviceclist.map ((deviceclist, i) => (
                             <tr key={i}>
+                                <td>{deviceclist.Serialnumber}</td>
                                 <td>{deviceclist.Site}</td>
                                 <td>{deviceclist.Buildgroup}</td>
                                 <td>{deviceclist.Buildname}</td>

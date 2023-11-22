@@ -51,9 +51,9 @@ function SwitchContent() {
         //console.log(dataSw.data);
         const dataSite = []
         dataSw.data.map((item)=>{
-            if(paramPath === item.site){
+            if(paramPath === item.site && item.serialno != '' && item.serialno != null ){
                 dataSite.push(item)
-            }else if(paramPath === "SWList"){
+            }else if(paramPath === "SWList" && item.serialno != '' && item.serialno != null ){
                 dataSite.push(item)
             }
         })
@@ -134,13 +134,14 @@ function SwitchContent() {
                 
                 {paramPath === "SWList" && <>
                     <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
-                    <Link to="/switch-excel" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
+                   
                 </>}
-               
+                <Link to="/switch-excel" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
                 <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
+                        <th scope="col">Serial number</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">Hostname</th>
@@ -155,6 +156,7 @@ function SwitchContent() {
                     <tbody>
                     {swlist.map ((swlist,index) => (                       
                         <tr key={index}>
+                            <td>{swlist.serialno}</td>
                             <td>{swlist.buildgroup}</td>
                             <td>{swlist.buildname}</td>
                             <td>{swlist.hostname}</td>
