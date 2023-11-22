@@ -38,7 +38,7 @@ function ImportSwitchContent() {
         
     const handleSubmit = () => {       
         alert('Added Data!');
-        window.location.href = '/dbadmin'
+        window.location = 'http://localhost:3000/dbadmin'
     }
 
     //UI

@@ -105,7 +105,7 @@ function AddUsersContent() {
               <div className="mb-4">
                 <label>Password</label>
                 <input
-                type="text"
+                type="password"
                 className="form-control"
                 required
                 onChange={(e) => setPassword(e.target.value)}

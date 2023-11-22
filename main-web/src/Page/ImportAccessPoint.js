@@ -37,22 +37,10 @@ function ImportAccessPointContent() {
         localStorage.removeItem('token');
         window.location = '/login'
     }
-
-    const navigate = useNavigate();
-    const [filename, setFileName] = useState('');
-
-    const handleSubmit = (event) => {       
-        event.preventDefault();
-        axios
-        .post('http://localhost:3333/import-accesspoint-csv', {filename})   
-        .then(res => {            
-            if(res.data.added){
-                alert("Add Complete!")
-                navigate('/dbadmin') 
-            }else{
-                alert("Error!")
-            }
-        })
+    
+    const handleSubmit = () => {       
+        alert("Add Complete!")
+        window.location = 'http://localhost:3000/dbadmin'
     }
 
     //UI
@@ -91,7 +79,6 @@ function ImportAccessPointContent() {
                 className="form-control"
                 name="import-csv"
                 accept="csv"
-                onChange={e => setFileName(e.target.value)}
                 />
             </div>
             <div 

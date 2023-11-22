@@ -17,11 +17,12 @@ function DashboardAdminContent() {
   //Check Token API
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const email = localStorage.getItem("email");
     fetch("http://localhost:3333/authen", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        Authorization: "Bearer " + token, email,
       },
     })
       .then((response) => response.json())
@@ -30,6 +31,7 @@ function DashboardAdminContent() {
         } else {
           alert("Authen Failed. Please Try Login Again!");
           localStorage.removeItem("token");
+          localStorage.removeItem("email");
           window.location = "/login";
         }
       })
@@ -42,6 +44,7 @@ function DashboardAdminContent() {
   const handleLogout = (event) => {
     event.preventDefault();
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
     window.location = "/login";
   };
 

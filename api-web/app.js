@@ -59,8 +59,9 @@ app.post('/login', jsonParser, function (req, res, next) {
         res.json({status: 'error', message : 'user not found'}); return }
         bcrypt.compare(req.body.password, users[0].password, function(err, isLogin) {
         if (isLogin){
-          var token = jwt.sign({ email: users[0].email }, 'secret' ,{ expiresIn: '1h' });
-          res.json({status: 'ok', role: users[0].role, message: 'login success', token})
+          var token = jwt.sign({ email: users[0].email }, 'secret' ,{ expiresIn: '2h' });
+          var email = [req.body.email]
+          res.json({status: 'ok', role: users[0].role, message: 'login success', token, email})
         }else{
           res.json({status: 'error', message: 'login failed'})
         }
@@ -154,28 +155,25 @@ app.post('/import-switch-csv', upload.single("import-csv"), (req, res) =>{
       .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดจากไฟล์ excel ให้เป็น Arrays
       .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
         csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
-        console.log(data);
+        //console.log(data);
       })
       .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
         csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
         connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
         if (error) {
-          console.error(error);
+          return res.json("Database Error");
         }else{
           // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง switch
           let query = 'INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?';
           connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
-          if(error){
-            console.log(error);
-          }
-          console.log(result);
+            if(error) return res.json("Error"); 
+            return res.json("True"); 
           });
         }
       });            
       fs.unlinkSync(filepath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
     });  
     stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
-  
 }); 
 
 //Access Point API
@@ -590,6 +588,10 @@ app.put('/updateconfiglink2/:id',(req,res) => {
       }
   })
 })
+
+// app.get('/') => {
+
+// }
 
 app.listen(3333, jsonParser, function () {
   console.log('CORS-enabled web server listening on port 3333')
