@@ -37,7 +37,7 @@ const connection = mysql.createConnection({
 //Import Excel-Data Multer,Storage Function
 var storage = multer.diskStorage({
     destination: (req, file, callBack) => {
-        callBack(null, 'C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/uploads/')    
+        callBack(null, __dirname + '/uploads/')    
     },
     filename: (req, file, callBack) => {
         callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
@@ -144,41 +144,39 @@ app.post('/addsw', (req, res) => {
     return res.json({added: true});    
   })
 })
+
 //Switch Import Excel
 app.post('/import-switch-csv', upload.single("import-csv"), (req, res) =>{
-    uploadSwitchExcel
-    ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + 'uploads/' + req.file.filename);
-    console.log(res);
-}); 
-function uploadSwitchExcel(filePath){
-  let stream = fs.createReadStream(filePath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
-  let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
-  let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
-    .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดจากไฟล์ excel ให้เป็น Arrays
-    .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
-      csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
-      console.log(data);
-    })
-    .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
-      csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
-      connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
-      if (error) {
-        console.error(error);
-      }else{
-        // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง switch
-        let query = 'INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?';
-        connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
-        if(error){
-          console.log(error);
+    let filepath = __dirname + '/uploads/' + req.file.filename;
+    let stream = fs.createReadStream(filepath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
+    let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
+    let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
+      .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดจากไฟล์ excel ให้เป็น Arrays
+      .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
+        csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
+        console.log(data);
+      })
+      .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
+        csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
+        connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
+        if (error) {
+          console.error(error);
+        }else{
+          // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง switch
+          let query = 'INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?';
+          connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
+          if(error){
+            console.log(error);
+          }
+          console.log(result);
+          });
         }
-        console.log(result);
-        });
-      }
-    });            
-    fs.unlinkSync(filePath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
-  });  
-  stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
-}
+      });            
+      fs.unlinkSync(filepath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
+    });  
+    stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
+  
+}); 
 
 //Access Point API
 //AP List
@@ -245,39 +243,33 @@ app.post('/addap', (req, res) => {
 })
 //AP Import Excel
 app.post('/import-accesspoint-csv', upload.single("import-csv"), (req, res) =>{
-  uploadAccessPointExcel
-  ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + '/uploads/' + req.file.filename);
-  console.log(res);
-}); 
-function uploadAccessPointExcel(filePath){
-  let stream = fs.createReadStream(filePath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
+  let filepath = __dirname + '/uploads/' + req.file.filename;
+  let stream = fs.createReadStream(filepath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
   let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
   let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
     .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดให้เป็น Arrays
     .on("data", function (data) { //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
       csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
-      console.log(data);
+      //console.log(data);
     })
     .on("end", function () { //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
       csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
       connection.connect((error) => { //เช็คการเชื่อมต่อของ DB
       if (error) {
-        console.error(error);
+        return res.json("Database Error");
       }else{
         // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง accesspoint
         let query = 'INSERT INTO accesspoint (Site,Buildgroup,Buildname,Floor,Switchname,IPSwitch,Model,Seriesap,Apid,Vlan,APname,APbox,Cablename,Serialnumber,MACaddress,Role,urlmap) VALUES ?';
         connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง DB
-        if(error){
-          console.log(error);
-        }
-        console.log(result);
+          if(error) return res.json("Error"); 
+          return res.json("True"); 
         });
       }
     });            
-    fs.unlinkSync(filePath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
+    fs.unlinkSync(filepath) //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
   });  
   stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream และ fileStream  ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
-}
+}); 
 
 //User API
 //User List
@@ -291,8 +283,8 @@ app.get('/users', (req, res) => {
 //Add Users
 app.post('/register', (req, res) => {
   bcrypt.hash(req.body.password, saltRounds, function(err, hash) {
-    const sql = "INSERT INTO users (email, password, name, role) VALUES (?)";
-    const values = [req.body.email, hash, req.body.name, req.body.role]
+    const sql = "INSERT INTO users (email, password, name, role, site) VALUES (?)";
+    const values = [req.body.email, hash, req.body.name, req.body.role, req.body.site]
     connection.query(sql, [values], (err) => {        
       if(err) return res.json("Error");        
       return res.json({added: true});    
@@ -319,9 +311,9 @@ app.get('/userlist2/:id', (req, res) => {
 })
 //User Update
 app.put('/updateuser/:id', (req, res) => {
-  const sql = "UPDATE users SET name = ?, role = ? where ID = ?";
+  const sql = "UPDATE users SET name = ?, role = ?, site = ? where ID = ?";
   const id = req.params.id;
-  const values = [req.body.name, req.body.role]
+  const values = [req.body.name, req.body.role, req.body.site]
   connection.query(sql, [...values,id], (err, result) => {
     if(err) return res.json("Error");
     return res.json({updated: true})

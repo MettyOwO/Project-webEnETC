@@ -6,7 +6,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
 function UserListContent() {
     //Check Token API
     useEffect(() => {
@@ -88,18 +87,22 @@ function UserListContent() {
                     <table className="table table-bordered">
                         <thead className="thead-light">
                             <tr>
+                                <th scope="col">ID</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Type User</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Site</th>
                                 <th scope="col">Edit & Delete</th>
                             </tr>
                         </thead>
                         <tbody>
                         {userlist.map ((userlist,index) => (                          
                                 <tr key={index}>
+                                    <td>{userlist.ID}</td>
                                     <td>{userlist.email}</td>
                                     <td>{userlist.name}</td>
                                     <td>{userlist.role}</td>
+                                    <td>{userlist.site}</td>
                                     <td><Link to= {`/updateuser/${userlist.ID}`} className="btn btn-primary">Edit</Link>&nbsp;
                                     <button className='btn btn-danger ms-2' onClick={ e => handleDelete(userlist.ID)}>Delete</button>
                                     </td>
