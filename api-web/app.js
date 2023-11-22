@@ -38,6 +38,7 @@ const connection = mysql.createConnection({
 var storage = multer.diskStorage({
     destination: (req, file, callBack) => {
         callBack(null, 'C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/uploads/')    
+        // D:/work/Project-webEnETC/main-web/src/uploads/
     },
     filename: (req, file, callBack) => {
         callBack(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
@@ -148,6 +149,7 @@ app.post('/addsw', (req, res) => {
 app.post('/import-switch-csv', upload.single("import-csv"), (req, res) =>{
     uploadSwitchExcel
     ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + 'uploads/' + req.file.filename);
+    // ('D:/work/Project-webEnETC/main-web/src/' + '/uploads/' + req.file.filename);
     console.log(res);
 }); 
 function uploadSwitchExcel(filePath){
@@ -247,6 +249,7 @@ app.post('/addap', (req, res) => {
 app.post('/import-accesspoint-csv', upload.single("import-csv"), (req, res) =>{
   uploadAccessPointExcel
   ('C:/AMettyA/Project EnET-C/Network Maintenance Information System Website/main-web/src/' + '/uploads/' + req.file.filename);
+  // ('D:/work/Project-webEnETC/main-web/src/' + '/uploads/' + req.file.filename);
   console.log(res);
 }); 
 function uploadAccessPointExcel(filePath){
