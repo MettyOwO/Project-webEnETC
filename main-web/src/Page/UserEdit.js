@@ -34,11 +34,13 @@ function UserEditContent() {
     const {id} = useParams();
     const [name, setName] = useState('');
     const [role, setRole] = useState('');
+    const [site, setSite] = useState("");
     useEffect(() => {
         axios.get('http://localhost:3333/userlist2/'+id)
         .then(res => {
             setName(res.data[0].name);
             setRole(res.data[0].role);
+            setSite(res.data[0].site);           
         })
         .catch(err => console.log(err));
     },[id])
@@ -47,7 +49,7 @@ function UserEditContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3333/updateuser/'+id, {name ,role}) 
+        axios.put('http://localhost:3333/updateuser/'+id, {name ,role, site}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update User Data Complete!")
@@ -94,7 +96,7 @@ function UserEditContent() {
             </div> 
 
                 <div className='mb-4'>
-                    <label htmlFor=''>UserName</label>
+                    <label htmlFor=''>Name</label>
                     <input type="text" placeholder='' className='form-control'
                     value={name} onChange={e => setName(e.target.value)}/>
                 </div>
@@ -102,9 +104,15 @@ function UserEditContent() {
                 <div className='mb-4'>
                 <label htmlFor=''>Role</label>
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
-                    <option>admin</option>
-                    <option>customer</option>
+                    <option>Admin</option>
+                    <option>Customer</option>
                 </select>
+                </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Site</label>
+                    <input type="text" placeholder='' className='form-control'
+                    value={site} onChange={e => setSite(e.target.value)}/>
                 </div>
 
                 <div

@@ -37,13 +37,14 @@ function AddUsersContent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
+    const [site, setSite] = useState("");
     const navigate = useNavigate();  
 
     function handleSubmit(event) {
       event.preventDefault();
-      if (role !== "Select User Role" && email !== '' && password !== '' && name !== '') {
+      if (role !== "Select User Role" && email !== '' && password !== '' && name !== ''&& site !== '') {
         axios
-          .post("http://localhost:3333/register", { email, password, name, role })
+          .post("http://localhost:3333/register", { email, password, name, role, site })
           .then((res) => {
             if (res.data.added) {
               alert("Register User Sucess!");
@@ -120,6 +121,7 @@ function AddUsersContent() {
                 onChange={(e) => setName(e.target.value)}
                />
               </div>
+
               <div className="mb-4">
                 <label htmlFor="Select UserRole">Role</label>
                 <select
@@ -130,6 +132,16 @@ function AddUsersContent() {
                   <option>Customer</option>
                   <option>Admin</option>
                 </select>
+              </div>
+
+              <div className="mb-4">
+                <label>Site</label>
+                <input
+                type="text"
+                className="form-control"
+                required
+                onChange={(e) => setSite(e.target.value)}
+               />
               </div>
               <div
                 style={{

@@ -1,7 +1,9 @@
-import React, { useEffect} from 'react';
+import React, { useEffect, useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import axios from 'axios';
+import { useNavigate, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ImportAccessPointContent() {
@@ -35,10 +37,22 @@ function ImportAccessPointContent() {
         localStorage.removeItem('token');
         window.location = '/login'
     }
-        
-    const handleSubmit = () => {       
-        alert('Added Data!');
-        window.location.href = '/dbadmin'
+
+    const navigate = useNavigate();
+    const [filename, setFileName] = useState('');
+
+    const handleSubmit = (event) => {       
+        event.preventDefault();
+        axios
+        .post('http://localhost:3333/import-accesspoint-csv', {filename})   
+        .then(res => {            
+            if(res.data.added){
+                alert("Add Complete!")
+                navigate('/dbadmin') 
+            }else{
+                alert("Error!")
+            }
+        })
     }
 
     //UI
@@ -77,6 +91,7 @@ function ImportAccessPointContent() {
                 className="form-control"
                 name="import-csv"
                 accept="csv"
+                onChange={e => setFileName(e.target.value)}
                 />
             </div>
             <div 
