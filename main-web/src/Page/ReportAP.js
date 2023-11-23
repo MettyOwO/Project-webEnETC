@@ -39,6 +39,8 @@ function ReportAPContent() {
     const [ipswitch, setIpswitch] = useState('');
     const [role, setRole] = useState("Select Role Device");
     const [serial_number, setSR] = useState('');
+    const [serial_numberOld, setSrOld] = useState('');
+
     const [detail, setDetail] = useState('');
     const [url, SetUrl] = useState('');
     useEffect(() => {
@@ -50,6 +52,8 @@ function ReportAPContent() {
             setBuildgroup(res.data[0].Buildgroup);
             setIpswitch(res.data[0].IPswitch);
             SetUrl(res.data[0].urlmap);
+            setSrOld(res.data[0].Serialnumber)
+
         })
         .catch(err => console.log(err));
     },[id])
@@ -59,8 +63,9 @@ function ReportAPContent() {
         e.preventDefault();
         if (role !== "Select Role Device" && serial_number !== '' && detail !== ''){
         axios
-        .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, ipswitch, hostname, role, serial_number, detail, url}) 
+        .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, ipswitch, hostname, role, serial_number,serial_numberOld, detail, url}) 
         .then(res => {
+            console.log(res);
             if(res.data.added){
                 alert("Add Device Corrupted Data!")
                 //navigate('/deviceclist')

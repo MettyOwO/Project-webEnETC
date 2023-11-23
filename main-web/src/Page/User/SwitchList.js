@@ -13,32 +13,35 @@ import AddUrl from "../AddUrl";
 function UserSwitchContent() {
     
     //Check Token API
+    // const [siteLocation , setSiteLocation] = useState()
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-            //ไม่ต้องทำอะไร
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/Login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        
-        });
-        getSwitchData();
-        getDataSW2();
-    },[])
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+          getSwitchData()
+      }, []);
  
     const location = useLocation();
     const navigate = useNavigate();
@@ -48,14 +51,18 @@ function UserSwitchContent() {
 
     async function getSwitchData(){
         const dataSw = await axios("http://localhost:3333/swlist")
-        //console.log(dataSw.data);
+        const siteLocation = localStorage.getItem("site");
         const dataSite = []
         dataSw.data.map((item)=>{
-            if(paramPath === item.site){
+          console.log(siteLocation === item.site);
+            if( siteLocation === item.site){
+                if(paramPath === item.site ){
                 dataSite.push(item)
-            }else if(paramPath === "SWList"){
-                dataSite.push(item)
+            }else if(paramPath === 'SWList'){
+                dataSite.push(item)   
             }
+            }
+            
         })
         console.log(dataSite);
         setSwList(dataSite)

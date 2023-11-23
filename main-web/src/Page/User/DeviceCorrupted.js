@@ -15,41 +15,52 @@ function UserDCContent() {
     const [paramSite,setParamSite] = useState(location.state.site) 
     const [deviceclist, setDcList] = useState([]); 
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-            //ไม่ต้องทำอะไร
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
-        getDataDC()
-    },[])
-
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+          getDataDC()
+      }, []);
+    
     async function getDataDC(){
         const getDc = await axios.get('http://localhost:3333/deviceclist')   
+        const siteLocation = localStorage.getItem("site");
         const dataSite = []
         //console.log(getDc.data);
+
         getDc.data.map((item)=>{
-            if(paramSite === item.Site){
-                dataSite.push(item)
-            }else if(paramSite === 'DCList'){
-                dataSite.push(item)   
-            }
-        })
+            console.log(siteLocation);
+            console.log( item.Site);
+            console.log(siteLocation === item.Site);
+              if( siteLocation === item.Site){
+                  if(paramSite === item.Site ){
+                  dataSite.push(item)
+              }else if(paramSite === 'DCList'){
+                  dataSite.push(item)   
+              }
+              }
+              
+          })
         console.log(dataSite);
         setDcList(dataSite)
 

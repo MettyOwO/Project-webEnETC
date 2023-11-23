@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import AddUrl from "./AddUrl";
-
+import SearchBar from "../components/SearchBar";
 function APContent() {
   //Check Token API
   const location = useLocation();
@@ -18,7 +18,7 @@ function APContent() {
   const [aplist, setApList] = useState([]);
   const [apdata, setApdata] = useState([]);
   const [search, setSearch] = useState("");
-
+  const [filteredData, setFilteredData] = useState([]);
   useEffect(() => {
     const token = localStorage.getItem("token");
     fetch("http://localhost:3333/authen", {
@@ -69,58 +69,29 @@ function APContent() {
     setApList(dataSite);
     setApdata(dataSite);
   }
-    useEffect(() => {
-  
-
-        
-        // if(search){
-        //     const filteredData = aplist.filter((row) => {
-        //         return row.serialNumber.toLowerCase().includes(search.toLowerCase()) ||
-        //           row.Buildgroup.toLowerCase().includes(search.toLowerCase()) ||
-        //           row.Buildname.toLowerCase().includes(search.toLowerCase()) ||
-        //           row.IPswitch.toLowerCase().includes(search.toLowerCase()) ||
-        //           row.APname.toLowerCase().includes(search.toLowerCase()) ||
-        //           row.Role.toLowerCase().includes(search.toLowerCase()) 
-        //       });
-          
-        //       setApList(filteredData);
-        //   console.log(filteredData);
-        // }else{
-        //     getDataAP();
-        // }
-    }, [search]);
-
-  function onSearch(e) {
-    const searchText = e.toString().toLowerCase();
-
-    setSearch(searchText);
-    if(searchText){
-        console.log(searchText);
-    const filteredItems = aplist.filter((item) => {
-        return item.Serialnumber.toLowerCase().includes(searchText.toLowerCase()) 
-        // item.Buildgroup.toLowerCase().includes(searchText.toLowerCase()) ||
-        //   item.Buildname.toLowerCase().includes(searchText.toLowerCase()) ||
-        //   item.buildName.toLowerCase().includes(searchText.toLowerCase()) ||
-        //   item.APname.toLowerCase().includes(searchText.toLowerCase()) ||
-        //   item.Role.toLowerCase().includes(searchText.toLowerCase());
-      });
-      setApList(filteredItems);
-      console.log(filteredItems);
-    }else{
-        getDataAP();
+  // Search bar
+  const handleSearch = (searchTerm) => { 
+    // Perform your search logic here and update the filtered data
+    console.log(searchTerm.length);
+    if (searchTerm.length > 0) {
+     
+      const filteredResults = aplist.filter((item) =>
+        Object.values(item).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+      console.log(filteredResults);
+      setApList(filteredResults);
+      setApdata(filteredResults);
+    } else {
+      getDataAP();
     }
-    
-    // aplist.filter((item) => {
-    //   item.Serialnumber.toLowerCase().includes(searchText) ||
-    //     item.Buildgroup.toLowerCase().includes(searchText) ||
-    //     item.Buildname.toLowerCase().includes(searchText) ||
-    //     item.IPSwitch.toLowerCase().includes(searchText) ||
-    //     item.APname.toLowerCase().includes(searchText) ||
-    //     item.Role.toLowerCase().includes(searchText);
-    
-    // });
-    
-  }
+
+    console.log(searchTerm);
+  };
+  // Search bar
   const [ap_models, setApModel] = useState([]);
   const [ap_datasheets, setApDataSheet] = useState([]);
   async function getDataAP2() {
@@ -217,20 +188,8 @@ function APContent() {
                 Add AP Data
               </Link>
               &nbsp;
-              <input
-                type="text"
-                className="form-control"
-                required
-                placeholder="Search..."
-                onChange={(e) => setSearch(e.target.value)}
-                value={search}
-              />
-              {/* <button
-                      className="btn btn-danger ms-2"
-                      onClick={(e) => search(search)}
-                    >
-                      ค้นหา
-                    </button> */}
+              {/* // Search bar */}
+              <SearchBar data={aplist} onSearch={handleSearch} />
             </>
           )}
           <Link to="/accesspoint-excel" className="btn btn-success">

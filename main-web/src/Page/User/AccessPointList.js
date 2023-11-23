@@ -17,43 +17,52 @@ function UserAPContent() {
     const navigate = useNavigate();
     const [aplist, setApList] = useState([]); 
     const [apdata, setApdata]= useState([]);
-    
+
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-            //ไม่ต้องทำอะไร
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
-        getDataAP();
-        getDataAP2();
-    },[])
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+          getDataAP()
+      }, []);
+    
 
     //Access Point List API
     async function getDataAP(){
         const getAP = await axios.get('http://localhost:3333/aplist')   
+        const siteLocation = localStorage.getItem("site");
         const dataSite = []
+        console.log(siteLocation);
         getAP.data.map((item)=>{
-            if(paramPath === item.Site){
+          
+            if( siteLocation === item.Site){
+                if(paramPath === item.Site ){
                 dataSite.push(item)
             }else if(paramPath === 'APList'){
                 dataSite.push(item)   
             }
+            }
+            
         })
         console.log(dataSite);
         console.log(paramPath);

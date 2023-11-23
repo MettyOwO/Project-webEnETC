@@ -181,11 +181,45 @@ function DashboardContent() {
     const getSWSite = await axios.get("http://localhost:3333/sw_site");
     const getDCSite = await axios.get("http://localhost:3333/dc_site");
     const getSiteName = await axios.get("http://localhost:3333/site_name")
+    const siteLocation = localStorage.getItem("site");
     //console.log(getSWSite.data);
-    setAPSite(getAPSite.data);
-    setSWSite(getSWSite.data);
-    setDCSite(getDCSite.data);
-    setSiteName(getSiteName.data)
+
+    const dataAP = []
+    const dataSW = []
+    const dataDC = []
+    const dataSite = []
+    getAPSite.data.map((item)=>{
+      if(siteLocation === item.name){
+        dataAP.push(item)
+      }
+    })
+    getSWSite.data.map((item)=>{
+
+     
+      if(siteLocation === item.name){
+        dataSW.push(item)
+      }
+    })
+    console.log(getDCSite.data);
+    getDCSite.data.map((item)=>{
+      console.log("dddd"+item.name);
+      console.log(siteLocation === item.name);
+      console.log(siteLocation);
+      if(siteLocation === item.name){
+        dataDC.push(item)
+      }
+    })
+    getSiteName.data.map((item)=>{
+      
+      if(siteLocation === item.name){
+        dataSite.push(item)
+      }
+    })
+    console.log(dataDC);
+    setAPSite(dataAP);
+    setSWSite(dataSW);
+    setDCSite(dataDC);
+    setSiteName(dataSite)
     //console.log(getSiteName.data);
   }
   useEffect(() => {
@@ -373,11 +407,11 @@ function DashboardContent() {
                   </NavDropdown.Item>
                 ))}
               </NavDropdown>
-              <NavDropdown title="Add" id="basic-nav-dropdown">
+              {/* <NavDropdown title="Add" id="basic-nav-dropdown">
                   <NavDropdown.Item href="/addsite2">Add Site</NavDropdown.Item>
                   <NavDropdown.Item href="/add_model2">Add Model</NavDropdown.Item>
                   <NavDropdown.Item href="/add_datasheet2">Add Datasheet</NavDropdown.Item>
-              </NavDropdown>
+              </NavDropdown> */}
             </Nav>
             <Nav>
               <Nav.Link onClick={handleLogout}>Log-Out</Nav.Link>
@@ -390,7 +424,7 @@ function DashboardContent() {
         <div className="col">
           <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
             <option defaultValue>Select Site</option>
-            <option value="all">All Sites</option>
+            {/* <option value="all">All Sites</option> */}
             {siteName.map((item, index) => (                 
                   <option key={index}>
                     {item.name}
