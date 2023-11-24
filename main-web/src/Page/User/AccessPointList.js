@@ -8,7 +8,7 @@ import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import AddUrl from "../AddUrl";
+import AddUrl from "./components/AddUrl";
 
 function UserAPContent() {
     //Check Token API

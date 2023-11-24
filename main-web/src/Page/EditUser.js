@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function UserEditContent() {
+function EditUserContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -49,24 +49,30 @@ function UserEditContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (role !== "Select User Role" && site !== 'Select User Site') {
         axios.put('http://localhost:3333/updateuser/'+id, {name ,role, site}) 
         .then(res => {
             if(res.data.updated){
-                alert("Update User Data Complete!")
+                alert("Update User Data ID : " + (id) + " Complete!")
                 navigate('/users')    
             }else{
                 alert("Error! Please Try Again.")
             }                
         })
         .catch(err => console.log(err));
+        }else{
+            alert("Please Complete The Information!");
+        }
     }
     
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
+    const [siteName,setSiteName] = useState([])
+    async function getDataSite() {
+      const getSiteName = await axios.get("http://localhost:3333/site_name")
+      setSiteName(getSiteName.data)
     }
+    useEffect(() => {
+      getDataSite();
+    }, []);
 
     //UI
     return (
@@ -77,9 +83,6 @@ function UserEditContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -109,10 +112,19 @@ function UserEditContent() {
                 </select>
                 </div>
 
-                <div className='mb-4'>
-                    <label htmlFor=''>Site</label>
-                    <input type="text" placeholder='' className='form-control'
-                    value={site} onChange={e => setSite(e.target.value)}/>
+                <div className="mb-4">
+                    <label>Site</label>
+                    <select
+                    className="form-control"
+                    onChange={(e) => setSite(e.target.value)}
+                    value={site}
+                    >
+                        <option>Select User Site</option>
+                        <option value="None">None (For Admin)</option>
+                        {siteName.map((siteName, index) => (
+                            <option key={index}>{siteName.name}</option>             
+                        ))}
+                </select>
                 </div>
 
                 <div
@@ -130,6 +142,6 @@ function UserEditContent() {
       );
     }
     
-export default function UserEdit() {
-    return <UserEditContent />
+export default function EditUser() {
+    return <EditUserContent />
 }

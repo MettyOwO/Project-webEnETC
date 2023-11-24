@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
-import AddUrl from "../AddUrl";
+import AddUrl from "./components/AddUrl";
 
 function UserDCContent() {
     //Check Token API

@@ -76,6 +76,7 @@ app.post("/login", jsonParser, function (req, res, next) {
             });
             var email = [users[0].email];
             var site = [users[0].site];
+            var name = [users[0].name];
             res.json({
               status: "ok",
               role: users[0].role,
@@ -83,6 +84,7 @@ app.post("/login", jsonParser, function (req, res, next) {
               token,
               email,
               site,
+              name
             });
           } else {
             res.json({ status: "error", message: "login failed" });
@@ -140,7 +142,7 @@ app.get("/switchlist_nkc", (req, res) => {
 //Switch Data Update
 app.put("/updatesw/:id", (req, res) => {
   const sql =
-    "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?  where ID = ?";
+    "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?  where ID = ?";
   const id = req.params.id;
   const values = [
     req.body.role,
@@ -151,6 +153,7 @@ app.put("/updatesw/:id", (req, res) => {
     req.body.model,
     req.body.url,
     req.body.urlconfig,
+    req.body.serial_number
   ];
   connection.query(sql, [...values, id], (err, result) => {
     if (err) return res.json("Error");
@@ -169,7 +172,7 @@ app.delete("/deletesw/:id", (req, res) => {
 //Switch Data Add
 app.post("/addsw", (req, res) => {
   const sql =
-    "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model) VALUES (?)";
+    "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model, serialno) VALUES (?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -178,6 +181,7 @@ app.post("/addsw", (req, res) => {
     req.body.hostname,
     req.body.role,
     req.body.model,
+    req.body.serial_number
   ];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
@@ -211,7 +215,7 @@ app.post("/import-switch-csv", upload.single("import-csv"), (req, res) => {
           connection.query(query, [csvDataRows], (error, result) => {
             //query ข้อมูลลง DB
             if (error) return res.json("Error");
-            return res.json("True");
+            return res.json({ added: true });
           });
         }
       });
@@ -257,7 +261,7 @@ app.get("/aplist_kku", (req, res) => {
 //AP Update API
 app.put("/updateap/:id", (req, res) => {
   const sql =
-    "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?  where ID = ?";
+    "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?, Serialnumber = ?  where ID = ?";
   const id = req.params.id;
   const values = [
     req.body.role,
@@ -267,6 +271,7 @@ app.put("/updateap/:id", (req, res) => {
     req.body.hostname,
     req.body.model,
     req.body.url,
+    req.body.serial_number
   ];
   connection.query(sql, [...values, id], (err, result) => {
     if (err) return res.json("Error");
@@ -285,7 +290,7 @@ app.delete("/deleteap/:id", (req, res) => {
 //AP Add API
 app.post("/addap", (req, res) => {
   const sql =
-    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model) VALUES (?)";
+    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model, Serialnumber) VALUES (?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -294,6 +299,7 @@ app.post("/addap", (req, res) => {
     req.body.hostname,
     req.body.role,
     req.body.model,
+    req.body.serial_number
   ];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
@@ -326,7 +332,7 @@ app.post("/import-accesspoint-csv", upload.single("import-csv"), (req, res) => {
           connection.query(query, [csvDataRows], (error, result) => {
             //query ข้อมูลลง DB
             if (error) return res.json("Error");
-            return res.json("True");
+            return res.json({ added: true });
           });
         }
       });
@@ -400,38 +406,33 @@ app.get("/deviceclist", (req, res) => {
   });
 });
 app.post("/addreport_ap/:id", (req, res) => {
-  // const sql =
-  //   "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap) VALUES (?) ON UPDATE accesspoint SET Serialnumber = ? where Serialnumber = ?";
-
-  // const values = [req.body.site, req.body.build_group, req.body.build_name, req.body.hostname,
-  // req.body.ipswitch, req.body.role, req.body.serial_number,  req.body.detail, req.body.url]
-  // const SerialnumberOld = req.body.serial_numberOld
-  // console.log(SerialnumberOld);
-  // connection.query(sql, [...values,SerialnumberOld], (err) => {
-  //   if (err) return res.json("Error");
-  //   return res.json({ added: true });
-  // });
   const insertSql =
-  "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Serialnumber, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-const updateSql = "UPDATE accesspoint SET Serialnumber = ? WHERE Serialnumber = ?";
+  const values = [
+    req.body.site,
+    req.body.device_type,
+    req.body.build_group,
+    req.body.build_name,
+    req.body.hostname,
+    req.body.ipswitch,
+    req.body.role,
+    req.body.serial_numberOld,
+    req.body.serial_number,
+    req.body.detail,
+    req.body.url
+  ];
 
-const values = [
-  req.body.site,
-  req.body.build_group,
-  req.body.build_name,
-  req.body.hostname,
-  req.body.ipswitch,
-  req.body.role,
-  req.body.serial_number,
-  req.body.detail,
-  req.body.url,
-];
+  const updateSql = "UPDATE accesspoint SET Serialnumber = ? WHERE Serialnumber = ?";
+  const SerialnumberOld = req.body.serial_numberOld;
 
-const SerialnumberOld = req.body.serial_numberOld;
+  const SqlUpdateNumReport = "UPDATE accesspoint SET num_report = ? WHERE Serialnumber = ?"
+  const num_report = req.body.num_report;
+  const total_num =  num_report + 1;
+  //console.log(total_num);
 
-connection.beginTransaction((err) => {
-  if (err) throw err;
+  connection.beginTransaction((err) => {
+    if (err) throw err;
 
   connection.query(insertSql, values, (insertErr, insertResult) => {
     if (insertErr) {
@@ -445,6 +446,13 @@ connection.beginTransaction((err) => {
         connection.rollback(() => {
           throw updateErr;
         });
+      }
+      
+      connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+        if (updateErr) {
+          connection.rollback(() => {
+            throw updateErr;
+          });
       }
 
       connection.commit((commitErr) => {
@@ -460,6 +468,8 @@ connection.beginTransaction((err) => {
   });
 });
 });
+});
+
 app.post("/addreport_sw/:id", (req, res) => {
   const sql =
     "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap, urlconfig) VALUES (?)";
@@ -592,30 +602,30 @@ app.get("/site_name", (req, res) => {
     return res.send(result);
   });
 });
-app.get("/ap_site", (req, res) => {
-  const sql = "SELECT * FROM sitename where type = 'AP'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result);
-  });
-});
-app.get("/sw_site", (req, res) => {
-  const sql = "SELECT * FROM sitename where type = 'SW'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result);
-  });
-});
-app.get("/dc_site", (req, res) => {
-  const sql = "SELECT * FROM sitename where type = 'DC'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result);
-  });
-});
-app.post("/addsitedevice", (req, res) => {
-  const sql = "INSERT INTO sitename (type, name) VALUES (?)";
-  const values = [req.body.type, req.body.sitename];
+// app.get("/ap_site", (req, res) => {
+//   const sql = "SELECT * FROM sitename";
+//   connection.query(sql, (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result);
+//   });
+// });
+// app.get("/sw_site", (req, res) => {
+//   const sql = "SELECT * FROM sitename";
+//   connection.query(sql, (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result);
+//   });
+// });
+// app.get("/dc_site", (req, res) => {
+//   const sql = "SELECT * FROM sitename";
+//   connection.query(sql, (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result);
+//   });
+// });
+app.post("/addsite", (req, res) => {
+  const sql = "INSERT INTO sitename (name) VALUES (?)";
+  const values = [req.body.site];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
     return res.json({ added: true });
@@ -638,8 +648,8 @@ app.get("/ap_datasheet", (req, res) => {
   });
 });
 app.post("/addmodel", (req, res) => {
-  const sql = "INSERT INTO model (type, name, href) VALUES (?)";
-  const values = [req.body.type, req.body.name, req.body.url];
+  const sql = "INSERT INTO model (type, name, role, href) VALUES (?)";
+  const values = [req.body.type, req.body.name, req.body.role, req.body.url];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
     return res.json({ added: true });
@@ -751,10 +761,6 @@ app.put("/updateconfiglink2/:id", (req, res) => {
     }
   );
 });
-
-// app.get('/') => {
-
-// }
 
 app.listen(3333, jsonParser, function () {
   console.log("CORS-enabled web server listening on port 3333");

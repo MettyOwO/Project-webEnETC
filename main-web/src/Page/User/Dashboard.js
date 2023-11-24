@@ -118,7 +118,6 @@ function DashboardContent() {
     is3D: true,
   };
 
-  
   //Total Device Corrupted Install - AP
   const [dcapCount, setDcApCount] = useState(0);
   useEffect(() => {
@@ -177,9 +176,7 @@ function DashboardContent() {
   const [dcsite, setDCSite] = useState([]);
   const [siteName,setSiteName] = useState([])
   async function getData() {
-    const getAPSite = await axios.get("http://localhost:3333/ap_site");
-    const getSWSite = await axios.get("http://localhost:3333/sw_site");
-    const getDCSite = await axios.get("http://localhost:3333/dc_site");
+
     const getSiteName = await axios.get("http://localhost:3333/site_name")
     const siteLocation = localStorage.getItem("site");
     //console.log(getSWSite.data);
@@ -188,29 +185,10 @@ function DashboardContent() {
     const dataSW = []
     const dataDC = []
     const dataSite = []
-    getAPSite.data.map((item)=>{
-      if(siteLocation === item.name){
-        dataAP.push(item)
-      }
-    })
-    getSWSite.data.map((item)=>{
 
-     
-      if(siteLocation === item.name){
-        dataSW.push(item)
-      }
-    })
-    console.log(getDCSite.data);
-    getDCSite.data.map((item)=>{
-      console.log("dddd"+item.name);
-      console.log(siteLocation === item.name);
-      console.log(siteLocation);
-      if(siteLocation === item.name){
-        dataDC.push(item)
-      }
-    })
-    getSiteName.data.map((item)=>{
-      
+
+
+    getSiteName.data.map((item)=>{    
       if(siteLocation === item.name){
         dataSite.push(item)
       }
@@ -368,14 +346,7 @@ function DashboardContent() {
                 >
                   Access Point List
                 </NavDropdown.Item>
-                {apsite.map((item, index) => (
-                  <NavDropdown.Item
-                    key={index}
-                    onClick={(e) => handleParamUpdate(e.target.text, "AP")}
-                  >
-                    {item.name}
-                  </NavDropdown.Item>
-                ))}
+
               </NavDropdown>
               <NavDropdown title="Switch" id="basic-nav-dropdown">
                 <NavDropdown.Item
@@ -383,14 +354,7 @@ function DashboardContent() {
                 >
                   Switch List
                 </NavDropdown.Item>
-                {swsite.map((item, index) => (
-                  <NavDropdown.Item
-                    key={index}
-                    onClick={(e) => handleParamUpdate(e.target.text, "SW")}
-                  >
-                    {item.name}
-                  </NavDropdown.Item>
-                ))}
+
               </NavDropdown>
               <NavDropdown title="Device Corrupted" id="basic-nav-dropdown">
                 <NavDropdown.Item
@@ -398,14 +362,7 @@ function DashboardContent() {
                 >
                   Device Corrupted List
                 </NavDropdown.Item>
-                {dcsite.map((item, index) => (
-                  <NavDropdown.Item
-                    key={index}
-                    onClick={(e) => handleParamUpdate(e.target.text, "DC")}
-                  >
-                    {item.name}
-                  </NavDropdown.Item>
-                ))}
+
               </NavDropdown>
               {/* <NavDropdown title="Add" id="basic-nav-dropdown">
                   <NavDropdown.Item href="/addsite2">Add Site</NavDropdown.Item>

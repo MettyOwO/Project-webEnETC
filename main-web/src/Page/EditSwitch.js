@@ -29,6 +29,7 @@ function EditSWContent() {
         .catch((error) => {
         console.log("Error:", error);
         });
+        getDataSWModel()
     },[])
 
     //Access Point List With AP_ID API
@@ -37,10 +38,11 @@ function EditSWContent() {
     const [ipswitch, setIpswitch] = useState('');
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
-    const [model, setModel] = useState("Select Model");
-    const [role, setRole] = useState("Select Role");
+    const [model, setModel] = useState("Select SW Model");
+    const [role, setRole] = useState("Select SW Role");
     const [url, setUrl] = useState("");
     const [urlconfig, setUrlConfig] = useState("");
+    const [serial_number, setSRNumber] = useState('');
     useEffect(() => {
         axios
         .get('http://localhost:3333/switchlistwithid/'+id)
@@ -53,6 +55,7 @@ function EditSWContent() {
             setRole(res.data[0].role);
             setUrl(res.data[0].urlmap);
             setUrlConfig(res.data[0].urlconfig);
+            setSRNumber(res.data[0].serialno)
         })
         .catch(err => console.log(err));
     },[])
@@ -61,11 +64,10 @@ function EditSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (model !== "Select Model" && model !== '' && role !== "Select Role" && hostname !== ''
-        && ipswitch !== '' && build_name !== '' && build_group !== ''){
+        if (hostname !== ''&& ipswitch !== '' && build_name !== '' && build_group !== '' && serial_number !== ''){
         axios
-        .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group, ipswitch, model, hostname
-        ,url, urlconfig}) 
+        .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group,
+         ipswitch, model, hostname ,url, urlconfig, serial_number}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update Switch ID : " + (id) + " Complete!")
@@ -81,11 +83,10 @@ function EditSWContent() {
         }
     }
     
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
+    const [sw_models, setSwModel] = useState([]);
+    async function getDataSWModel() {
+      const getModel = await axios.get("http://localhost:3333/sw_model");
+      setSwModel(getModel.data);
     }
 
     //UI
@@ -97,9 +98,6 @@ function EditSWContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -155,29 +153,39 @@ function EditSWContent() {
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor='Select Model'>Model</label>
-                <select 
-                className="form-control" 
-                value={model} 
-                onChange={e => setModel(e.target.value)}>
-                    <option>Select Model</option>
-                    <option>S5735-L24P4X-A1</option>
-                    <option>S5736-S24S4XC</option>
-                </select>
+                    <label htmlFor='Select Model'>Model</label>
+                    <select 
+                    className="form-control" 
+                    value={model} 
+                    onChange={e => setModel(e.target.value)}>                
+                        {sw_models.map((sw_models, index) => (
+                            <option key={index}>{sw_models.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor=''>Role</label>
-                <select 
-                className="form-control" 
-                value={role} 
-                onChange={e => setRole(e.target.value)}>
-                    <option>Select Role</option>                    
-                    <option>Access</option>
-                    <option>Distribute</option>
-                </select>
+                    <label htmlFor=''>Role</label>
+                    <select 
+                    className="form-control" 
+                    value={role} 
+                    onChange={e => setRole(e.target.value)}>             
+                        {sw_models.map((sw_models, index) => (
+                            <option key={index}>{sw_models.role}</option>
+                        ))}
+                    </select>
                 </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Serial Number</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={serial_number} 
+                    onChange={e => setSRNumber(e.target.value)}/>
+                </div>                
                 
+                {url !== "" && (
                 <div className='mb-4'>
                     <label htmlFor=''>Map Url</label>
                     <input type="text" 
@@ -186,7 +194,9 @@ function EditSWContent() {
                     value={url} 
                     onChange={e => setUrl(e.target.value)}/>
                 </div>
-            
+                )}
+
+                {urlconfig !== "" && (
                 <div className='mb-4'>
                     <label htmlFor=''>Config Url</label>
                     <input type="text" 
@@ -195,6 +205,8 @@ function EditSWContent() {
                     value={urlconfig} 
                     onChange={e => setUrlConfig(e.target.value)}/>
                 </div>
+                )}
+
                 <div
                     style={{
                     display: 'flex',

@@ -8,7 +8,7 @@ import { CSVLink} from 'react-csv';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
 import { useNavigate, useLocation } from "react-router-dom";
-import AddUrl from "../AddUrl";
+import AddUrl from "./components/AddUrl";
 
 function UserSwitchContent() {
     

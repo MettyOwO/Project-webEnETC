@@ -37,11 +37,14 @@ function ReportSWContent() {
     const [build_name, setBuildname] = useState('');
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
-    const [role, setRole] = useState("Select Role Device");
+    const [role, setRole] = useState('');
     const [serial_number, setSR] = useState('');
     const [detail, setDetail] = useState('');
     const [url, setUrl] = useState('');
     const [urlconfig, setUrlConfig] = useState('');
+    const [device_type, SetDVType] = useState("Select Device Type");
+    const [num_report, SetNumberReport] = useState('');
+
     useEffect(() => {
         axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
@@ -62,10 +65,10 @@ function ReportSWContent() {
         if (role !== "Select Role Device" && serial_number !== '' && detail !== ''){
         axios
         .post('http://localhost:3333/addreport_sw/'+ id, {site, build_group, build_name,
-         ipswitch, hostname, role, serial_number, detail, url, urlconfig}) 
+         ipswitch, hostname, role, serial_number, detail, url, urlconfig, device_type, num_report}) 
         .then(res => {
             if(res.data.added){
-                alert("Add Device Corrupted Data!")
+                alert("Add Corrupt Device Data Complete!")
                 //navigate('/deviceclist')
                 navigate('/dbadmin')     
             }else{
@@ -78,13 +81,6 @@ function ReportSWContent() {
         }
     }
     
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
-
     //UI
     return (
         <div>
@@ -94,9 +90,6 @@ function ReportSWContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -109,7 +102,7 @@ function ReportSWContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Report Switch Device Corrupted</h2>
+                <h2>Report Corrupt Device (Switch)</h2>
             </div> 
      
                 <div className='mb-4'>

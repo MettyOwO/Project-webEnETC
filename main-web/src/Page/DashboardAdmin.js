@@ -18,12 +18,11 @@ function DashboardAdminContent() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
-    const site1 =localStorage.getItem("site");
     fetch("http://localhost:3333/authen", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token, email, site1,
+        Authorization: "Bearer " + token, email,
       },
     })
       .then((response) => response.json())
@@ -33,7 +32,6 @@ function DashboardAdminContent() {
           alert("Authen Failed. Please Try Login Again!");
           localStorage.removeItem("token");
           localStorage.removeItem("email");
-          localStorage.removeItem("site");
           window.location = "/login";
         }
       })
@@ -47,7 +45,6 @@ function DashboardAdminContent() {
     event.preventDefault();
     localStorage.removeItem("token");
     localStorage.removeItem("email");
-    localStorage.removeItem("site");
     window.location = "/login";
   };
 
@@ -168,26 +165,16 @@ function DashboardAdminContent() {
     ["AP", dcapCount + dcapCount2],
   ];
   const optionDC = {
-    title: `Total Device Corrupted`,
+    title: `Total Corrupt Device`,
     pieHole: 0.4,
     is3D: true,
   };
 
-  const [apsite, setAPSite] = useState([]);
-  const [swsite, setSWSite] = useState([]);
-  const [dcsite, setDCSite] = useState([]);
   const [siteName,setSiteName] = useState([])
   async function getData() {
-    const getAPSite = await axios.get("http://localhost:3333/ap_site");
-    const getSWSite = await axios.get("http://localhost:3333/sw_site");
-    const getDCSite = await axios.get("http://localhost:3333/dc_site");
     const getSiteName = await axios.get("http://localhost:3333/site_name")
-    //console.log(getSWSite.data);
-    setAPSite(getAPSite.data);
-    setSWSite(getSWSite.data);
-    setDCSite(getDCSite.data);
     setSiteName(getSiteName.data)
-    //console.log(getSiteName.data);
+    console.log(getSiteName.data);
   }
   useEffect(() => {
     getData();
@@ -325,18 +312,20 @@ function DashboardAdminContent() {
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-          <Navbar.Brand href="#">Dashboard(Admin)</Navbar.Brand>
+          <Navbar.Brand href="#">Dashboard (Admin)</Navbar.Brand>
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
-              <Nav.Link href="/users">Users List</Nav.Link>
+              <Nav.Link href="/users">Users</Nav.Link>
               <NavDropdown title="Access Point" id="basic-nav-dropdown">
+                {siteName != "" && (
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("APList", "AP")}
                 >
-                  Access Point List
+                  All Site
                 </NavDropdown.Item>
-                {apsite.map((item, index) => (
+                )}
+                {siteName.map((item, index) => (
                   <NavDropdown.Item
                     key={index}
                     onClick={(e) => handleParamUpdate(e.target.text, "AP")}
@@ -346,12 +335,14 @@ function DashboardAdminContent() {
                 ))}
               </NavDropdown>
               <NavDropdown title="Switch" id="basic-nav-dropdown">
+              {siteName != "" && (
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("SWList", "SW")}
                 >
-                  Switch List
+                  All Site
                 </NavDropdown.Item>
-                {swsite.map((item, index) => (
+                )}
+                {siteName.map((item, index) => (
                   <NavDropdown.Item
                     key={index}
                     onClick={(e) => handleParamUpdate(e.target.text, "SW")}
@@ -360,13 +351,15 @@ function DashboardAdminContent() {
                   </NavDropdown.Item>
                 ))}
               </NavDropdown>
-              <NavDropdown title="Device Corrupted" id="basic-nav-dropdown">
+              <NavDropdown title="Corrupt Device" id="basic-nav-dropdown">
+              {siteName != "" && (
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("DCList", "DC")}
                 >
-                  Device Corrupted List
+                  All Site
                 </NavDropdown.Item>
-                {dcsite.map((item, index) => (
+                )}
+                {siteName.map((item, index) => (
                   <NavDropdown.Item
                     key={index}
                     onClick={(e) => handleParamUpdate(e.target.text, "DC")}
@@ -374,11 +367,6 @@ function DashboardAdminContent() {
                     {item.name}
                   </NavDropdown.Item>
                 ))}
-              </NavDropdown>
-              <NavDropdown title="Add" id="basic-nav-dropdown">
-                  <NavDropdown.Item href="/addsite">Add Site</NavDropdown.Item>
-                  <NavDropdown.Item href="/add_model">Add Model</NavDropdown.Item>
-                  <NavDropdown.Item href="/add_datasheet">Add Datasheet</NavDropdown.Item>
               </NavDropdown>
             </Nav>
             <Nav>
@@ -392,7 +380,9 @@ function DashboardAdminContent() {
         <div className="col">
           <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
             <option defaultValue>Select Site</option>
+            {siteName != "" && (
             <option value="all">All Sites</option>
+            )}
             {siteName.map((item, index) => (                 
                   <option key={index}>
                     {item.name}
@@ -406,7 +396,7 @@ function DashboardAdminContent() {
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
             <option value="switch">Switch</option>
-            <option value="device-corrupted">DeviceCorrupted</option>
+            <option value="device-corrupted">Corrupt Device</option>
           </select>
         </div>
 

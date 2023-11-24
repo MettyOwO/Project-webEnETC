@@ -5,6 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import AddSite from "../components/AddSite";
 
 function UserListContent() {
     //Check Token API
@@ -39,13 +40,6 @@ function UserListContent() {
         setUserList(getUser.data);
     };
 
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
-
     //User Delete
     const handleDelete = async (id) => {
         try {           
@@ -66,9 +60,6 @@ function UserListContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -83,7 +74,8 @@ function UserListContent() {
                 }}>
                     <h2>Users List</h2>
                 </div> 
-                <Link to="/addusers" className='btn btn-success'>Add Data</Link><br/><br/>
+                <Link to="/addusers" className='btn btn-success'>Add Users</Link>&nbsp;&nbsp;
+                <AddSite /><br/><br/>
                     <table className="table table-bordered">
                         <thead className="thead-light">
                             <tr>

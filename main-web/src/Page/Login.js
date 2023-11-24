@@ -35,7 +35,6 @@ export default function SignIn() {
       email: data.get('email'),
       password: data.get('password'),
     }
-    
     //Login API
     fetch ('http://localhost:3333/login',{
       method: "POST",
@@ -48,20 +47,20 @@ export default function SignIn() {
       .then(response => response.json())  
       .then(data =>{
         const role = data.role;
+        const name = data.name;
         if(data.status === 'ok' && role === 'Admin'){
-          alert('Login Sucess')
+          alert('Login Success! Username : ' + name)
           localStorage.setItem('token', data.token)
           localStorage.setItem('email', data.email)
-          localStorage.setItem('site', data.site)
           window.location= '/dbadmin'
         }else if(data.status === 'ok' && role === 'Customer'){
-          alert('Login Sucess')
+          alert('Login Success! Username : ' + name + ' , Site : ' + (data.site))
           localStorage.setItem('token', data.token)
           localStorage.setItem('email', data.email)
           localStorage.setItem('site', data.site)
           window.location= '/dbusers'
         }else{
-          alert('Login Failed')
+          alert('Login Failed. Please Try Again!')
         }
       })
     .catch((error) =>{

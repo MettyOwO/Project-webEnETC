@@ -6,7 +6,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate, useLocation } from "react-router-dom";
-import AddUrl from "./AddUrl";
+import AddUrl from "../components/AddUrl";
 
 function DCContent() {
     //Check Token API
@@ -58,20 +58,13 @@ function DCContent() {
     //Delete Function
     const handleDelete = async (id) => {
         try {           
-            alert("Delete Device Corrupted ID : " + (id) + " Complete!")
+            alert("Delete Corrupt Device ID : " + (id) + " Complete!")
             axios.delete('http://localhost:3333/deletedc/'+id)
             window.location.reload();          
         }
         catch(err){            
             console.log(err);        
         }
-    }
-
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
     }
 
     //UI
@@ -83,9 +76,6 @@ function DCContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">        
-            </Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
             </Nav>
             </Navbar.Collapse>
         </Container>
@@ -110,13 +100,14 @@ function DCContent() {
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
-                            <th scope="col">Serial Number</th>
                             <th scope="col">Site</th>
+                            <th scope="col">Device Type</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">IP Address</th>
                             <th scope="col">Hostname</th>
                             <th scope="col">Role</th>
+                            <th scope="col">Old Serial Number</th>
                             <th scope="col">Replace With Serial Number</th>
                             <th scope="col">Detail Device Corrupted</th>
                             <th scope="col">DateTime Device Change</th>
@@ -128,13 +119,14 @@ function DCContent() {
                     <tbody>
                         {deviceclist.map ((deviceclist, i) => (
                             <tr key={i}>
-                                <td>{deviceclist.Serialnumber}</td>
                                 <td>{deviceclist.Site}</td>
+                                <td>{deviceclist.device_type}</td>
                                 <td>{deviceclist.Buildgroup}</td>
                                 <td>{deviceclist.Buildname}</td>
                                 <td>{deviceclist.Ipaddress}</td>
                                 <td>{deviceclist.Hostname}</td>
                                 <td>{deviceclist.Role}</td>
+                                <td>{deviceclist.Oldserialnumber}</td>
                                 <td>{deviceclist.Serialnumber}</td>
                                 <td>{deviceclist.Details}</td>
                                 <td>{deviceclist.Datatime1}</td>

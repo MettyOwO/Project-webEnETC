@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
@@ -32,14 +32,16 @@ function AddDataSheetContent() {
       });
   }, []);
 
-  const [type, setType] = useState("Select Device Type");
+  const location = useLocation();
+  const [paramPath, setParamPath] = useState(location.state.device);
+  const [type, setType] = useState("");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (type != "Select Device Type" && name != "" && url != "") {
+    if (name != "" && url != "") {
       axios
         .post("http://localhost:3333/adddatasheet", { type, name, url })
         .then((res) => {
@@ -56,13 +58,6 @@ function AddDataSheetContent() {
     }
   }
 
-  //Log Out
-  const handleLogout = (event) => {
-    event.preventDefault();
-    localStorage.removeItem("token");
-    window.location = "/login";
-  };
-
   return (
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
@@ -71,9 +66,6 @@ function AddDataSheetContent() {
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-              <Nav.Link onClick={handleLogout}>Log-Out</Nav.Link>
-            </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -90,6 +82,7 @@ function AddDataSheetContent() {
             <h2>Add New Datasheet For Device</h2>
           </div>
 
+          {paramPath == "AP" && (
           <div className="mb-4">
             <label htmlFor="Select DeviceType">Device Type</label>
             <select
@@ -98,14 +91,27 @@ function AddDataSheetContent() {
             >
               <option>Select Device Type</option>
               <option value="AP">Access Point</option>
+            </select>
+          </div> 
+          )}
+          {paramPath == "SW" && (
+          <div className="mb-4">
+            <label htmlFor="Select DeviceType">Device Type</label>
+            <select
+              className="form-control"
+              onChange={(e) => setType(e.target.value)}
+            >
+              <option>Select Device Type</option>
               <option value="SW">Switch</option>
             </select>
-          </div>       
+          </div> 
+          )}                       
 
           <div className="mb-4">
-            <label>Name</label>
+            <label>Datasheet Name</label>
             <input
               type="text"
+              placeholder="Enter Name"
               className="form-control"
               required
               onChange={(e) => setName(e.target.value)}
@@ -113,10 +119,11 @@ function AddDataSheetContent() {
           </div>
         
           <div className="mb-4">
-            <label>Url</label>
+            <label>URL</label>
             <input
               type="text"
               className="form-control"
+              placeholder="Example : https://www.google.com/"
               required
               onChange={(e) => setUrl(e.target.value)}
             />

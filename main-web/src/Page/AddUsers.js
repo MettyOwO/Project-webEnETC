@@ -37,20 +37,20 @@ function AddUsersContent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
-    const [site, setSite] = useState("");
+    const [site, setSite] = useState("Select User Site");
     const navigate = useNavigate();  
 
     function handleSubmit(event) {
       event.preventDefault();
-      if (role !== "Select User Role" && email !== '' && password !== '' && name !== ''&& site !== '') {
+      if (role !== "Select User Role" && email !== '' && password !== '' && name !== ''&& site !== 'Select User Site') {
         axios
           .post("http://localhost:3333/register", { email, password, name, role, site })
           .then((res) => {
             if (res.data.added) {
-              alert("Register User Sucess!");
+              alert("Add User Success!");
               navigate("/users");
             } else {
-              alert("Register User Failed!");
+              alert("Add User Failed. Please Try Again!");
             }
           })
           .catch((err) => console.log(err));
@@ -59,13 +59,15 @@ function AddUsersContent() {
       }
     }
 
-    //Log Out Function
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/Login'
-    }    
-    
+    const [siteName,setSiteName] = useState([])
+    async function getDataSite() {
+      const getSiteName = await axios.get("http://localhost:3333/site_name")
+      setSiteName(getSiteName.data)
+    }
+    useEffect(() => {
+      getDataSite();
+    }, []);
+
     //UI
     return (
         <div>
@@ -75,9 +77,6 @@ function AddUsersContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -97,6 +96,7 @@ function AddUsersContent() {
                 <input
                 type="text"
                 className="form-control"
+                placeholder="Enter Email"
                 required
                 onChange={(e) => setEmail(e.target.value)}
                />
@@ -107,6 +107,7 @@ function AddUsersContent() {
                 <input
                 type="password"
                 className="form-control"
+                placeholder="Enter Password"
                 required
                 onChange={(e) => setPassword(e.target.value)}
                />
@@ -117,6 +118,7 @@ function AddUsersContent() {
                 <input
                 type="text"
                 className="form-control"
+                placeholder="Enter Name"
                 required
                 onChange={(e) => setName(e.target.value)}
                />
@@ -136,12 +138,16 @@ function AddUsersContent() {
 
               <div className="mb-4">
                 <label>Site</label>
-                <input
-                type="text"
+                <select
                 className="form-control"
-                required
                 onChange={(e) => setSite(e.target.value)}
-               />
+                >
+                  <option>Select User Site</option>
+                  <option value="None">None (For Admin)</option>
+                  {siteName.map((siteName, index) => (
+                    <option key={index}>{siteName.name}</option>             
+                  ))}
+                </select>
               </div>
               <div
                 style={{

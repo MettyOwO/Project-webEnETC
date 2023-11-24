@@ -26,22 +26,32 @@ function ImportAccessPointContent() {
             window.location = '/login'
         }
         })
-        .catch((error) => {
-        console.log("Error:", error);
+        .catch((err) => {
+        console.log("Error:", err);
         });
     },[])
-
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
     
-    const handleSubmit = () => {       
-        alert("Add Complete!")
-        window.location = 'http://localhost:3000/dbadmin'
-    }
+    const navigate = useNavigate();
+    async function handleSubmit(e) {    
+        const form = document.querySelector("form");
+        const formData = new FormData(form);
+        e.preventDefault();
+        axios
+          .post("http://localhost:3333/import-accesspoint-csv", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            if(res.data.added){
+                alert("Import CSV Data Complete!")
+                navigate('/dbadmin') 
+            }else{
+                alert("Error! Please Try Again.")
+            }   
+          })
+          .catch(error => console.log(error));
+      }
 
     //UI
     return (
@@ -53,9 +63,6 @@ function ImportAccessPointContent() {
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">          
             </Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -66,17 +73,18 @@ function ImportAccessPointContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Import Access Point Excel Data To Database</h2>
+                <h2>Import Access Point Data From .CSV To Database</h2>
             </div> 
             <form 
             className="container mt-3 mb-3"
-            encType="multipart/form-data"
-            action="http://localhost:3333/import-accesspoint-csv" 
-            method="post">
+            //encType="multipart/form-data"
+            //action="http://localhost:3333/import-accesspoint-csv" 
+            //method="post"
+            >
             <div className="mb-3">
                 <input
-                type="file"
                 className="form-control"
+                type="file"
                 name="import-csv"
                 accept="csv"
                 />
@@ -87,7 +95,7 @@ function ImportAccessPointContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <button onClick={ handleSubmit } className="btn btn-dark">Store File</button>
+                <button onClick={ handleSubmit} className="btn btn-dark">Store File</button>
             </div>
             </form>
         </div>          

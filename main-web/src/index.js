@@ -21,7 +21,7 @@ import Dashboard from './Page/User/Dashboard';
 //Users
 import AddUsers from './Page/AddUsers';
 import UserList from './Page/UserList';
-import UserEdit from './Page/UserEdit';
+import EditUser from './Page/EditUser';
 
 //AccessPoint
 import AccessPointList from './Page/AccessPointList';
@@ -34,7 +34,6 @@ import EditSwitch from './Page/EditSwitch';
 import AddSwitch from './Page/AddSwitch';
 
 //Add Site,Model&DataSheet
-import AddSite from './Page/AddSite';
 import UserAddSite from './Page/User/AddSite';
 
 import AddModel from './Page/AddModel';
@@ -82,7 +81,7 @@ root.render(
       
       <Route path="/addusers" element={<AddUsers />} />
       <Route path="/users" element={<UserList />} />
-      <Route path="/updateuser/:id" element={<UserEdit />} />
+      <Route path="/updateuser/:id" element={<EditUser />} />
 
       <Route path="/accesspoint/:site" element={<AccessPointList />} />
       <Route path="/updateap/:id" element={<EditAccessPoint />} />
@@ -108,11 +107,11 @@ root.render(
       <Route path="/report_ap2/:id" element={<UserReportAP />} />
       <Route path="/report_sw2/:id" element={<UserReportSW />} />
 
-      <Route path="/addsite" element={<AddSite />} />
       <Route path="/addsite2" element={<UserAddSite />} />
       
-      <Route path="/add_model" element={<AddModel />} />
-      <Route path="/add_datasheet" element={<AddDataSheet />} />
+      <Route path="/add_model/:device" element={<AddModel />} />
+      <Route path="/add_datasheet/:device" element={<AddDataSheet />} />
+      
       <Route path="/add_model2" element={<UserAddModel />} />
       <Route path="/add_datasheet2" element={<UserAddDataSheet />} />
 

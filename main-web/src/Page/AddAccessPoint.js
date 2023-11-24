@@ -30,24 +30,27 @@ function AddAPContent() {
         console.log("Error:", error);
         });
         getDataSite()
+        getDataAPModel()
     },[])
 
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
+    const [serial_number, setSRNumber] = useState('');
     const [role, setRole] = useState("Select AP Role");
     const [site, setSite] = useState("Select Site");
-    const [model, setModel] = useState("Select Model");
+    const [model, setModel] = useState("Select AP Model");
     const navigate = useNavigate();
 
     function handleSubmit(event) {        
         event.preventDefault();
         if (site != "Select Site" && hostname != '' 
             && ipswitch != '' && build_name != '' 
-            && build_group != '' && role != "Select AP Role" && model != "Select Model") {      
+            && build_group != '' && role != "Select AP Role" && model != "Select AP Model" && serial_number != '') {      
             axios.
-            post('http://localhost:3333/addap', {site, build_name, build_group, ipswitch, hostname, role, model})        
+            post('http://localhost:3333/addap', {site, build_name, build_group,
+            ipswitch, hostname, role, model, serial_number})        
             .then(res => {            
                 if(res.data.added){
                     alert("Add Access Point Data Complete!")
@@ -68,14 +71,13 @@ function AddAPContent() {
         const getSiteName = await axios.get("http://localhost:3333/site_name")
         setSiteName(getSiteName.data)
     };
-    
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
 
+    const [ap_models, setApModel] = useState([]);
+    async function getDataAPModel() {
+      const getModel = await axios.get("http://localhost:3333/ap_model");
+      setApModel(getModel.data);
+    }
+    
     return (
     <div>
     <Navbar variant="dark" bg="dark" expand="lg">
@@ -84,9 +86,6 @@ function AddAPContent() {
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
         <Nav className="me-auto"></Nav>
-        <Nav>
-            <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-        </Nav>
         </Navbar.Collapse>
     </Container>
     </Navbar>
@@ -119,6 +118,7 @@ function AddAPContent() {
                 <input type="text" 
                 className='form-control' 
                 required
+                placeholder="Enter Building Group"
                 onChange={e => setBuildgroup(e.target.value)}
                 />
             </div>
@@ -128,6 +128,7 @@ function AddAPContent() {
                 <input type="text" 
                 className='form-control' 
                 required
+                placeholder="Enter Building Name"
                 onChange={e => setBuildname(e.target.value)}
                 />
             </div>
@@ -137,15 +138,17 @@ function AddAPContent() {
                 <input type="text" 
                 className='form-control' 
                 required
+                placeholder="Enter IP Switch"
                 onChange={e => setIpswitch(e.target.value)}
                 />
             </div>
 
             <div className='mb-4'>
-                <label>HostName</label>
+                <label>Hostname</label>
                 <input type="text" 
                 className='form-control' 
                 required
+                placeholder="Enter Hostname"
                 onChange={e => setHostname(e.target.value)}
                 />
             </div>
@@ -155,21 +158,32 @@ function AddAPContent() {
                 <select 
                     className="form-control" 
                     onChange={e => setModel(e.target.value)}>
-                    <option>Select Model</option>                    
-                    <option>AirEngine5761-21</option>
-                    <option>AirEngine6760R-51E</option>
+                    <option>Select AP Model</option>                    
+                    {ap_models.map((ap_models, index) => (
+                    <option key={index}>{ap_models.name}</option>
+                    ))}
                 </select>
             </div>
             
             <div className='mb-4'>
             <label>Role</label>
                 <select className="form-control" 
-                onChange={e => setRole(e.target.value)}
-                >
+                onChange={e => setRole(e.target.value)}>
                     <option>Select AP Role</option>
-                    <option>Indoor</option>
-                    <option>Outdoor</option>
+                    {ap_models.map((ap_models, index) => (
+                    <option key={index}>{ap_models.role}</option>
+                    ))}
                 </select>
+            </div>
+
+            <div className='mb-4'>
+                <label>Serial Number</label>
+                <input type="text" 
+                className='form-control' 
+                required
+                placeholder="Enter Serial Number"
+                onChange={e => setSRNumber(e.target.value)}
+                />
             </div>
             <div 
             style={{

@@ -1,0 +1,94 @@
+import { useEffect, useState } from 'react';
+import {  useNavigate, useParams } from 'react-router-dom';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
+import axios from 'axios';
+
+function Example2() { 
+  const [show, setShow] = useState(false);
+  const [site, setSite] = useState("");
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    fetch ('http://localhost:3333/authen', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": 'Bearer '+token
+        },
+    })   
+    .then(response => response.json())
+    .then(data => {
+    if(data.status === 'ok'){
+        //ไม่ต้องทำอะไร
+    }else{
+        alert('Authen Failed. Please Try Login Again!')
+        localStorage.removeItem('token')
+        window.location = '/login'
+    }
+    })
+    .catch((error) => {
+    console.log("Error:", error);
+    });
+    },[])
+
+    const navigate = useNavigate();
+    function handleSubmit(event) {
+      event.preventDefault();
+      if (site != "") {
+        axios
+          .post("http://localhost:3333/addsite", { site })
+          .then((res) => {
+            if (res.data.added) {
+              alert("Add Site : " + (site) + " Complete!");
+              navigate("/dbadmin");
+            } else {
+              alert("Error! Please Try Again.");
+            }
+          })
+          .catch((err) => console.log(err));
+      }else{
+          alert("Please Complete The Information!");
+      }
+    }
+
+  return (
+    <>
+      <Button variant="primary" onClick={handleShow}>
+        Add New Site
+      </Button>
+
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Site</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+              <Form.Label>Site Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Please Enter Site Name"
+                autoFocus
+                onChange={(e)=>{setSite(e.target.value)}}
+              />
+            </Form.Group>            
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSubmit}>
+            Add Site!
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
+}
+
+export default Example2;

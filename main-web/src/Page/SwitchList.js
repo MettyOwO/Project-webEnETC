@@ -8,10 +8,10 @@ import { CSVLink} from 'react-csv';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
 import { useNavigate, useLocation } from "react-router-dom";
-import AddUrl from "./AddUrl";
+import AddUrl from "../components/AddUrl";
+import SearchBar from "../components/SearchBar";
 
-function SwitchContent() {
-    
+function SwitchContent() { 
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -62,6 +62,28 @@ function SwitchContent() {
         setSwdata(dataSite);
     }
 
+    // Search bar
+    const handleSearch = (searchTerm) => { 
+    // Perform your search logic here and update the filtered data
+    console.log(searchTerm.length);
+    if (searchTerm.length > 0) {
+     
+      const filteredResults = swlist.filter((item) =>
+        Object.values(item).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+      console.log(filteredResults);
+      setSwList(filteredResults);
+      setSwdata(filteredResults);
+    } else {
+        getSwitchData()
+    }
+    console.log(searchTerm);
+  };
+
     const [sw_models, setSwModel] = useState([]);
     const [sw_datasheets, setSwDataSheet] = useState([]);
     async function getDataSW2(){
@@ -71,13 +93,6 @@ function SwitchContent() {
         setSwDataSheet(getSheet.data)
     };
 
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/Login'
-    }
-    
     //SW Delete
     const handleDelete = async (id) => {
         try {           
@@ -88,7 +103,18 @@ function SwitchContent() {
         catch(err){            
             console.log(err);        
         }
-    }    
+    }
+    
+    // SW Model & Datasheet
+    function handleParamUpdate(newValue, type) {
+        const device = newValue;
+        console.log(newValue);
+        if (type === "Model") {
+            navigate(`/add_model/${device}`, { state: { device } });
+        } else if (type === "Datasheet") {
+            navigate(`/add_datasheet/${device}`, { state: { device } });
+        }
+    }
 
     //UI
     return (
@@ -100,19 +126,19 @@ function SwitchContent() {
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
             <NavDropdown title="Switch Datasheet" id="basic-nav-dropdown">
+            <NavDropdown.Item onClick={(e) => handleParamUpdate("SW", "Datasheet")}>Add Datasheet</NavDropdown.Item>
             {sw_datasheets.map ((sw_datasheets,index) => (
                 <NavDropdown.Item key={index} href={sw_datasheets.href} target="_blank">Datasheet : {sw_datasheets.name}</NavDropdown.Item>        
             ))}  
             </NavDropdown>
-
             <NavDropdown title="Switch Model" id="basic-nav-dropdown">
+            <NavDropdown.Item onClick={(e) => handleParamUpdate("SW", "Model")}>Add Model</NavDropdown.Item>
             {sw_models.map ((sw_models,index) => (
                 <NavDropdown.Item key={index} href={sw_models.href} target="_blank">Model : {sw_models.name}</NavDropdown.Item>        
             ))}  
             </NavDropdown> 
             </Nav>
             </Navbar.Collapse>
-            <Navbar.Brand onClick={ handleLogout }>Log-Out</Navbar.Brand>
         </Container>
         </Navbar>
         
@@ -125,7 +151,7 @@ function SwitchContent() {
                     justifyContent: 'center',
                 }}>
                     {paramPath != "SWList" && <>
-                        <h2>Switch {paramPath}</h2>
+                        <h2>Switch {paramPath} List</h2>
                     </>}
                     {paramPath === "SWList" && <>
                         <h2>Switch List</h2>
@@ -134,34 +160,55 @@ function SwitchContent() {
                 
                 {paramPath === "SWList" && <>
                     <Link to="/addsw" className='btn btn-primary'>Add SW Data</Link>&nbsp;
-                   
+                    <Link to="/switch-excel" className='btn btn-success'>Import CSV File</Link>&nbsp;
+                    <CSVLink
+                        data={swdata}
+                        filename="Switch"
+                        className="btn btn-success"
+                    >
+                        Export CSV File
+                    </CSVLink>    
                 </>}
-                <Link to="/switch-excel" className='btn btn-success'>Import Excel Data (Beta)</Link>&nbsp;
-                <CSVLink  data={ swdata } filename="Switch"  className="btn btn-success">Export Excel Data</CSVLink><br/><br/>
+                {paramPath != "SWList" && (
+                <>
+                    <CSVLink
+                        data={swdata}
+                        filename={`Switch ${paramPath}`}
+                        className="btn btn-success"
+                    >
+                        Export CSV File
+                    </CSVLink>
+                </>)}
+                <br/><br/>
+                {/* // Search bar */}
+                Filter : &nbsp;&nbsp; <SearchBar data={swlist} onSearch={handleSearch} />
+                 <br />
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
-                        <th scope="col">Serial number</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">Hostname</th>
                             <th scope="col">IP Address</th>
                             <th scope="col">Role</th>
+                            <th scope="col">Serial number</th>
+                            <th scope="col">Change Serial Number</th>
                             <th scope="col">Map</th>
                             <th scope="col">Config</th>
                             <th scope="col">Edit & Delete</th>
-                            <th scope="col">Report Deivce</th>
+                            <th scope="col">Report Corrupt Deivce</th>
                         </tr>
                     </thead>
                     <tbody>
                     {swlist.map ((swlist,index) => (                       
                         <tr key={index}>
-                            <td>{swlist.serialno}</td>
                             <td>{swlist.buildgroup}</td>
                             <td>{swlist.buildname}</td>
                             <td>{swlist.hostname}</td>
                             <td>{swlist.ip}</td>
                             <td>{swlist.role}</td>
+                            <td>{swlist.serialno}</td>
+                            <td>{swlist.num_report}</td>
                             {swlist.urlmap && <>
                                 <td><Link to={swlist.urlmap} className="btn btn-info" target="_blank">Click</Link></td>
                             </>}

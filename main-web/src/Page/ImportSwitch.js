@@ -2,6 +2,8 @@ import React, { useEffect} from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import axios from 'axios';
+import { useNavigate, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ImportSwitchContent() {
@@ -28,18 +30,28 @@ function ImportSwitchContent() {
         console.log("Error:", error);
         });
     },[])
-
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
-        
-    const handleSubmit = () => {       
-        alert('Added Data!');
-        window.location = 'http://localhost:3000/dbadmin'
-    }
+     
+    const navigate = useNavigate();
+    async function handleSubmit(e) {    
+        const form = document.querySelector("form");
+        const formData = new FormData(form);
+        e.preventDefault();
+        axios
+          .post("http://localhost:3333/import-switch-csv", formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => {
+            if(res.data.added){
+                alert("Import CSV Data Complete!")
+                navigate('/dbadmin') 
+            }else{
+                alert("Error! Please Try Again.")
+            }   
+          })
+          .catch(error => console.log(error));
+      }
 
     //UI
     return (
@@ -51,9 +63,6 @@ function ImportSwitchContent() {
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">          
             </Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -64,13 +73,14 @@ function ImportSwitchContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Import Switch Excel Data To Database</h2>
+                <h2>Import Switch Data From .CSV To Database</h2>
             </div> 
             <form 
             className="container mt-3 mb-3"
-            encType="multipart/form-data"
-            action="http://localhost:3333/import-switch-csv" 
-            method="post">
+            //encType="multipart/form-data"
+            //action="http://localhost:3333/import-switch-csv" 
+            //method="post"
+            >
             <div className="mb-3">
                 <input
                 type="file"
