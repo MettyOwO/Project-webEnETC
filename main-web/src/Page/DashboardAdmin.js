@@ -128,16 +128,16 @@ function DashboardAdminContent() {
     };
     fetchCount5();
   }, []); 
-  const [dcapCount2, setDcApCount2] = useState(0);
-  useEffect(() => {
-    const fetchCount6 = async () => {
-      try {
-        const fetchData = await axios.get("http://localhost:3333/total_dc_ap2");
-        setDcApCount2(fetchData.data.numdcap2);
-      } catch (err) {}
-    };
-    fetchCount6();
-  }, []);
+  // const [dcapCount2, setDcApCount2] = useState(0);
+  // useEffect(() => {
+  //   const fetchCount6 = async () => {
+  //     try {
+  //       const fetchData = await axios.get("http://localhost:3333/total_dc_ap2");
+  //       setDcApCount2(fetchData.data.numdcap2);
+  //     } catch (err) {}
+  //   };
+  //   fetchCount6();
+  // }, []);
   //Total Device Corrupted Install - Switch
   const [dcswCount, setDcSwCount] = useState(0);
   useEffect(() => {
@@ -149,20 +149,25 @@ function DashboardAdminContent() {
     };
     fetchCount7();
   }, []);
-  const [dcswCount2, setDcSwCount2] = useState(0);
-  useEffect(() => {
-    const fetchCount8 = async () => {
-      try {
-        const fetchData = await axios.get("http://localhost:3333/total_dc_sw2");
-        setDcSwCount2(fetchData.data.numdcsw2);
-      } catch (err) {}
-    };
-    fetchCount8();
-  }, []); 
+  // const [dcswCount2, setDcSwCount2] = useState(0);
+  // useEffect(() => {
+  //   const fetchCount8 = async () => {
+  //     try {
+  //       const fetchData = await axios.get("http://localhost:3333/total_dc_sw2");
+  //       setDcSwCount2(fetchData.data.numdcsw2);
+  //     } catch (err) {}
+  //   };
+  //   fetchCount8();
+  // }, []); 
+  // const dataAllDC = [
+  //   ["Device", "1 per Units"],
+  //   ["Switch", dcswCount + dcswCount2],
+  //   ["AP", dcapCount + dcapCount2],
+  // ];
   const dataAllDC = [
     ["Device", "1 per Units"],
-    ["Switch", dcswCount + dcswCount2],
-    ["AP", dcapCount + dcapCount2],
+    ["Switch", dcswCount],
+    ["AP", dcapCount],
   ];
   const optionDC = {
     title: `Total Corrupt Device`,
@@ -257,27 +262,36 @@ function DashboardAdminContent() {
       axios.get('http://localhost:3333/getSiteDC/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
-        let apIndoor = 0
-        let apOutdoor = 0
-        let swAccess = 0
-        let swDistribute = 0
+        // let apIndoor = 0
+        // let apOutdoor = 0
+        // let swAccess = 0
+        // let swDistribute = 0
+        let ApData = 0
+        let SwData = 0
         data.map((item) => {
           //console.log(item);
-          if(item.Role == "AP-Indoor"){
-            apIndoor++
+          if(item.device_type == "AP"){
+            ApData++
           }
-          if(item.Role == "AP-Outdoor"){
-            apOutdoor++
-          }
-          if(item.Role == "SW-Access"){
-            swAccess++
-          }
-          if(item.Role == "SW-Distribute"){
-            swDistribute++
-          }
+          if(item.device_type == "SW"){
+            SwData++
+          }          
+          // if(item.Role == "AP-Indoor"){
+          //   apIndoor++
+          // }
+          // if(item.Role == "AP-Outdoor"){
+          //   apOutdoor++
+          // }
+          // if(item.Role == "SW-Access"){
+          //   swAccess++
+          // }
+          // if(item.Role == "SW-Distribute"){
+          //   swDistribute++
+          // }
         })
         //console.log('Access : ' + parseInt(apIndoor+apOutdoor) + " | Distribute : " + parseInt(swAccess+swDistribute));
-        setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
+        //setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
+        setDataDCSite(dataDCChart(ApData,SwData))
       }).catch(err => console.log(err))
     }
   },[selectSite,selectDevices])

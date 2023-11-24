@@ -38,12 +38,13 @@ function ReportSWContent() {
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
     const [role, setRole] = useState('');
-    const [serial_number, setSR] = useState('');
     const [detail, setDetail] = useState('');
     const [url, setUrl] = useState('');
     const [urlconfig, setUrlConfig] = useState('');
     const [device_type, SetDVType] = useState("Select Device Type");
     const [num_report, SetNumberReport] = useState('');
+    const [serial_numberOld, setSrOld] = useState('');
+    const [serial_number, setSR] = useState('');
 
     useEffect(() => {
         axios.get('http://localhost:3333/switchlistwithid/'+id)
@@ -55,6 +56,9 @@ function ReportSWContent() {
             setIpswitch(res.data[0].ip);
             setUrl(res.data[0].urlmap);
             setUrlConfig(res.data[0].urlconfig);
+            SetNumberReport(res.data[0].num_report);
+            setRole(res.data[0].role)
+            setSrOld(res.data[0].serialno)
         })
         .catch(err => console.log(err));
     },[id])
@@ -62,10 +66,10 @@ function ReportSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (role !== "Select Role Device" && serial_number !== '' && detail !== ''){
+        if (device_type !== "Select Device Type" && serial_number !== '' && detail !== ''){
         axios
-        .post('http://localhost:3333/addreport_sw/'+ id, {site, build_group, build_name,
-         ipswitch, hostname, role, serial_number, detail, url, urlconfig, device_type, num_report}) 
+        .post('http://localhost:3333/addreport_sw/'+ id, {site, device_type, build_group, build_name,
+        ipswitch, hostname, role, serial_numberOld, serial_number, detail, url, urlconfig, num_report}) 
         .then(res => {
             if(res.data.added){
                 alert("Add Corrupt Device Data Complete!")
@@ -114,6 +118,16 @@ function ReportSWContent() {
                     onChange={e => setSite(e.target.value)} 
                     disabled/>
                 </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Device Type</label>
+                    <select 
+                    className="form-control" 
+                    onChange={e => SetDVType(e.target.value)}>
+                        <option>Select Device Type</option>                  
+                        <option value="SW">Switch</option>     
+                </select>
+                </div>                
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
@@ -160,31 +174,40 @@ function ReportSWContent() {
 
                 <div className='mb-4'>
                     <label htmlFor=''>Role</label>
-                    <select 
+                    <input 
                     className="form-control" 
-                    onChange={e => setRole(e.target.value)}>
-                        <option>Select Role Device</option>                  
-                        <option>AP-Indoor</option>
-                        <option>AP-Outdoor</option>
-                        <option>SW-Access</option>
-                        <option>SW-Distribute</option>      
-                    </select>
+                    onChange={e => setRole(e.target.value)}
+                    value={role}
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
-                    <label>Replace With Serial Number</label>
+                    <label>Old Serial Number</label>
                     <input 
                     type="text" 
                     className='form-control'
+                    onChange={e => setSrOld(e.target.value)}
+                    value={serial_numberOld}
+                    disabled
+                    />
+                </div>                
+                
+                <div className='mb-4'>
+                    <label>New Serial Number</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    placeholder='Enter New Serial Number' 
                     onChange={e => setSR(e.target.value)}
                     required/>
                 </div>
 
                 <div className='mb-4'>
-                    <label>Detail Device Corrupted</label>
+                    <label>Detail</label>
                     <input 
                     type="text" 
                     className='form-control'
+                    placeholder='Enter Detail of Corrupt Device' 
                     onChange={e => setDetail(e.target.value)}
                     required/>
                 </div>

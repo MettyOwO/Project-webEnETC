@@ -129,16 +129,16 @@ function DashboardContent() {
     };
     fetchCount5();
   }, []); 
-  const [dcapCount2, setDcApCount2] = useState(0);
-  useEffect(() => {
-    const fetchCount6 = async () => {
-      try {
-        const fetchData = await axios.get("http://localhost:3333/total_dc_ap2");
-        setDcApCount2(fetchData.data.numdcap2);
-      } catch (err) {}
-    };
-    fetchCount6();
-  }, []);
+  // const [dcapCount2, setDcApCount2] = useState(0);
+  // useEffect(() => {
+  //   const fetchCount6 = async () => {
+  //     try {
+  //       const fetchData = await axios.get("http://localhost:3333/total_dc_ap2");
+  //       setDcApCount2(fetchData.data.numdcap2);
+  //     } catch (err) {}
+  //   };
+  //   fetchCount6();
+  // }, []);
   //Total Device Corrupted Install - Switch
   const [dcswCount, setDcSwCount] = useState(0);
   useEffect(() => {
@@ -150,54 +150,54 @@ function DashboardContent() {
     };
     fetchCount7();
   }, []);
-  const [dcswCount2, setDcSwCount2] = useState(0);
-  useEffect(() => {
-    const fetchCount8 = async () => {
-      try {
-        const fetchData = await axios.get("http://localhost:3333/total_dc_sw2");
-        setDcSwCount2(fetchData.data.numdcsw2);
-      } catch (err) {}
-    };
-    fetchCount8();
-  }, []); 
+  // const [dcswCount2, setDcSwCount2] = useState(0);
+  // useEffect(() => {
+  //   const fetchCount8 = async () => {
+  //     try {
+  //       const fetchData = await axios.get("http://localhost:3333/total_dc_sw2");
+  //       setDcSwCount2(fetchData.data.numdcsw2);
+  //     } catch (err) {}
+  //   };
+  //   fetchCount8();
+  // }, []); 
   const dataAllDC = [
     ["Device", "1 per Units"],
-    ["Switch", dcswCount + dcswCount2],
-    ["AP", dcapCount + dcapCount2],
+    ["Switch", dcswCount],
+    ["AP", dcapCount],
   ];
   const optionDC = {
-    title: `Total Device Corrupted`,
+    title: `Total Corrupt Device`,
     pieHole: 0.4,
     is3D: true,
   };
 
-  const [apsite, setAPSite] = useState([]);
-  const [swsite, setSWSite] = useState([]);
-  const [dcsite, setDCSite] = useState([]);
-  const [siteName,setSiteName] = useState([])
+  // const [apsite, setAPSite] = useState([]);
+  // const [swsite, setSWSite] = useState([]);
+  // const [dcsite, setDCSite] = useState([]);
+  
+  const [siteName,setSiteName] = useState([]);
+  const [siteName2,setSiteName2] = useState([]);
   async function getData() {
-
     const getSiteName = await axios.get("http://localhost:3333/site_name")
     const siteLocation = localStorage.getItem("site");
     //console.log(getSWSite.data);
-
-    const dataAP = []
-    const dataSW = []
-    const dataDC = []
+    // const dataAP = []
+    // const dataSW = []
+    // const dataDC = []
     const dataSite = []
-
-
 
     getSiteName.data.map((item)=>{    
       if(siteLocation === item.name){
         dataSite.push(item)
       }
     })
-    console.log(dataDC);
-    setAPSite(dataAP);
-    setSWSite(dataSW);
-    setDCSite(dataDC);
-    setSiteName(dataSite)
+
+    //console.log(dataDC);
+    // setAPSite(dataAP);
+    // setSWSite(dataSW);
+    // setDCSite(dataDC);
+    setSiteName(dataSite);
+    setSiteName2(siteLocation);
     //console.log(getSiteName.data);
   }
   useEffect(() => {
@@ -281,27 +281,36 @@ function DashboardContent() {
       axios.get('http://localhost:3333/getSiteDC/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
-        let apIndoor = 0
-        let apOutdoor = 0
-        let swAccess = 0
-        let swDistribute = 0
+        // let apIndoor = 0
+        // let apOutdoor = 0
+        // let swAccess = 0
+        // let swDistribute = 0
+        let ApData = 0
+        let SwData = 0
         data.map((item) => {
           //console.log(item);
-          if(item.Role == "AP-Indoor"){
-            apIndoor++
+          if(item.device_type == "AP"){
+            ApData++
           }
-          if(item.Role == "AP-Outdoor"){
-            apOutdoor++
-          }
-          if(item.Role == "SW-Access"){
-            swAccess++
-          }
-          if(item.Role == "SW-Distribute"){
-            swDistribute++
-          }
+          if(item.device_type == "SW"){
+            SwData++
+          }          
+          // if(item.Role == "AP-Indoor"){
+          //   apIndoor++
+          // }
+          // if(item.Role == "AP-Outdoor"){
+          //   apOutdoor++
+          // }
+          // if(item.Role == "SW-Access"){
+          //   swAccess++
+          // }
+          // if(item.Role == "SW-Distribute"){
+          //   swDistribute++
+          // }
         })
         //console.log('Access : ' + parseInt(apIndoor+apOutdoor) + " | Distribute : " + parseInt(swAccess+swDistribute));
-        setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
+        // setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
+        setDataDCSite(dataDCChart(ApData,SwData))
       }).catch(err => console.log(err))
     }
   },[selectSite,selectDevices])
@@ -344,7 +353,7 @@ function DashboardContent() {
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("APList", "AP")}
                 >
-                  Access Point List
+                  {siteName2}
                 </NavDropdown.Item>
 
               </NavDropdown>
@@ -352,15 +361,15 @@ function DashboardContent() {
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("SWList", "SW")}
                 >
-                  Switch List
+                  {siteName2}
                 </NavDropdown.Item>
 
               </NavDropdown>
-              <NavDropdown title="Device Corrupted" id="basic-nav-dropdown">
+              <NavDropdown title="Corrupt Device" id="basic-nav-dropdown">
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("DCList", "DC")}
                 >
-                  Device Corrupted List
+                  {siteName2}
                 </NavDropdown.Item>
 
               </NavDropdown>
@@ -395,7 +404,7 @@ function DashboardContent() {
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
             <option value="switch">Switch</option>
-            <option value="device-corrupted">DeviceCorrupted</option>
+            <option value="device-corrupted">Corrupt Device</option>
           </select>
         </div>
 

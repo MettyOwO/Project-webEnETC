@@ -41,6 +41,7 @@ function Example(test1) {
         await axios.put(`http://localhost:3333/updateaplink/${id}`, {
             url : url
         })
+        alert("Add URL : " + (url) + " Complete!");
         handleClose();
         window.location.reload(); 
     }
@@ -103,17 +104,17 @@ function Example(test1) {
   return (
     <>
       <Button variant="primary" onClick={handleShow}>
-        Add Url
+        Add URL
       </Button>
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add Url</Modal.Title>
+          <Modal.Title>Add New URL</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Url</Form.Label>
+              <Form.Label>URL</Form.Label>
               <Form.Control
                 type="text"
                 placeholder=""
@@ -128,7 +129,7 @@ function Example(test1) {
             Close
           </Button>
           <Button variant="primary" onClick={Check}>
-            Save Changes
+            Add
           </Button>
         </Modal.Footer>
       </Modal>

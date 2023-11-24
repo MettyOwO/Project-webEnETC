@@ -471,25 +471,71 @@ app.post("/addreport_ap/:id", (req, res) => {
 });
 
 app.post("/addreport_sw/:id", (req, res) => {
-  const sql =
-    "INSERT INTO device_corrupted (Site, Buildgroup, Buildname, Hostname, Ipaddress, Role, Serialnumber, Details, urlmap, urlconfig) VALUES (?)";
-  const values = [
+  const insertSql =
+    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Serialnumber, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  
+    const values = [
     req.body.site,
+    req.body.device_type,
     req.body.build_group,
     req.body.build_name,
     req.body.hostname,
     req.body.ipswitch,
     req.body.role,
+    req.body.serial_numberOld,
     req.body.serial_number,
     req.body.detail,
     req.body.url,
     req.body.urlconfig,
   ];
-  connection.query(sql, [values], (err) => {
-    if (err) return res.json("Error");
-    return res.json({ added: true });
+  
+  const updateSql = "UPDATE switch SET serialno = ? WHERE serialno = ?";
+  const SerialnumberOld = req.body.serial_numberOld;
+
+  const SqlUpdateNumReport = "UPDATE switch SET num_report = ? WHERE serialno = ?"
+  const num_report = req.body.num_report;
+  const total_num =  num_report + 1;
+  //console.log(total_num);
+
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+  connection.query(insertSql, values, (insertErr, insertResult) => {
+    if (insertErr) {
+      connection.rollback(() => {
+        throw insertErr;
+      });
+    }
+
+    connection.query(updateSql, [req.body.serial_number, SerialnumberOld], (updateErr) => {
+      if (updateErr) {
+        connection.rollback(() => {
+          throw updateErr;
+        });
+      }
+      
+      connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+        if (updateErr) {
+          connection.rollback(() => {
+            throw updateErr;
+          });
+      }
+
+      connection.commit((commitErr) => {
+        if (commitErr) {
+          connection.rollback(() => {
+            throw commitErr;
+          });
+        }
+        console.log('Transaction Complete.');
+        res.json({ added: true });
+      });
+    });
   });
 });
+});
+});
+
 app.delete("/deletedc/:id", (req, res) => {
   const sql = "DELETE FROM device_corrupted where ID = ?";
   const id = req.params.id;
@@ -563,36 +609,36 @@ app.get("/total_ap_out", (req, res) => {
 //Count Device Corrupted
 app.get("/total_dc_ap", (req, res) => {
   const sql =
-    "SELECT COUNT(ID) as numdcap FROM device_corrupted where Role = 'AP-Indoor'";
+    "SELECT COUNT(ID) as numdcap FROM device_corrupted where device_type = 'AP'";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result[0]);
   });
 });
-app.get("/total_dc_ap2", (req, res) => {
-  const sql =
-    "SELECT COUNT(ID) as numdcap2 FROM device_corrupted where Role = 'AP-Outdoor'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result[0]);
-  });
-});
+// app.get("/total_dc_ap2", (req, res) => {
+//   const sql =
+//     "SELECT COUNT(ID) as numdcap2 FROM device_corrupted where device_type = 'AP' AND Role = 'Outdoor'";
+//   connection.query(sql, (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result[0]);
+//   });
+// });
 app.get("/total_dc_sw", (req, res) => {
   const sql =
-    "SELECT COUNT(ID) as numdcsw FROM device_corrupted where Role = 'SW-Access'";
+    "SELECT COUNT(ID) as numdcsw FROM device_corrupted where device_type = 'SW'";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result[0]);
   });
 });
-app.get("/total_dc_sw2", (req, res) => {
-  const sql =
-    "SELECT COUNT(ID) as numdcsw2 FROM device_corrupted where Role = 'SW-Distribute'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result[0]);
-  });
-});
+// app.get("/total_dc_sw2", (req, res) => {
+//   const sql =
+//     "SELECT COUNT(ID) as numdcsw2 FROM device_corrupted where device_type = 'SW' AND Role = 'Distribute'";
+//   connection.query(sql, (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result[0]);
+//   });
+// });
 
 //Site
 app.get("/site_name", (req, res) => {
@@ -684,7 +730,7 @@ app.get("/sw_datasheet", (req, res) => {
 app.put("/updateaplink/:id", (req, res) => {
   const url = req.body.url;
   const id = req.params.id;
-  console.log(req.body);
+  //console.log(req.body);
   connection.query(
     "UPDATE accesspoint SET urlmap = ? WHERE ID = ?",
     [url, id],
@@ -700,7 +746,7 @@ app.put("/updateaplink/:id", (req, res) => {
 app.put("/updateswlink/:id", (req, res) => {
   const url = req.body.url;
   const id = req.params.id;
-  console.log(req.body);
+  //console.log(req.body);
   connection.query(
     "UPDATE switch SET urlmap = ? WHERE ID = ?",
     [url, id],
@@ -716,7 +762,7 @@ app.put("/updateswlink/:id", (req, res) => {
 app.put("/updatedclink/:id", (req, res) => {
   const url = req.body.url;
   const id = req.params.id;
-  console.log(req.body);
+  //console.log(req.body);
   connection.query(
     "UPDATE device_corrupted SET urlmap = ? WHERE ID = ?",
     [url, id],
@@ -732,7 +778,7 @@ app.put("/updatedclink/:id", (req, res) => {
 app.put("/updateconfiglink/:id", (req, res) => {
   const url = req.body.url;
   const id = req.params.id;
-  console.log(req.body);
+  //console.log(req.body);
   connection.query(
     "UPDATE switch SET urlconfig = ? WHERE ID = ?",
     [url, id],
@@ -748,7 +794,7 @@ app.put("/updateconfiglink/:id", (req, res) => {
 app.put("/updateconfiglink2/:id", (req, res) => {
   const url = req.body.url;
   const id = req.params.id;
-  console.log(req.body);
+  //console.log(req.body);
   connection.query(
     "UPDATE device_corrupted SET urlconfig = ? WHERE ID = ?",
     [url, id],

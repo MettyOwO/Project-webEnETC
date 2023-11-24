@@ -113,7 +113,7 @@ function APContent() {
     }
   };
 
-  // AP Model&Datasheet
+  // AP Model & Datasheet
   function handleParamUpdate(newValue, type) {
     const device = newValue;
     console.log(newValue);
@@ -233,7 +233,7 @@ function APContent() {
                 <th scope="col">Hostname</th>
                 <th scope="col">Role</th>
                 <th scope="col">Serial Number</th>
-                <th scope="col">Change Serial Number</th>
+                <th scope="col">No. of Change Serial Number</th>
                 <th scope="col">Map</th>
                 <th scope="col">Edit & Delete</th>
                 <th scope="col">Report Corrupt Deivce</th>

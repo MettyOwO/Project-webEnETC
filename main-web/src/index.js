@@ -106,14 +106,12 @@ root.render(
       <Route path="/userdeviceclist/:site" element={<UserDeviceCorrupted />} />
       <Route path="/report_ap2/:id" element={<UserReportAP />} />
       <Route path="/report_sw2/:id" element={<UserReportSW />} />
-
-      <Route path="/addsite2" element={<UserAddSite />} />
       
       <Route path="/add_model/:device" element={<AddModel />} />
       <Route path="/add_datasheet/:device" element={<AddDataSheet />} />
       
-      <Route path="/add_model2" element={<UserAddModel />} />
-      <Route path="/add_datasheet2" element={<UserAddDataSheet />} />
+      <Route path="/add_model2/:device" element={<UserAddModel />} />
+      <Route path="/add_datasheet2/:device" element={<UserAddDataSheet />} />
 
     </Routes>
   </BrowserRouter>

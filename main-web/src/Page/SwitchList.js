@@ -192,7 +192,7 @@ function SwitchContent() {
                             <th scope="col">IP Address</th>
                             <th scope="col">Role</th>
                             <th scope="col">Serial number</th>
-                            <th scope="col">Change Serial Number</th>
+                            <th scope="col">No. of Change Serial Number</th>
                             <th scope="col">Map</th>
                             <th scope="col">Config</th>
                             <th scope="col">Edit & Delete</th>
