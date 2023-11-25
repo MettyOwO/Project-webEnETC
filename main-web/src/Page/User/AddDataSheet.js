@@ -1,37 +1,42 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function UserAddDataSheetContent() {
-  //Check Token API
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:3333/authen", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status === "ok") {
-        } 
-        else{
-          alert("Authen Failed. Please Try Login Again!");
+    //Check Token API
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("email");
+      const site1 = localStorage.getItem("site");
+      fetch ('http://localhost:3333/authen', {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization": 'Bearer '+ token, email, site1
+          },
+      })   
+      .then(response => response.json())
+      .then(data => {
+      if(data.status === 'ok'){
+      }else{
+          alert('Authen Failed. Please Try Login Again!')
           localStorage.removeItem("token");
-          window.location = "/login";
-        }
+          localStorage.removeItem("email");
+          localStorage.removeItem("site");
+          window.location = '/login'
+      }
       })
       .catch((error) => {
       console.log("Error:", error);
       });
   }, []);
 
+  const location = useLocation();
+  const [paramPath, setParamPath] = useState(location.state.device);
   const [type, setType] = useState("Select Device Type");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
@@ -56,13 +61,6 @@ function UserAddDataSheetContent() {
     }
   }
 
-  //Log Out
-  const handleLogout = (event) => {
-    event.preventDefault();
-    localStorage.removeItem("token");
-    window.location = "/login";
-  };
-
   return (
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
@@ -71,9 +69,6 @@ function UserAddDataSheetContent() {
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-              <Nav.Link onClick={handleLogout}>Log-Out</Nav.Link>
-            </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -90,6 +85,7 @@ function UserAddDataSheetContent() {
             <h2>Add New Datasheet For Device</h2>
           </div>
 
+          {paramPath == "AP" && (
           <div className="mb-4">
             <label htmlFor="Select DeviceType">Device Type</label>
             <select
@@ -98,14 +94,27 @@ function UserAddDataSheetContent() {
             >
               <option>Select Device Type</option>
               <option value="AP">Access Point</option>
+            </select>
+          </div> 
+          )}
+          {paramPath == "SW" && (
+          <div className="mb-4">
+            <label htmlFor="Select DeviceType">Device Type</label>
+            <select
+              className="form-control"
+              onChange={(e) => setType(e.target.value)}
+            >
+              <option>Select Device Type</option>
               <option value="SW">Switch</option>
             </select>
-          </div>       
+          </div> 
+          )}                       
 
           <div className="mb-4">
-            <label>Name</label>
+            <label>Datasheet Name</label>
             <input
               type="text"
+              placeholder="Enter Name"
               className="form-control"
               required
               onChange={(e) => setName(e.target.value)}
@@ -113,10 +122,11 @@ function UserAddDataSheetContent() {
           </div>
         
           <div className="mb-4">
-            <label>Url</label>
+            <label>URL</label>
             <input
               type="text"
               className="form-control"
+              placeholder="Example : https://www.google.com/"
               required
               onChange={(e) => setUrl(e.target.value)}
             />

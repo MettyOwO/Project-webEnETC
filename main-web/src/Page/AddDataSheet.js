@@ -33,15 +33,17 @@ function AddDataSheetContent() {
   }, []);
 
   const location = useLocation();
-  const [paramPath, setParamPath] = useState(location.state.device);
-  const [type, setType] = useState("");
+  const [paramPath] = useState(location.state.device);
+  // const [typeAP, setTypeAP] = useState("AP");
+  // const [typeSW, setTypeSW] = useState("SW");
+  const [type, setType] = useState(paramPath);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (name != "" && url != "") {
+    if (name !== "" && url !== "" && paramPath === "AP") {   
       axios
         .post("http://localhost:3333/adddatasheet", { type, name, url })
         .then((res) => {
@@ -53,8 +55,22 @@ function AddDataSheetContent() {
           }
         })
         .catch((err) => console.log(err));
-    }else{
-        alert("Please Complete The Information!");
+    }else if (name !== "" && url !== "" && paramPath === "SW")
+      {
+        axios
+        .post("http://localhost:3333/adddatasheet", { type, name, url })
+        .then((res) => {
+          if (res.data.added) {
+            alert("Add Datasheet : " + (name) + " Device : " + (type) + " Complete!");
+            navigate("/dbadmin");
+          } else {
+            alert("Error! Please Try Again.");
+          }
+        })
+        .catch((err) => console.log(err));
+      }
+    else{
+      alert("Please Complete The Information!");
     }
   }
 
@@ -62,7 +78,12 @@ function AddDataSheetContent() {
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-          <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+          <Navbar.Brand href='/dbadmin'>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+          </svg>
+          &nbsp; Dashboard
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -81,29 +102,28 @@ function AddDataSheetContent() {
           >
             <h2>Add New Datasheet For Device</h2>
           </div>
-
-          {paramPath == "AP" && (
-          <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
-              className="form-control"
-              onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="AP">Access Point</option>
-            </select>
-          </div> 
+          {paramPath === "AP" && (
+            <div className="mb-4">
+              <label>Device Type</label>
+              <input
+                type="text"
+                className="form-control"
+                value="Access Point"
+                disabled
+                onChange={(e) => setType(e.target.value)}
+              />
+            </div> 
           )}
-          {paramPath == "SW" && (
+          {paramPath === "SW" && (
           <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
+            <label>Device Type</label>
+            <input
+              type="text"
               className="form-control"
+              value="Switch"
+              disabled
               onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="SW">Switch</option>
-            </select>
+            />
           </div> 
           )}                       
 
@@ -137,7 +157,7 @@ function AddDataSheetContent() {
             }}
           >
             <button className="btn btn-primary" onClick={handleSubmit}>
-              Add Datasheet
+              Add Model!
             </button>
           </div>
         </form>

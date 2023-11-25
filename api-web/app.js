@@ -261,7 +261,7 @@ app.get("/aplist_kku", (req, res) => {
 //AP Update API
 app.put("/updateap/:id", (req, res) => {
   const sql =
-    "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?, Serialnumber = ?  where ID = ?";
+    "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?, Serialnumber = ?, MACaddress = ? where ID = ?";
   const id = req.params.id;
   const values = [
     req.body.role,
@@ -271,7 +271,8 @@ app.put("/updateap/:id", (req, res) => {
     req.body.hostname,
     req.body.model,
     req.body.url,
-    req.body.serial_number
+    req.body.serial_number,
+    req.body.mac_address
   ];
   connection.query(sql, [...values, id], (err, result) => {
     if (err) return res.json("Error");
@@ -290,7 +291,7 @@ app.delete("/deleteap/:id", (req, res) => {
 //AP Add API
 app.post("/addap", (req, res) => {
   const sql =
-    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model, Serialnumber) VALUES (?)";
+    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model, Serialnumber, MACaddress) VALUES (?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -299,7 +300,8 @@ app.post("/addap", (req, res) => {
     req.body.hostname,
     req.body.role,
     req.body.model,
-    req.body.serial_number
+    req.body.serial_number,
+    req.body.mac_address
   ];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
@@ -407,7 +409,7 @@ app.get("/deviceclist", (req, res) => {
 });
 app.post("/addreport_ap/:id", (req, res) => {
   const insertSql =
-  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Serialnumber, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Oldmacaddress, Serialnumber, Macaddress, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const values = [
     req.body.site,
@@ -419,6 +421,8 @@ app.post("/addreport_ap/:id", (req, res) => {
     req.body.role,
     req.body.serial_numberOld,
     req.body.serial_number,
+    req.body.mac_addressOld,
+    req.body.mac_address,
     req.body.detail,
     req.body.url
   ];
@@ -426,48 +430,58 @@ app.post("/addreport_ap/:id", (req, res) => {
   const updateSql = "UPDATE accesspoint SET Serialnumber = ? WHERE Serialnumber = ?";
   const SerialnumberOld = req.body.serial_numberOld;
 
+  const updateSql2 = "UPDATE accesspoint SET MACaddress = ? WHERE MACaddress = ?";
+  const MacaddressOld = req.body.mac_addressOld;
+
   const SqlUpdateNumReport = "UPDATE accesspoint SET num_report = ? WHERE Serialnumber = ?"
   const num_report = req.body.num_report;
   const total_num =  num_report + 1;
-  //console.log(total_num);
 
   connection.beginTransaction((err) => {
     if (err) throw err;
 
-  connection.query(insertSql, values, (insertErr, insertResult) => {
-    if (insertErr) {
-      connection.rollback(() => {
-        throw insertErr;
-      });
-    }
-
-    connection.query(updateSql, [req.body.serial_number, SerialnumberOld], (updateErr) => {
-      if (updateErr) {
+    connection.query(insertSql, values, (insertErr, insertResult) => {
+      if (insertErr) {
         connection.rollback(() => {
-          throw updateErr;
+          throw insertErr;
         });
       }
-      
-      connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+
+      connection.query(updateSql, [req.body.serial_number, SerialnumberOld], (updateErr) => {
         if (updateErr) {
           connection.rollback(() => {
             throw updateErr;
           });
-      }
-
-      connection.commit((commitErr) => {
-        if (commitErr) {
-          connection.rollback(() => {
-            throw commitErr;
-          });
         }
-        console.log('Transaction Complete.');
-        res.json({ added: true });
+
+        connection.query(updateSql2, [req.body.mac_address, MacaddressOld], (updateErr) => {
+          if (updateErr) {
+            connection.rollback(() => {
+              throw updateErr;
+            });
+          }
+      
+          connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+            if (updateErr) {
+              connection.rollback(() => {
+                throw updateErr;
+              });
+            }
+
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                connection.rollback(() => {
+                  throw commitErr;
+              });
+            }
+            console.log('Transaction Complete.');
+            res.json({ added: true });
+            });
+          });  
+        });
       });
     });
   });
-});
-});
 });
 
 app.post("/addreport_sw/:id", (req, res) => {

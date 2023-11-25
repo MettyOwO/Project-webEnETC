@@ -33,8 +33,8 @@ function AddModelContent() {
   }, []);
 
   const location = useLocation();
-  const [paramPath, setParamPath] = useState(location.state.device);
-  const [type, setType] = useState("Select Device Type");
+  const [paramPath] = useState(location.state.device);
+  const [type, setType] = useState(paramPath);
   const [name, setName] = useState("");
   const [role, SetDeviceRole] = useState("");
   const [url, setUrl] = useState("");
@@ -42,7 +42,7 @@ function AddModelContent() {
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (type != "Select Device Type" && name != "" && url != "" && role != "") {
+    if (name !== "" && url !== "" && role !== "" && paramPath === "AP") {
       axios
         .post("http://localhost:3333/addmodel", { type, name, role, url})
         .then((res) => {
@@ -54,6 +54,18 @@ function AddModelContent() {
           }
         })
         .catch((err) => console.log(err));
+    }else if (name !== "" && url !== "" && role !== "" && paramPath === "SW"){
+      axios
+      .post("http://localhost:3333/addmodel", { type, name, role, url})
+      .then((res) => {
+        if (res.data.added) {
+          alert("Add Model : " + (name) + " Device : " + (type) + " Role : " + (role) + " Complete!");
+          navigate("/dbadmin");
+        } else {
+          alert("Error! Please Try Again.");
+        }
+      })
+      .catch((err) => console.log(err));
     }else{
         alert("Please Complete The Information!");
     }
@@ -63,7 +75,12 @@ function AddModelContent() {
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-          <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+          <Navbar.Brand href='/dbadmin'>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+          </svg>
+          &nbsp; Dashboard
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -83,30 +100,30 @@ function AddModelContent() {
             <h2>Add New Model For Device</h2>
           </div>
 
-          {paramPath == "AP" && (
+          {paramPath === "AP" && (
+            <div className="mb-4">
+              <label>Device Type</label>
+              <input
+                type="text"
+                className="form-control"
+                value="Access Point"
+                disabled
+                onChange={(e) => setType(e.target.value)}
+              />
+            </div> 
+          )}
+          {paramPath === "SW" && (
           <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
+            <label>Device Type</label>
+            <input
+              type="text"
               className="form-control"
+              value="Switch"
+              disabled
               onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="AP">Access Point</option>
-            </select>
+            />
           </div> 
-          )} 
-          {paramPath == "SW" && (
-          <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
-              className="form-control"
-              onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="SW">Switch</option>
-            </select>
-          </div> 
-          )}                 
+          )}                                        
 
           <div className="mb-4">
             <label>Model Role</label>
@@ -149,7 +166,7 @@ function AddModelContent() {
             }}
           >
             <button className="btn btn-primary" onClick={handleSubmit}>
-              Add Model
+              Add Datasheet!
             </button>
           </div>
         </form>

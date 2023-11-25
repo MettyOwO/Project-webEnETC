@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -38,6 +38,7 @@ function AddAPContent() {
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
     const [serial_number, setSRNumber] = useState('');
+    const [mac_address, setMacNumber] = useState('');
     const [role, setRole] = useState("Select AP Role");
     const [site, setSite] = useState("Select Site");
     const [model, setModel] = useState("Select AP Model");
@@ -45,16 +46,15 @@ function AddAPContent() {
 
     function handleSubmit(event) {        
         event.preventDefault();
-        if (site != "Select Site" && hostname != '' 
-            && ipswitch != '' && build_name != '' 
-            && build_group != '' && role != "Select AP Role" && model != "Select AP Model" && serial_number != '') {      
-            axios.
-            post('http://localhost:3333/addap', {site, build_name, build_group,
-            ipswitch, hostname, role, model, serial_number})        
+        if (site !== "Select Site" && hostname !== '' 
+            && ipswitch !== '' && build_name !== '' 
+            && build_group !== '' && role !== "Select AP Role" && model !== "Select AP Model" && serial_number !== ''
+            && mac_address !== ''){      
+            axios.post('http://localhost:3333/addap', {site, build_name, build_group,
+            ipswitch, hostname, role, model, serial_number, mac_address})        
             .then(res => {            
                 if(res.data.added){
                     alert("Add Access Point Data Complete!")
-                    //navigate('/accesspoint')
                     navigate('/dbadmin') 
                 }else{
                     alert("Error! Please Try Again.")
@@ -82,7 +82,12 @@ function AddAPContent() {
     <div>
     <Navbar variant="dark" bg="dark" expand="lg">
     <Container fluid>
-    <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+    <Navbar.Brand href='/dbadmin'>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+        </svg>
+        &nbsp; Dashboard
+    </Navbar.Brand>
         <Navbar.Toggle aria-controls="navbar-dark-example" />
         <Navbar.Collapse id="navbar-dark-example">
         <Nav className="me-auto"></Nav>
@@ -98,7 +103,7 @@ function AddAPContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Add Access Point Data</h2>
+                <h2>Add New Access Point Data</h2>
             </div>              
             
             <div className='mb-4'>
@@ -177,7 +182,7 @@ function AddAPContent() {
             </div>
 
             <div className='mb-4'>
-                <label>Serial Number</label>
+                <label>Serial No.</label>
                 <input type="text" 
                 className='form-control' 
                 required
@@ -185,13 +190,26 @@ function AddAPContent() {
                 onChange={e => setSRNumber(e.target.value)}
                 />
             </div>
+            
+            <div className='mb-4'>
+                <label>Mac Address</label>
+                <input type="text" 
+                className='form-control' 
+                required
+                placeholder="Enter Mac Address"
+                onChange={e => setMacNumber(e.target.value)}
+                />
+            </div>
+            
             <div 
             style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <button className="btn btn-primary" onClick={ handleSubmit }>Add Data</button>   
+                <button className="btn btn-primary" onClick={ handleSubmit }>
+                    Add Data!
+                </button>
             </div>
         </form>
         </div> 

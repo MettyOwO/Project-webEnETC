@@ -51,7 +51,6 @@ export default function SignIn() {
         if(data.status === 'ok' && role === 'Admin'){
           alert('Login Success! Username : ' + name)
           localStorage.setItem('token', data.token)
-          localStorage.setItem('email', data.email)
           window.location= '/dbadmin'
         }else if(data.status === 'ok' && role === 'Customer'){
           alert('Login Success! Username : ' + name + ' , Site : ' + (data.site))

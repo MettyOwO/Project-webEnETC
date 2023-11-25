@@ -33,9 +33,6 @@ import SwitchList from './Page/SwitchList';
 import EditSwitch from './Page/EditSwitch';
 import AddSwitch from './Page/AddSwitch';
 
-//Add Site,Model&DataSheet
-import UserAddSite from './Page/User/AddSite';
-
 import AddModel from './Page/AddModel';
 import AddDataSheet from './Page/AddDataSheet';
 import UserAddModel from './Page/User/AddModel';

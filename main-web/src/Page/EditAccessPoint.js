@@ -41,6 +41,7 @@ function EditAPContent() {
     const [model, setModel] = useState('');
     const [role, setRole] = useState('');
     const [serial_number, setSRNumber] = useState('');
+    const [mac_address, setMacNumber] = useState('');
     const [url, setUrl] = useState("");
     useEffect(() => {
         axios
@@ -52,7 +53,8 @@ function EditAPContent() {
             setBuildgroup(res.data[0].Buildgroup);
             setModel(res.data[0].Model);
             setRole(res.data[0].Role);
-            setSRNumber(res.data[0].Serialnumber)
+            setSRNumber(res.data[0].Serialnumber);
+            setMacNumber(res.data[0].MACaddress);
             setUrl(res.data[0].urlmap);
         })
         .catch(err => console.log(err));
@@ -62,10 +64,11 @@ function EditAPContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (hostname !== '' && ipswitch !== '' && build_name !== '' && build_group !== '' && serial_number !== '') {
+        if (hostname !== '' && ipswitch !== '' && build_name !== '' && build_group !== '' 
+        && serial_number !== '' && mac_address !== '') {
             axios
             .put('http://localhost:3333/updateap/'+id, {role, build_name, build_group,
-            ipswitch, model, hostname, url, serial_number}) 
+            ipswitch, model, hostname, url, serial_number, mac_address}) 
             .then(res => {
                 if(res.data.updated){
                     alert("Update Access Point ID : " + (id) + " Complete!")
@@ -92,7 +95,12 @@ function EditAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example"/>
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -171,12 +179,21 @@ function EditAPContent() {
                 </div>
 
                 <div className='mb-4'>
-                    <label htmlFor=''>Serial Number</label>
+                    <label htmlFor=''>Serial No.</label>
                     <input type="text" 
                     placeholder='' 
                     className='form-control'
                     value={serial_number} 
                     onChange={e => setSRNumber(e.target.value)}/>
+                </div>
+
+                <div className='mb-4'>
+                <label>Mac Address</label>
+                    <input type="text" 
+                    className='form-control' 
+                    value={mac_address}
+                    onChange={e => setMacNumber(e.target.value)}
+                />
                 </div>
                 
                 {url !== "" && (
@@ -189,13 +206,14 @@ function EditAPContent() {
                     onChange={e => setUrl(e.target.value)}/>
                 </div>
                 )}
+
                 <div
                     style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Update!</button>  
                 </div>             
             </form>
         </div> 

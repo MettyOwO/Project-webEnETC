@@ -33,7 +33,7 @@ function ReportAPContent() {
 
     const {id} = useParams();
     const [site, setSite] = useState('');
-    const [device_type, SetDVType] = useState("Select Device Type");
+    const [device_type, SetDVType] = useState("AP");
     const [build_group, setBuildgroup] = useState('');
     const [build_name, setBuildname] = useState('');
     const [hostname, setHostname] = useState('');
@@ -41,9 +41,12 @@ function ReportAPContent() {
     const [role, setRole] = useState('');
     const [serial_number, setSR] = useState('');
     const [serial_numberOld, setSrOld] = useState('');
+    const [mac_address, setMac] = useState('');
+    const [mac_addressOld, setOldMac] = useState('');
     const [detail, setDetail] = useState('');
     const [url, SetUrl] = useState('');
     const [num_report, SetNumberReport] = useState('');
+
     useEffect(() => {
         axios.get('http://localhost:3333/aplistwithid/'+id)
         .then(res => {
@@ -56,6 +59,7 @@ function ReportAPContent() {
             setSrOld(res.data[0].Serialnumber);
             setRole(res.data[0].Role);
             SetNumberReport(res.data[0].num_report);
+            setOldMac(res.data[0].MACaddress);
         })
         .catch(err => console.log(err));
     },[id])
@@ -63,15 +67,15 @@ function ReportAPContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (device_type !== "Select Device Type" && serial_number !== "" && detail !== ""){
+        if (serial_number !== "" && detail !== "" && mac_address !== ""){
         axios
         .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, 
-        ipswitch, hostname, role, serial_number, serial_numberOld, detail, url, device_type, num_report}) 
+        ipswitch, hostname, role, serial_number, serial_numberOld,
+        detail, url, device_type, num_report, mac_address, mac_addressOld}) 
         .then(res => {
             console.log(res);
             if(res.data.added){
                 alert("Add Corrupt Device Data Complete!")
-                //navigate('/deviceclist')
                 navigate('/dbadmin')
             }else{
                 alert("Error! Please Try Again.")
@@ -88,7 +92,12 @@ function ReportAPContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -106,7 +115,6 @@ function ReportAPContent() {
             }}>
                 <h2>Report Corrupt Device (Access Point)</h2>
             </div> 
-     
                 <div className='mb-4'>
                     <label htmlFor=''>Site</label>
                     <input type="text" 
@@ -117,15 +125,16 @@ function ReportAPContent() {
                     disabled/>
                 </div>
 
-                <div className='mb-4'>
-                    <label htmlFor=''>Device Type</label>
-                    <select 
-                    className="form-control" 
-                    onChange={e => SetDVType(e.target.value)}>
-                        <option>Select Device Type</option>                  
-                        <option value="AP">Access Point</option>     
-                </select>
-                </div>
+                <div className="mb-4">
+                    <label>Device Type</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value="Access Point"
+                        disabled
+                        onChange={(e) => SetDVType(e.target.value)}
+                    />
+                </div> 
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
@@ -176,7 +185,7 @@ function ReportAPContent() {
                 </div>
 
                 <div className='mb-4'>
-                    <label>Old Serial Number</label>
+                    <label>Old Serial No.</label>
                     <input 
                     type="text" 
                     className='form-control'
@@ -187,7 +196,18 @@ function ReportAPContent() {
                 </div>
 
                 <div className='mb-4'>
-                    <label>New Serial Number</label>
+                    <label>Old Mac Address</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    onChange={e => setOldMac(e.target.value)}
+                    value={mac_addressOld}
+                    disabled
+                    />
+                </div>
+
+                <div className='mb-4'>
+                    <label>Replace Serial No.</label>
                     <input 
                     type="text" 
                     className='form-control'
@@ -197,10 +217,20 @@ function ReportAPContent() {
                 </div>
 
                 <div className='mb-4'>
+                    <label>Replace Mac Address</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    placeholder='Enter New Mac Address' 
+                    onChange={e => setMac(e.target.value)}
+                    required/>
+                </div>
+
+                <div className='mb-4'>
                     <label>Detail</label>
                     <input type="text" 
                     className='form-control'
-                    placeholder='Enter Detail of Corrupt Device' 
+                    placeholder='Enter Detail' 
                     onChange={e => setDetail(e.target.value)}
                     required/>
                 </div>
@@ -210,7 +240,7 @@ function ReportAPContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Add Data!</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Report Data!</button>  
                 </div>          
             </form>
         </div> 

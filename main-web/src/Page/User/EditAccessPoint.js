@@ -9,26 +9,31 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function UserEditAPContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+        getDataAPModel()
     },[])
 
     //Access Point List With AP_ID API
@@ -40,6 +45,7 @@ function UserEditAPContent() {
     const [model, setModel] = useState('');
     const [role, setRole] = useState('');
     const [url, setUrl] = useState("");
+    const [serial_number, setSRNumber] = useState('');
     useEffect(() => {
         axios
         .get('http://localhost:3333/aplistwithid/'+id)
@@ -51,6 +57,7 @@ function UserEditAPContent() {
             setModel(res.data[0].Model);
             setRole(res.data[0].Role);
             setUrl(res.data[0].urlmap);
+            setSRNumber(res.data[0].Serialnumber)
         })
         .catch(err => console.log(err));
     },[id])
@@ -60,9 +67,9 @@ function UserEditAPContent() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (model != "Select Model" && model !== '' && role !== "Select Role" && hostname !== ''
-        && ipswitch !== '' && build_name !== '' && build_group !== '') {
+        && ipswitch !== '' && build_name !== '' && build_group !== '' && serial_number !== '') {
             axios
-            .put('http://localhost:3333/updateap/'+id, {role, build_name, build_group, ipswitch, model, hostname, url}) 
+            .put('http://localhost:3333/updateap/'+id, {role, build_name, build_group, ipswitch, model, hostname, url, serial_number}) 
             .then(res => {
                 if(res.data.updated){
                     alert("Update Access Point ID : " + (id) + " Complete!")
@@ -78,11 +85,10 @@ function UserEditAPContent() {
         }    
     }
 
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
+    const [ap_models, setApModel] = useState([]);
+    async function getDataAPModel() {
+      const getModel = await axios.get("http://localhost:3333/ap_model");
+      setApModel(getModel.data);
     }
 
     //UI
@@ -94,9 +100,6 @@ function UserEditAPContent() {
             <Navbar.Toggle aria-controls="navbar-dark-example"/>
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -111,8 +114,8 @@ function UserEditAPContent() {
             }}>
                 <h2>Edit Access Point Data</h2>
             </div> 
-                <div className='mb-4'>
-                    <label htmlFor=''>HostName</label>
+            <div className='mb-4'>
+                    <label htmlFor=''>Hostname</label>
                     <input type="text" 
                     placeholder='' 
                     className='form-control'
@@ -152,10 +155,10 @@ function UserEditAPContent() {
                     <select 
                     className="form-control" 
                     value={model} 
-                    onChange={e => setModel(e.target.value)}>
-                        <option>Select Model</option>                    
-                        <option>AirEngine5761-21</option>
-                        <option>AirEngine6760R-51E</option>
+                    onChange={e => setModel(e.target.value)}>                
+                        {ap_models.map((ap_models, index) => (
+                            <option key={index}>{ap_models.name}</option>
+                        ))}
                     </select>
                 </div>
 
@@ -164,21 +167,32 @@ function UserEditAPContent() {
                     <select 
                     className="form-control" 
                     value={role} 
-                    onChange={e => setRole(e.target.value)}>
-                        <option>Select Role</option>                  
-                        <option>Indoor</option>
-                        <option>Outdoor</option>
+                    onChange={e => setRole(e.target.value)}>             
+                        {ap_models.map((ap_models, index) => (
+                            <option key={index}>{ap_models.role}</option>
+                        ))}
                     </select>
                 </div>
-                
+
                 <div className='mb-4'>
-                    <label htmlFor=''>Map Url</label>
+                    <label htmlFor=''>Serial Number</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={serial_number} 
+                    onChange={e => setSRNumber(e.target.value)}/>
+                </div>
+                
+                {url !== "" && (
+                <div className='mb-4'>
+                    <label htmlFor=''>Map URL</label>
                     <input type="text" 
                     placeholder='' 
                     className='form-control'
                     value={url} 
                     onChange={e => setUrl(e.target.value)}/>
                 </div>
+                )}
                 <div
                     style={{
                     display: 'flex',
