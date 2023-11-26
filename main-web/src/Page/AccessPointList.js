@@ -51,22 +51,16 @@ function APContent() {
     getAP.data.map((item) => {
       if (
         paramPath === item.Site 
-        // &&
-        // item.Serialnumber != "" &&
-        // item.Serialnumber != null
+        // &&item.Serialnumber != "" && item.Serialnumber != null
       ) {
         dataSite.push(item);
       } else if (
         paramPath === "APList" 
-        // &&
-        // item.Serialnumber != "" &&
-        // item.Serialnumber != null
+        // &&item.Serialnumber != "" && item.Serialnumber != null
       ) {
         dataSite.push(item);
       }
     });
-    // console.log(dataSite);
-    // console.log(paramPath);
     setApList(dataSite);
     setApdata(dataSite);
   }
@@ -241,7 +235,7 @@ function APContent() {
           <table className="table table-bordered">
             <thead className="thead-light">
               <tr>
-              <th scope="col">Site</th>
+                <th scope="col">Site</th>
                 <th scope="col">Building Group</th>
                 <th scope="col">Building Name</th>
                 <th scope="col">IP Address</th>

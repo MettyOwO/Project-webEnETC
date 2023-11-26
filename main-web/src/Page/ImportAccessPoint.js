@@ -1,9 +1,9 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import axios from 'axios';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ImportAccessPointContent() {
@@ -98,7 +98,7 @@ function ImportAccessPointContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <button onClick={ handleSubmit} className="btn btn-dark">Store File</button>
+                <button onClick={ handleSubmit} className="btn btn-dark">Import File!</button>
             </div>
             </form>
         </div>          

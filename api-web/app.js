@@ -123,26 +123,10 @@ app.get("/switchlistwithid/:id", (req, res) => {
     return res.json(result);
   });
 });
-//Switch List With KKU
-app.get("/switchlist_kku", (req, res) => {
-  const sql = "SELECT * FROM switch where site = 'KKU'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
-  });
-});
-//Switch List With NKC
-app.get("/switchlist_nkc", (req, res) => {
-  const sql = "SELECT * FROM switch where site = 'NKC'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
-  });
-});
 //Switch Data Update
 app.put("/updatesw/:id", (req, res) => {
   const sql =
-    "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?  where ID = ?";
+    "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?, macaddress = ?  where ID = ?";
   const id = req.params.id;
   const values = [
     req.body.role,
@@ -153,7 +137,8 @@ app.put("/updatesw/:id", (req, res) => {
     req.body.model,
     req.body.url,
     req.body.urlconfig,
-    req.body.serial_number
+    req.body.serial_number,
+    req.body.mac_address
   ];
   connection.query(sql, [...values, id], (err, result) => {
     if (err) return res.json("Error");
@@ -172,7 +157,7 @@ app.delete("/deletesw/:id", (req, res) => {
 //Switch Data Add
 app.post("/addsw", (req, res) => {
   const sql =
-    "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model, serialno) VALUES (?)";
+    "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model, serialno, macaddress) VALUES (?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -181,7 +166,8 @@ app.post("/addsw", (req, res) => {
     req.body.hostname,
     req.body.role,
     req.body.model,
-    req.body.serial_number
+    req.body.serial_number,
+    req.body.mac_address
   ];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
@@ -238,22 +224,6 @@ app.get("/aplistwithid/:id", (req, res) => {
   const sql = "SELECT * FROM accesspoint where ID = ?";
   const id = req.params.id;
   connection.query(sql, [id], (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
-  });
-});
-//AP List With NKC
-app.get("/aplist_nkc", (req, res) => {
-  const sql = "SELECT * FROM accesspoint where Site = 'NKC'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
-  });
-});
-//AP List With KKU
-app.get("/aplist_kku", (req, res) => {
-  const sql = "SELECT * FROM accesspoint where Site = 'KKU'";
-  connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.json(result);
   });
@@ -486,7 +456,7 @@ app.post("/addreport_ap/:id", (req, res) => {
 
 app.post("/addreport_sw/:id", (req, res) => {
   const insertSql =
-    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Serialnumber, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Oldmacaddress, Serialnumber, Macaddress, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   
     const values = [
     req.body.site,
@@ -498,6 +468,8 @@ app.post("/addreport_sw/:id", (req, res) => {
     req.body.role,
     req.body.serial_numberOld,
     req.body.serial_number,
+    req.body.mac_addressOld,
+    req.body.mac_address,
     req.body.detail,
     req.body.url,
     req.body.urlconfig,
@@ -506,48 +478,58 @@ app.post("/addreport_sw/:id", (req, res) => {
   const updateSql = "UPDATE switch SET serialno = ? WHERE serialno = ?";
   const SerialnumberOld = req.body.serial_numberOld;
 
+  const updateSql2 = "UPDATE switch SET macaddress = ? WHERE macaddress = ?";
+  const MacaddressOld = req.body.mac_addressOld;
+
   const SqlUpdateNumReport = "UPDATE switch SET num_report = ? WHERE serialno = ?"
   const num_report = req.body.num_report;
   const total_num =  num_report + 1;
-  //console.log(total_num);
 
   connection.beginTransaction((err) => {
     if (err) throw err;
 
-  connection.query(insertSql, values, (insertErr, insertResult) => {
-    if (insertErr) {
-      connection.rollback(() => {
-        throw insertErr;
-      });
-    }
-
-    connection.query(updateSql, [req.body.serial_number, SerialnumberOld], (updateErr) => {
-      if (updateErr) {
+    connection.query(insertSql, values, (insertErr, insertResult) => {
+      if (insertErr) {
         connection.rollback(() => {
-          throw updateErr;
+          throw insertErr;
         });
       }
-      
-      connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+
+      connection.query(updateSql, [req.body.serial_number, SerialnumberOld], (updateErr) => {
         if (updateErr) {
           connection.rollback(() => {
             throw updateErr;
           });
-      }
-
-      connection.commit((commitErr) => {
-        if (commitErr) {
-          connection.rollback(() => {
-            throw commitErr;
-          });
         }
-        console.log('Transaction Complete.');
-        res.json({ added: true });
+
+        connection.query(updateSql2, [req.body.mac_address, MacaddressOld], (updateErr) => {
+          if (updateErr) {
+            connection.rollback(() => {
+              throw updateErr;
+            });
+          }
+      
+          connection.query(SqlUpdateNumReport, [total_num, req.body.serial_number], (updateErr) => {
+            if (updateErr) {
+              connection.rollback(() => {
+                throw updateErr;
+              });
+            }
+
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                connection.rollback(() => {
+                  throw commitErr;
+              });
+            }
+            console.log('Transaction Complete.');
+            res.json({ added: true });
+            });
+          });  
+        });
       });
     });
   });
-});
-});
 });
 
 app.delete("/deletedc/:id", (req, res) => {
@@ -629,14 +611,6 @@ app.get("/total_dc_ap", (req, res) => {
     return res.send(result[0]);
   });
 });
-// app.get("/total_dc_ap2", (req, res) => {
-//   const sql =
-//     "SELECT COUNT(ID) as numdcap2 FROM device_corrupted where device_type = 'AP' AND Role = 'Outdoor'";
-//   connection.query(sql, (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result[0]);
-//   });
-// });
 app.get("/total_dc_sw", (req, res) => {
   const sql =
     "SELECT COUNT(ID) as numdcsw FROM device_corrupted where device_type = 'SW'";
@@ -645,14 +619,6 @@ app.get("/total_dc_sw", (req, res) => {
     return res.send(result[0]);
   });
 });
-// app.get("/total_dc_sw2", (req, res) => {
-//   const sql =
-//     "SELECT COUNT(ID) as numdcsw2 FROM device_corrupted where device_type = 'SW' AND Role = 'Distribute'";
-//   connection.query(sql, (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result[0]);
-//   });
-// });
 
 //Site
 app.get("/site_name", (req, res) => {
@@ -662,27 +628,6 @@ app.get("/site_name", (req, res) => {
     return res.send(result);
   });
 });
-// app.get("/ap_site", (req, res) => {
-//   const sql = "SELECT * FROM sitename";
-//   connection.query(sql, (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result);
-//   });
-// });
-// app.get("/sw_site", (req, res) => {
-//   const sql = "SELECT * FROM sitename";
-//   connection.query(sql, (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result);
-//   });
-// });
-// app.get("/dc_site", (req, res) => {
-//   const sql = "SELECT * FROM sitename";
-//   connection.query(sql, (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result);
-//   });
-// });
 app.post("/addsite", (req, res) => {
   const sql = "INSERT INTO sitename (name) VALUES (?)";
   const values = [req.body.site];

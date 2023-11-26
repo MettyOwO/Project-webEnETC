@@ -43,6 +43,7 @@ function EditSWContent() {
     const [url, setUrl] = useState("");
     const [urlconfig, setUrlConfig] = useState("");
     const [serial_number, setSRNumber] = useState('');
+    const [mac_address, setMacNumber] = useState('');
     useEffect(() => {
         axios
         .get('http://localhost:3333/switchlistwithid/'+id)
@@ -55,7 +56,8 @@ function EditSWContent() {
             setRole(res.data[0].role);
             setUrl(res.data[0].urlmap);
             setUrlConfig(res.data[0].urlconfig);
-            setSRNumber(res.data[0].serialno)
+            setSRNumber(res.data[0].serialno);
+            setMacNumber(res.data[0].macaddress);
         })
         .catch(err => console.log(err));
     },[])
@@ -64,14 +66,14 @@ function EditSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (hostname !== ''&& ipswitch !== '' && build_name !== '' && build_group !== '' && serial_number !== ''){
+        if (hostname !== ''&& ipswitch !== '' && build_name !== '' 
+        && build_group !== '' && serial_number !== '' && mac_address !== ''){
         axios
         .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group,
-         ipswitch, model, hostname ,url, urlconfig, serial_number}) 
+         ipswitch, model, hostname ,url, urlconfig, serial_number, mac_address}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update Switch ID : " + (id) + " Complete!")
-                //navigate('/switch')
                 navigate('/dbadmin')  
             }else{
                 alert("Error! Please Try Again.")
@@ -94,7 +96,12 @@ function EditSWContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -183,6 +190,15 @@ function EditSWContent() {
                     className='form-control'
                     value={serial_number} 
                     onChange={e => setSRNumber(e.target.value)}/>
+                </div>
+
+                <div className='mb-4'>
+                <label>Mac Address</label>
+                    <input type="text" 
+                    className='form-control' 
+                    value={mac_address}
+                    onChange={e => setMacNumber(e.target.value)}
+                />
                 </div>                
                 
                 {url !== "" && (
@@ -213,7 +229,7 @@ function EditSWContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Update!</button>  
                 </div>
                  
             </form>

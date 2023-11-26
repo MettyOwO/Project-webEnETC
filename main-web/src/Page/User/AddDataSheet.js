@@ -6,29 +6,30 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function UserAddDataSheetContent() {
-    //Check Token API
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      const email = localStorage.getItem("email");
-      const site1 = localStorage.getItem("site");
-      fetch ('http://localhost:3333/authen', {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-              "Authorization": 'Bearer '+ token, email, site1
-          },
-      })   
-      .then(response => response.json())
-      .then(data => {
-      if(data.status === 'ok'){
-      }else{
-          alert('Authen Failed. Please Try Login Again!')
+function AddDataSheetContent() {
+  //Check Token API
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const email = localStorage.getItem("email");
+    const site1 = localStorage.getItem("site");
+    fetch("http://localhost:3333/authen", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token, email, site1
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "ok") {
+        } 
+        else{
+          alert("Authen Failed. Please Try Login Again!");
           localStorage.removeItem("token");
           localStorage.removeItem("email");
           localStorage.removeItem("site");
-          window.location = '/login'
-      }
+          window.location = "/login";
+        }
       })
       .catch((error) => {
       console.log("Error:", error);
@@ -36,15 +37,17 @@ function UserAddDataSheetContent() {
   }, []);
 
   const location = useLocation();
-  const [paramPath, setParamPath] = useState(location.state.device);
-  const [type, setType] = useState("Select Device Type");
+  const [paramPath] = useState(location.state.device);
+  // const [typeAP, setTypeAP] = useState("AP");
+  // const [typeSW, setTypeSW] = useState("SW");
+  const [type, setType] = useState(paramPath);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const navigate = useNavigate();
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (type != "Select Device Type" && name != "" && url != "") {
+    if (name !== "" && url !== "" && paramPath === "AP") {   
       axios
         .post("http://localhost:3333/adddatasheet", { type, name, url })
         .then((res) => {
@@ -56,8 +59,22 @@ function UserAddDataSheetContent() {
           }
         })
         .catch((err) => console.log(err));
-    }else{
-        alert("Please Complete The Information!");
+    }else if (name !== "" && url !== "" && paramPath === "SW")
+      {
+        axios
+        .post("http://localhost:3333/adddatasheet", { type, name, url })
+        .then((res) => {
+          if (res.data.added) {
+            alert("Add Datasheet : " + (name) + " Device : " + (type) + " Complete!");
+            navigate("/dbusers");
+          } else {
+            alert("Error! Please Try Again.");
+          }
+        })
+        .catch((err) => console.log(err));
+      }
+    else{
+      alert("Please Complete The Information!");
     }
   }
 
@@ -65,7 +82,12 @@ function UserAddDataSheetContent() {
     <div>
       <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-          <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
+          <Navbar.Brand href='/dbusers'>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+            <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+          </svg>
+          &nbsp; Dashboard
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -84,29 +106,28 @@ function UserAddDataSheetContent() {
           >
             <h2>Add New Datasheet For Device</h2>
           </div>
-
-          {paramPath == "AP" && (
-          <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
-              className="form-control"
-              onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="AP">Access Point</option>
-            </select>
-          </div> 
+          {paramPath === "AP" && (
+            <div className="mb-4">
+              <label>Device Type</label>
+              <input
+                type="text"
+                className="form-control"
+                value="Access Point"
+                disabled
+                onChange={(e) => setType(e.target.value)}
+              />
+            </div> 
           )}
-          {paramPath == "SW" && (
+          {paramPath === "SW" && (
           <div className="mb-4">
-            <label htmlFor="Select DeviceType">Device Type</label>
-            <select
+            <label>Device Type</label>
+            <input
+              type="text"
               className="form-control"
+              value="Switch"
+              disabled
               onChange={(e) => setType(e.target.value)}
-            >
-              <option>Select Device Type</option>
-              <option value="SW">Switch</option>
-            </select>
+            />
           </div> 
           )}                       
 
@@ -140,7 +161,7 @@ function UserAddDataSheetContent() {
             }}
           >
             <button className="btn btn-primary" onClick={handleSubmit}>
-              Add Datasheet
+              Add Model!
             </button>
           </div>
         </form>
@@ -150,5 +171,5 @@ function UserAddDataSheetContent() {
 }
 
 export default function AddDataSheet() {
-  return <UserAddDataSheetContent />;
+  return <AddDataSheetContent />;
 }

@@ -49,7 +49,7 @@ function EditUserContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (role !== "Select User Role" && site !== 'Select User Site') {
+        if (name !== '') {
         axios.put('http://localhost:3333/updateuser/'+id, {name ,role, site}) 
         .then(res => {
             if(res.data.updated){
@@ -79,7 +79,12 @@ function EditUserContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbadmin'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
@@ -119,7 +124,6 @@ function EditUserContent() {
                     onChange={(e) => setSite(e.target.value)}
                     value={site}
                     >
-                        <option>Select User Site</option>
                         <option value="None">None (For Admin)</option>
                         {siteName.map((siteName, index) => (
                             <option key={index}>{siteName.name}</option>             
@@ -133,7 +137,7 @@ function EditUserContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Update!</button>  
                 </div>
                  
             </form>

@@ -77,7 +77,7 @@ function DashboardContent() {
     ["AP Outdoor", apoutCount],
   ];
   const optionAP = {
-    title: `Total Access Point Install`,
+    title: `Total Access Point Install`  + " : " + [ apinCount + apoutCount],
     pieHole: 0.4,
     is3D: true,
   };
@@ -113,7 +113,7 @@ function DashboardContent() {
     ["Switch Dist", switchCount2],
   ];
   const optionSW = {
-    title: `Total Switch Install`,
+    title: `Total Switch Install` + " : " + [switchCount + switchCount2],
     pieHole: 0.4,
     is3D: true,
   };
@@ -129,16 +129,6 @@ function DashboardContent() {
     };
     fetchCount5();
   }, []); 
-  // const [dcapCount2, setDcApCount2] = useState(0);
-  // useEffect(() => {
-  //   const fetchCount6 = async () => {
-  //     try {
-  //       const fetchData = await axios.get("http://localhost:3333/total_dc_ap2");
-  //       setDcApCount2(fetchData.data.numdcap2);
-  //     } catch (err) {}
-  //   };
-  //   fetchCount6();
-  // }, []);
   //Total Device Corrupted Install - Switch
   const [dcswCount, setDcSwCount] = useState(0);
   useEffect(() => {
@@ -150,55 +140,30 @@ function DashboardContent() {
     };
     fetchCount7();
   }, []);
-  // const [dcswCount2, setDcSwCount2] = useState(0);
-  // useEffect(() => {
-  //   const fetchCount8 = async () => {
-  //     try {
-  //       const fetchData = await axios.get("http://localhost:3333/total_dc_sw2");
-  //       setDcSwCount2(fetchData.data.numdcsw2);
-  //     } catch (err) {}
-  //   };
-  //   fetchCount8();
-  // }, []); 
   const dataAllDC = [
     ["Device", "1 per Units"],
     ["Switch", dcswCount],
     ["AP", dcapCount],
   ];
   const optionDC = {
-    title: `Total Corrupt Device`,
+    title: `Total Corrupt Device` + " : " + [dcswCount + dcapCount],
     pieHole: 0.4,
     is3D: true,
   };
 
-  // const [apsite, setAPSite] = useState([]);
-  // const [swsite, setSWSite] = useState([]);
-  // const [dcsite, setDCSite] = useState([]);
-  
   const [siteName,setSiteName] = useState([]);
   const [siteName2,setSiteName2] = useState([]);
   async function getData() {
     const getSiteName = await axios.get("http://localhost:3333/site_name")
     const siteLocation = localStorage.getItem("site");
-    //console.log(getSWSite.data);
-    // const dataAP = []
-    // const dataSW = []
-    // const dataDC = []
     const dataSite = []
-
     getSiteName.data.map((item)=>{    
       if(siteLocation === item.name){
         dataSite.push(item)
       }
     })
-
-    //console.log(dataDC);
-    // setAPSite(dataAP);
-    // setSWSite(dataSW);
-    // setDCSite(dataDC);
     setSiteName(dataSite);
     setSiteName2(siteLocation);
-    //console.log(getSiteName.data);
   }
   useEffect(() => {
     getData();
@@ -223,34 +188,34 @@ function DashboardContent() {
   const [dataDCSite,setDataDCSite] = useState([])
   useEffect(() => {
     
-    if((selectSite.length == 0 || selectSite == "Select Site") && selectDevices == "all"){
+    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "all"){
       alert('Failed! No found a Data.')
       window.location.reload();
     }
-    if((selectSite.length == 0 || selectSite == "Select Site") && selectDevices == "access-point"){
+    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "access-point"){
       alert('Failed! No found a Data.')
       window.location.reload();
     }
-    if((selectSite.length == 0 || selectSite == "Select Site") && selectDevices == "switch"){
+    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "switch"){
       alert('Failed! No found a Data.')
       window.location.reload();
     }
-    if((selectSite.length == 0 || selectSite == "Select Site") && selectDevices == "device-corrupted"){
+    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "corrupt-device"){
       alert('Failed! No found a Data.')
       window.location.reload();
     }
 
-    if(selectSite.length != 0 && selectDevices == "access-point" || selectDevices == "all"){
+    if(selectSite.length !== 0 && selectDevices === "access-point" || selectDevices === "all"){
       axios.get('http://localhost:3333/getSiteAP/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
         let inDoorCount = 0
         let outDoorCount = 0
         data.map((item) => {
-          if(item.Role == 'Indoor'){
+          if(item.Role === 'Indoor'){
             inDoorCount++
           }
-          if(item.Role == 'Outdoor'){
+          if(item.Role === 'Outdoor'){
             outDoorCount++
           }
         })
@@ -259,17 +224,17 @@ function DashboardContent() {
         setDataAPSite(dataAPChart(inDoorCount,outDoorCount))
       }).catch(err => console.log(err))
     }
-    if(selectSite.length != 0 && selectDevices == "switch" || selectDevices == "all"){
+    if(selectSite.length !== 0 && selectDevices === "switch" || selectDevices === "all"){
       axios.get('http://localhost:3333/getSiteSW/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
         let accessCount = 0
         let distributeCount = 0
         data.map((item) => {
-          if(item.role == "Access"){
+          if(item.role === "Access"){
             accessCount++
           }
-          if(item.role == "Distribute"){
+          if(item.role === "Distribute"){
             distributeCount++
           }
         })
@@ -277,39 +242,22 @@ function DashboardContent() {
         setDataSWSite(dataSWChart(accessCount,distributeCount))
       }).catch(err => console.log(err))
     }
-    if(selectSite.length != 0 && selectDevices == "device-corrupted" || selectDevices == "all"){
+    if(selectSite.length !== 0 && selectDevices === "corrupt-device" || selectDevices === "all"){
       axios.get('http://localhost:3333/getSiteDC/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
-        // let apIndoor = 0
-        // let apOutdoor = 0
-        // let swAccess = 0
-        // let swDistribute = 0
         let ApData = 0
         let SwData = 0
         data.map((item) => {
           //console.log(item);
-          if(item.device_type == "AP"){
+          if(item.device_type === "AP"){
             ApData++
           }
-          if(item.device_type == "SW"){
+          if(item.device_type === "SW"){
             SwData++
           }          
-          // if(item.Role == "AP-Indoor"){
-          //   apIndoor++
-          // }
-          // if(item.Role == "AP-Outdoor"){
-          //   apOutdoor++
-          // }
-          // if(item.Role == "SW-Access"){
-          //   swAccess++
-          // }
-          // if(item.Role == "SW-Distribute"){
-          //   swDistribute++
-          // }
         })
         //console.log('Access : ' + parseInt(apIndoor+apOutdoor) + " | Distribute : " + parseInt(swAccess+swDistribute));
-        // setDataDCSite(dataDCChart(apIndoor+apOutdoor,swAccess+swDistribute))
         setDataDCSite(dataDCChart(ApData,SwData))
       }).catch(err => console.log(err))
     }
@@ -373,14 +321,15 @@ function DashboardContent() {
                 </NavDropdown.Item>
 
               </NavDropdown>
-              {/* <NavDropdown title="Add" id="basic-nav-dropdown">
-                  <NavDropdown.Item href="/addsite2">Add Site</NavDropdown.Item>
-                  <NavDropdown.Item href="/add_model2">Add Model</NavDropdown.Item>
-                  <NavDropdown.Item href="/add_datasheet2">Add Datasheet</NavDropdown.Item>
-              </NavDropdown> */}
             </Nav>
             <Nav>
-              <Nav.Link onClick={handleLogout}>Log-Out</Nav.Link>
+              <Nav.Link onClick={handleLogout}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"/>
+                <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+              </svg>
+              &nbsp; LOG OUT
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -390,7 +339,6 @@ function DashboardContent() {
         <div className="col">
           <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
             <option defaultValue>Select Site</option>
-            {/* <option value="all">All Sites</option> */}
             {siteName.map((item, index) => (                 
                   <option key={index}>
                     {item.name}
@@ -404,16 +352,16 @@ function DashboardContent() {
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
             <option value="switch">Switch</option>
-            <option value="device-corrupted">Corrupt Device</option>
+            <option value="corrupt-device">Corrupt Device</option>
           </select>
         </div>
 
         {/* Show Chart */}
         {
-          selectSite == "all" &&
+          selectSite === "all" &&
           <div className="my-3">
             {
-              selectDevices == "all" && 
+              selectDevices === "all" && 
               <div>
                 <Chart
                   chartType="PieChart"
@@ -439,7 +387,7 @@ function DashboardContent() {
               </div>
             }
             {
-               selectDevices == "access-point" && 
+               selectDevices === "access-point" && 
                <div>
                   <Chart
                     chartType="PieChart"
@@ -451,7 +399,7 @@ function DashboardContent() {
                </div>
             }
             {
-               selectDevices == "switch" && 
+               selectDevices === "switch" && 
                <div>
                   <Chart
                     chartType="PieChart"
@@ -463,7 +411,7 @@ function DashboardContent() {
                </div>
             }
             {
-               selectDevices == "device-corrupted" && 
+               selectDevices === "corrupt-device" && 
                <div>
                   <Chart
                     chartType="PieChart"
@@ -477,9 +425,9 @@ function DashboardContent() {
           </div>
         }
         {
-          selectSite != "all" && 
+          selectSite !== "all" && 
           <div>
-            { selectDevices == "all" &&
+            { selectDevices === "all" &&
               <div>
                   <h1>{selectSite} : {selectDevices}</h1>
                   <Chart
@@ -505,7 +453,7 @@ function DashboardContent() {
                   />
               </div>
             }
-            { selectDevices == "access-point" &&
+            { selectDevices === "access-point" &&
               <div>
                   <h1>{selectSite} : {selectDevices}</h1>
                   <Chart
@@ -517,7 +465,7 @@ function DashboardContent() {
                   />
               </div>
             }
-            { selectDevices == "switch" &&
+            { selectDevices === "switch" &&
               <div>
                   <h1>{selectSite} : {selectDevices}</h1>
                   <Chart
@@ -529,7 +477,7 @@ function DashboardContent() {
                   />
               </div>
             }
-            { selectDevices == "device-corrupted" &&
+            { selectDevices === "corrupt-device" &&
               <div>
                   <h1>{selectSite} : {selectDevices}</h1>
                   <Chart

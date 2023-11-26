@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import axios from 'axios';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate  } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ImportSwitchContent() {
@@ -58,7 +58,12 @@ function ImportSwitchContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/dbadmin">Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href="/dbadmin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">          
@@ -73,13 +78,10 @@ function ImportSwitchContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Import Switch Data From .CSV To Database</h2>
+                <h2>Import Switch Data From CSV To Database</h2>
             </div> 
             <form 
             className="container mt-3 mb-3"
-            //encType="multipart/form-data"
-            //action="http://localhost:3333/import-switch-csv" 
-            //method="post"
             >
             <div className="mb-3">
                 <input
@@ -95,7 +97,7 @@ function ImportSwitchContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <button onClick={ handleSubmit } className="btn btn-dark">Store File</button>
+                <button onClick={ handleSubmit } className="btn btn-dark">Import File!</button>
             </div>
             </form>
         </div>          

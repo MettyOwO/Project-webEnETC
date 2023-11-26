@@ -6,29 +6,33 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function UserReportSWContent() {
+function ReportSWContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
     },[])
 
     const {id} = useParams();
@@ -37,11 +41,17 @@ function UserReportSWContent() {
     const [build_name, setBuildname] = useState('');
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
-    const [role, setRole] = useState("Select Role Device");
-    const [serial_number, setSR] = useState('');
+    const [role, setRole] = useState('');
     const [detail, setDetail] = useState('');
     const [url, setUrl] = useState('');
     const [urlconfig, setUrlConfig] = useState('');
+    const [device_type, SetDVType] = useState("SW");
+    const [num_report, SetNumberReport] = useState('');
+    const [serial_numberOld, setSrOld] = useState('');
+    const [serial_number, setSR] = useState('');
+    const [mac_address, setMac] = useState('');
+    const [mac_addressOld, setOldMac] = useState('');
+
     useEffect(() => {
         axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
@@ -52,6 +62,10 @@ function UserReportSWContent() {
             setIpswitch(res.data[0].ip);
             setUrl(res.data[0].urlmap);
             setUrlConfig(res.data[0].urlconfig);
+            SetNumberReport(res.data[0].num_report);
+            setRole(res.data[0].role);
+            setSrOld(res.data[0].serialno);
+            setOldMac(res.data[0].macaddress);
         })
         .catch(err => console.log(err));
     },[id])
@@ -59,14 +73,13 @@ function UserReportSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (role !== "Select Role Device" && serial_number !== '' && detail !== ''){
+        if (serial_number !== '' && detail !== '' && mac_address !== ''){
         axios
-        .post('http://localhost:3333/addreport_sw/'+ id, {site, build_group, build_name,
-         ipswitch, hostname, role, serial_number, detail, url, urlconfig}) 
+        .post('http://localhost:3333/addreport_sw/'+ id, {site, device_type, build_group, build_name,
+        ipswitch, hostname, role, serial_numberOld, serial_number, mac_addressOld, mac_address, detail, url, urlconfig, num_report}) 
         .then(res => {
             if(res.data.added){
-                alert("Add Device Corrupted Data!")
-                //navigate('/deviceclist')
+                alert("Add Corrupt Device Data Complete!")
                 navigate('/dbusers')     
             }else{
                 alert("Error! Please Try Again.")
@@ -78,25 +91,20 @@ function UserReportSWContent() {
         }
     }
     
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
-    }
-
     //UI
     return (
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbusers'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -109,7 +117,7 @@ function UserReportSWContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Report Switch Device Corrupted</h2>
+                <h2>Report Corrupt Device (Switch)</h2>
             </div> 
      
                 <div className='mb-4'>
@@ -121,6 +129,17 @@ function UserReportSWContent() {
                     onChange={e => setSite(e.target.value)} 
                     disabled/>
                 </div>
+
+                <div className="mb-4">
+                    <label>Device Type</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value="Switch"
+                        disabled
+                        onChange={(e) => SetDVType(e.target.value)}
+                    />
+                </div>                 
                 
                 <div className='mb-4'>
                     <label htmlFor=''>Building Group</label>
@@ -167,31 +186,61 @@ function UserReportSWContent() {
 
                 <div className='mb-4'>
                     <label htmlFor=''>Role</label>
-                    <select 
+                    <input 
                     className="form-control" 
-                    onChange={e => setRole(e.target.value)}>
-                        <option>Select Role Device</option>                  
-                        <option>AP-Indoor</option>
-                        <option>AP-Outdoor</option>
-                        <option>SW-Access</option>
-                        <option>SW-Distribute</option>      
-                    </select>
+                    onChange={e => setRole(e.target.value)}
+                    value={role}
+                    disabled/>
                 </div>
 
                 <div className='mb-4'>
-                    <label>Replace With Serial Number</label>
+                    <label>Old Serial No.</label>
                     <input 
                     type="text" 
                     className='form-control'
+                    onChange={e => setSrOld(e.target.value)}
+                    value={serial_numberOld}
+                    disabled
+                    />
+                </div>
+
+                <div className='mb-4'>
+                    <label>Old Mac Address</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    onChange={e => setOldMac(e.target.value)}
+                    value={mac_addressOld}
+                    disabled
+                    />
+                </div>
+
+                <div className='mb-4'>
+                    <label>Replace Serial No.</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    placeholder='Enter New Serial Number' 
                     onChange={e => setSR(e.target.value)}
                     required/>
                 </div>
 
                 <div className='mb-4'>
-                    <label>Detail Device Corrupted</label>
+                    <label>Replace Mac Address</label>
                     <input 
                     type="text" 
                     className='form-control'
+                    placeholder='Enter New Mac Address' 
+                    onChange={e => setMac(e.target.value)}
+                    required/>
+                </div>
+
+                <div className='mb-4'>
+                    <label>Detail</label>
+                    <input 
+                    type="text" 
+                    className='form-control'
+                    placeholder='Enter Detail of Corrupt Device' 
                     onChange={e => setDetail(e.target.value)}
                     required/>
                 </div>
@@ -202,7 +251,7 @@ function UserReportSWContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Add!</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Report Data!</button>  
                 </div>
                  
             </form>
@@ -212,5 +261,5 @@ function UserReportSWContent() {
 }
     
 export default function ReportSW() {
-    return <UserReportSWContent />
+    return <ReportSWContent />
 }

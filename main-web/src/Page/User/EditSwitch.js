@@ -6,29 +6,34 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function UserEditSWContent() {
+function EditSWContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
+        const site1 = localStorage.getItem("site");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, email, site1
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("email");
+              localStorage.removeItem("site");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+        getDataSWModel()
     },[])
 
     //Access Point List With AP_ID API
@@ -37,10 +42,12 @@ function UserEditSWContent() {
     const [ipswitch, setIpswitch] = useState('');
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
-    const [model, setModel] = useState("Select Model");
-    const [role, setRole] = useState("Select Role");
+    const [model, setModel] = useState("Select SW Model");
+    const [role, setRole] = useState("Select SW Role");
     const [url, setUrl] = useState("");
     const [urlconfig, setUrlConfig] = useState("");
+    const [serial_number, setSRNumber] = useState('');
+    const [mac_address, setMacNumber] = useState('');
     useEffect(() => {
         axios
         .get('http://localhost:3333/switchlistwithid/'+id)
@@ -53,6 +60,8 @@ function UserEditSWContent() {
             setRole(res.data[0].role);
             setUrl(res.data[0].urlmap);
             setUrlConfig(res.data[0].urlconfig);
+            setSRNumber(res.data[0].serialno);
+            setMacNumber(res.data[0].macaddress);
         })
         .catch(err => console.log(err));
     },[])
@@ -61,15 +70,14 @@ function UserEditSWContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (model !== "Select Model" && model !== '' && role !== "Select Role" && hostname !== ''
-        && ipswitch !== '' && build_name !== '' && build_group !== ''){
+        if (hostname !== ''&& ipswitch !== '' && build_name !== '' 
+        && build_group !== '' && serial_number !== '' && mac_address !== ''){
         axios
-        .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group, ipswitch, model, hostname
-        ,url, urlconfig}) 
+        .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group,
+         ipswitch, model, hostname ,url, urlconfig, serial_number, mac_address}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update Switch ID : " + (id) + " Complete!")
-                //navigate('/switch')
                 navigate('/dbusers')  
             }else{
                 alert("Error! Please Try Again.")
@@ -81,11 +89,10 @@ function UserEditSWContent() {
         }
     }
     
-    //Log Out
-    const handleLogout = (event) => {
-        event.preventDefault();
-        localStorage.removeItem('token');
-        window.location = '/login'
+    const [sw_models, setSwModel] = useState([]);
+    async function getDataSWModel() {
+      const getModel = await axios.get("http://localhost:3333/sw_model");
+      setSwModel(getModel.data);
     }
 
     //UI
@@ -93,13 +100,15 @@ function UserEditSWContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbusers'>Back To Dashboard</Navbar.Brand>
+            <Navbar.Brand href='/dbusers'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            </svg>
+            &nbsp; Dashboard
+            </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto"></Nav>
-            <Nav>
-                <Nav.Link onClick={ handleLogout }>Log-Out</Nav.Link>
-            </Nav>
             </Navbar.Collapse>
         </Container>
         </Navbar>
@@ -155,29 +164,48 @@ function UserEditSWContent() {
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor='Select Model'>Model</label>
-                <select 
-                className="form-control" 
-                value={model} 
-                onChange={e => setModel(e.target.value)}>
-                    <option>Select Model</option>
-                    <option>S5735-L24P4X-A1</option>
-                    <option>S5736-S24S4XC</option>
-                </select>
+                    <label htmlFor='Select Model'>Model</label>
+                    <select 
+                    className="form-control" 
+                    value={model} 
+                    onChange={e => setModel(e.target.value)}>                
+                        {sw_models.map((sw_models, index) => (
+                            <option key={index}>{sw_models.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className='mb-4'>
-                <label htmlFor=''>Role</label>
-                <select 
-                className="form-control" 
-                value={role} 
-                onChange={e => setRole(e.target.value)}>
-                    <option>Select Role</option>                    
-                    <option>Access</option>
-                    <option>Distribute</option>
-                </select>
+                    <label htmlFor=''>Role</label>
+                    <select 
+                    className="form-control" 
+                    value={role} 
+                    onChange={e => setRole(e.target.value)}>             
+                        {sw_models.map((sw_models, index) => (
+                            <option key={index}>{sw_models.role}</option>
+                        ))}
+                    </select>
                 </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Serial Number</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={serial_number} 
+                    onChange={e => setSRNumber(e.target.value)}/>
+                </div>
+
+                <div className='mb-4'>
+                <label>Mac Address</label>
+                    <input type="text" 
+                    className='form-control' 
+                    value={mac_address}
+                    onChange={e => setMacNumber(e.target.value)}
+                />
+                </div>                
                 
+                {url !== "" && (
                 <div className='mb-4'>
                     <label htmlFor=''>Map Url</label>
                     <input type="text" 
@@ -186,7 +214,9 @@ function UserEditSWContent() {
                     value={url} 
                     onChange={e => setUrl(e.target.value)}/>
                 </div>
-            
+                )}
+
+                {urlconfig !== "" && (
                 <div className='mb-4'>
                     <label htmlFor=''>Config Url</label>
                     <input type="text" 
@@ -195,13 +225,15 @@ function UserEditSWContent() {
                     value={urlconfig} 
                     onChange={e => setUrlConfig(e.target.value)}/>
                 </div>
+                )}
+
                 <div
                     style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <button className="btn btn-primary" onClick={ handleSubmit }>Update Data</button>  
+                    <button className="btn btn-primary" onClick={ handleSubmit }>Update!</button>  
                 </div>
                  
             </form>
@@ -211,5 +243,5 @@ function UserEditSWContent() {
     }
     
 export default function EditSwitch() {
-    return <UserEditSWContent />
+    return <EditSWContent />
 }

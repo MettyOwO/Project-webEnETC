@@ -43,7 +43,7 @@ function DCContent() {
     async function getDataDC(){
         const getDc = await axios.get('http://localhost:3333/deviceclist')   
         const dataSite = []
-        //console.log(getDc.data);
+        console.log(getDc.data);
         getDc.data.map((item)=>{
             if(paramSite === item.Site){
                 dataSite.push(item)
@@ -149,7 +149,7 @@ function DCContent() {
                 <br /><br />
                 {/* // Search bar */}
                 Filter : &nbsp;&nbsp; <SearchBar data={deviceclist} onSearch={handleSearch} />
-                 <br />   
+                <br />   
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
@@ -161,8 +161,8 @@ function DCContent() {
                             <th scope="col">Hostname</th>
                             <th scope="col">Role</th>
                             <th scope="col">Old Serial No.</th>
-                            <th scope="col">Old Mac Address</th>
                             <th scope="col">Replace Serial No.</th>
+                            <th scope="col">Old Mac Address</th>
                             <th scope="col">Replace Mac Address</th>
                             <th scope="col">Detail</th>
                             <th scope="col">Datetime</th>
@@ -188,18 +188,32 @@ function DCContent() {
                                 <td>{deviceclist.Details}</td>
                                 <td>{deviceclist.Datatime1}</td>
                                 {deviceclist.urlmap && <>
-                                    <td><Link to={deviceclist.urlmap} className="btn btn-info" target="_blank">Click</Link></td>
+                                    <td><Link to={deviceclist.urlmap} className="btn btn-info" target="_blank">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+                                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+                                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                    </svg>
+                                    </Link></td>
                                 </>}
                                 {!deviceclist.urlmap && <>
                                     <td><AddUrl id={deviceclist.ID} status="DC"/></td>
                                 </>}
                                 {deviceclist.urlconfig && <>
-                                    <td><Link to={deviceclist.urlconfig} className="btn btn-info" target="_blank">Click</Link></td>
+                                    <td><Link to={deviceclist.urlconfig} className="btn btn-info" target="_blank">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt" viewBox="0 0 16 16">
+                                        <path d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"/>
+                                        <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                    </svg>
+                                    </Link></td>
                                 </>}
                                 {!deviceclist.urlconfig && <>
                                     <td><AddUrl id={deviceclist.ID} status="DCSWConfig"/></td>
                                 </>}
-                                <td><button className='btn btn-danger ms-2' onClick={ e => handleDelete(deviceclist.ID)}>Delete</button></td>    
+                                <td><button className='btn btn-danger ms-2' onClick={ e => handleDelete(deviceclist.ID)}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                </svg>
+                                </button></td>    
                             </tr>
                         ))}   
                     </tbody> 
