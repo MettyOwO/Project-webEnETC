@@ -75,7 +75,7 @@ function ReportSWContent() {
         ipswitch, hostname, role, serial_numberOld, serial_number, mac_addressOld, mac_address, detail, url, urlconfig, num_report}) 
         .then(res => {
             if(res.data.added){
-                alert("Add Corrupt Device Data Complete!")
+                alert("Report Corrupt Device Data Complete!")
                 navigate('/dbadmin')     
             }else{
                 alert("Error! Please Try Again.")

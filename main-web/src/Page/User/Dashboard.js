@@ -77,7 +77,7 @@ function DashboardContent() {
     ["AP Outdoor", apoutCount],
   ];
   const optionAP = {
-    title: `Total Access Point Install`  + " : " + [ apinCount + apoutCount],
+    title: `Total Access Point Install`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -113,7 +113,7 @@ function DashboardContent() {
     ["Switch Dist", switchCount2],
   ];
   const optionSW = {
-    title: `Total Switch Install` + " : " + [switchCount + switchCount2],
+    title: `Total Switch Install`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -146,7 +146,7 @@ function DashboardContent() {
     ["AP", dcapCount],
   ];
   const optionDC = {
-    title: `Total Corrupt Device` + " : " + [dcswCount + dcapCount],
+    title: `Total Corrupt Device`,
     pieHole: 0.4,
     is3D: true,
   };

@@ -177,29 +177,23 @@ app.post("/addsw", (req, res) => {
 
 //Switch Import Excel
 app.post("/import-switch-csv", upload.single("import-csv"), (req, res) => {
-  let filepath = __dirname + "/uploads/" + req.file.filename;
-  let stream = fs.createReadStream(filepath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
-  let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
-  let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
-    .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดจากไฟล์ excel ให้เป็น Arrays
-    .on("data", function (data) {
-      //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
-      csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
-      //console.log(data);
+  let filepath = __dirname + "/uploads/" + req.file.filename; //ที่อยูู่ของไฟล์ที่อัพโหลด
+  let stream = fs.createReadStream(filepath); //สร้างฟังก์ชั่น createReadStream เพื่ออ่านข้อมูลจาก filePath(ไฟล์ที่อัพโหลด)
+  let csvDataRows = []; //เก็บข้อมูลที่มาจากการอัพโหลดไฟล์ในรูปแบบ []
+  let fileStream = csv.parse() //แปลงข้อมูลที่อยู่ในไฟล์ .csv ให้เป็น object
+    .on("data", function (data) { //เช็ค Event ของ fileStream เมื่อแปลงข้อมูลแล้วและเก็บค่าไว้ที่ data
+      csvDataRows.push(data); //นำข้อมูลที่อยู่ในdata มา push(ใส่) ไว้ที่ csvDataRows
     })
-    .on("end", function () {
-      //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
+    .on("end", function () { //เมื่อจบฟังก์ชั่นของ data จะมาทำฟังก์ชั่น end ต่อ
       csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
-      connection.connect((error) => {
-        //เช็คการเชื่อมต่อของ DB
+      connection.connect((error) => { //เช็คการเชื่อมต่อของ Database
         if (error) {
           return res.json("Database Error");
         } else {
-          // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง switch
+          // Insert ข้อมูลลง Database ของ table switch
           let query =
-            "INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?";
-          connection.query(query, [csvDataRows], (error, result) => {
-            //query ข้อมูลลง DB
+           "INSERT INTO switch (site,boxid,buildgroup,buildname,floor,role,serialsw,hostname,rackname,ip,model,serialno,macaddress,urlmap,urlconfig) VALUES ?";
+          connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง Database ตามข้อมูลที่อยู่ใน csvDataRows
             if (error) return res.json("Error");
             return res.json({ added: true });
           });
@@ -207,7 +201,7 @@ app.post("/import-switch-csv", upload.single("import-csv"), (req, res) => {
       });
       fs.unlinkSync(filepath); //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
     });
-  stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
+  stream.pipe(fileStream); //นำข้อมูลของ fileStream ส่งกลับไปที่ stream และเรียกใช้ฟังก์ชั่นตามลำดับ
 });
 
 //Access Point API
@@ -280,29 +274,23 @@ app.post("/addap", (req, res) => {
 });
 //AP Import Excel
 app.post("/import-accesspoint-csv", upload.single("import-csv"), (req, res) => {
-  let filepath = __dirname + "/uploads/" + req.file.filename;
-  let stream = fs.createReadStream(filepath); //สร้างตัวแปร stream สำหรับอ่านข้อมูลจากไฟล์แบบทีละ chunk(ก้อน) จาก filePath(ไฟล์ที่อัพโหลด)
-  let csvDataRows = []; //สร้างตัวแปร์เป็น [] เปล่าๆ เพื่อเก็บข้อมูลที่มาจากการอัพโหลดไฟล์
-  let fileStream = csv //ตัวแปรให้อ่านไฟล์สกุล csv
-    .parse() //เมทธ็อดแปลงข้อมูลที่อัพโหลดให้เป็น Arrays
-    .on("data", function (data) {
-      //เมทธ็อดเช็ค Event ของ fileStream ที่เกิดขึ้นเมื่อมีข้อมูลที่อัพโหลดแล้วสามารถอ่านได้โดยมีตัวแปร data ไว้เก็บข้อมูล
-      csvDataRows.push(data); //นำตัวแปร data มาเก็บไว้ที่ csvDataRows
-      //console.log(data);
+  let filepath = __dirname + "/uploads/" + req.file.filename; //ที่อยูู่ของไฟล์ที่อัพโหลด
+  let stream = fs.createReadStream(filepath); //สร้างฟังก์ชั่น createReadStream เพื่ออ่านข้อมูลจาก filePath(ไฟล์ที่อัพโหลด)
+  let csvDataRows = []; //เก็บข้อมูลที่มาจากการอัพโหลดไฟล์ในรูปแบบ []
+  let fileStream = csv.parse() //แปลงข้อมูลที่อยู่ในไฟล์ .csv ให้เป็น object
+    .on("data", function (data) { //เช็ค Event ของ fileStream เมื่อแปลงข้อมูลแล้วและเก็บค่าไว้ที่ data
+      csvDataRows.push(data); //นำข้อมูลที่อยู่ในdata มา push(ใส่)ไว้ที่ csvDataRows
     })
-    .on("end", function () {
-      //เมทธ็อด เมื่ออ่านไฟล์และรวบรวมข้อมูลทั้งหมดแล้ว
+    .on("end", function () { //เมื่อจบฟังก์ชั่นของ data จะมาทำฟังก์ชั่น end ต่อ
       csvDataRows.shift(); //ลบส่วนหัว (Header) ของแถวออก
-      connection.connect((error) => {
-        //เช็คการเชื่อมต่อของ DB
+      connection.connect((error) => { //เช็คการเชื่อมต่อของ Database
         if (error) {
           return res.json("Database Error");
         } else {
-          // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง DB ของตาราง accesspoint
+          // สร้างตัวแปร query เพื่อ Insert ข้อมูลลง Database ของตาราง accesspoint
           let query =
             "INSERT INTO accesspoint (Site,Buildgroup,Buildname,Floor,Switchname,IPSwitch,Model,Seriesap,Apid,Vlan,APname,APbox,Cablename,Serialnumber,MACaddress,Role,urlmap) VALUES ?";
-          connection.query(query, [csvDataRows], (error, result) => {
-            //query ข้อมูลลง DB
+          connection.query(query, [csvDataRows], (error, result) => { //query ข้อมูลลง Database ตามข้อมูลที่อยู่ใน csvDataRows
             if (error) return res.json("Error");
             return res.json({ added: true });
           });
@@ -310,7 +298,7 @@ app.post("/import-accesspoint-csv", upload.single("import-csv"), (req, res) => {
       });
       fs.unlinkSync(filepath); //ลบชื่อไฟล์จาก filePath(ไฟล์ที่อัพโหลด)
     });
-  stream.pipe(fileStream); //เมทธ็อดรวมข้อมูลทั้งหมดของตัวแปร stream และ fileStream  ส่งข้อมูลทั้งหมดไปยังตัวแปร fileStream
+  stream.pipe(fileStream); //นำข้อมูลของ fileStream ส่งกลับไปที่ stream และเรียกใช้ฟังก์ชั่นตามลำดับ
 });
 
 //User API

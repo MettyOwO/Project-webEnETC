@@ -47,10 +47,21 @@ function ImportSwitchContent() {
                 alert("Import CSV Data Complete!")
                 navigate('/dbadmin') 
             }else{
-                alert("Error! Please Try Again.")
+                alert("Error! The columns in csv file or table is not match. Please Try Again.")
             }   
           })
           .catch(error => console.log(error));
+      }
+
+      async function handleChange(e) {
+        e.preventDefault();
+        const files = e.target.files[0]
+        if(files.type === "text/csv"){
+            alert("Upload csv file : " + files.name)
+        }else{
+            alert("Error! " + files.name + " This is not csv file. Please Try Again.")
+            window.location.reload();
+        }  
       }
 
     //UI
@@ -89,6 +100,7 @@ function ImportSwitchContent() {
                 className="form-control"
                 name="import-csv"
                 accept="csv"
+                onChange={ handleChange }
                 />
             </div>
             <div 

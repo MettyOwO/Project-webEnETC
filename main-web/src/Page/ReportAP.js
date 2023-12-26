@@ -75,7 +75,7 @@ function ReportAPContent() {
         .then(res => {
             console.log(res);
             if(res.data.added){
-                alert("Add Corrupt Device Data Complete!")
+                alert("Report Corrupt Device Data Complete!")
                 navigate('/dbadmin')
             }else{
                 alert("Error! Please Try Again.")

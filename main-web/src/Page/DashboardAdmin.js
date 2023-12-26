@@ -72,7 +72,7 @@ function DashboardAdminContent() {
     ["AP Outdoor", apoutCount],
   ];
   const optionAP = {
-    title: `Total Access Point Install`  + " : " + [ apinCount + apoutCount],
+    title: `Total Access Point Install`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -108,7 +108,7 @@ function DashboardAdminContent() {
     ["Switch Dist", switchCount2],
   ];
   const optionSW = {
-    title: `Total Switch Install` + " : " + [switchCount + switchCount2],
+    title: `Total Switch Install`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -141,7 +141,7 @@ function DashboardAdminContent() {
     ["AP", dcapCount],
   ];
   const optionDC = {
-    title: `Total Corrupt Device` + " : " + [dcswCount + dcapCount],
+    title: `Total Corrupt Device`,
     pieHole: 0.4,
     is3D: true,
   };
@@ -191,6 +191,10 @@ function DashboardAdminContent() {
   const [dataAPSite,setDataAPSite] = useState([])
   const [dataSWSite,setDataSWSite] = useState([])
   const [dataDCSite,setDataDCSite] = useState([])
+
+  const [dataAP,setDataAP] = useState([])
+  const [dataSW,setDataSW] = useState([])
+  const [dataDC,setDataDC] = useState([])
   useEffect(() => {
     
     if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "all"){
@@ -205,7 +209,7 @@ function DashboardAdminContent() {
       alert('Failed! No found a Data.')
       window.location.reload();
     }
-    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "device-corrupted"){
+    if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "corrupt-device"){
       alert('Failed! No found a Data.')
       window.location.reload();
     }
@@ -248,7 +252,7 @@ function DashboardAdminContent() {
         setDataSWSite(dataSWChart(accessCount,distributeCount))
       }).catch(err => console.log(err))
     }
-    if(selectSite.length !== 0 && selectDevices === "device-corrupted" || selectDevices === "all"){
+    if(selectSite.length !== 0 && selectDevices === "corrupt-device" || selectDevices === "all"){
       axios.get('http://localhost:3333/getSiteDC/' + selectSite).then(res => {
         //console.log(res.data);
         const data = res.data
@@ -389,7 +393,7 @@ function DashboardAdminContent() {
             <option value="all">All Devices</option>
             <option value="access-point">Access Point</option>
             <option value="switch">Switch</option>
-            <option value="device-corrupted">Corrupt Device</option>
+            <option value="corrupt-device">Corrupt Device</option>
           </select>
         </div>
 
@@ -448,7 +452,7 @@ function DashboardAdminContent() {
                </div>
             }
             {
-               selectDevices === "device-corrupted" && 
+               selectDevices === "corrupt-device" && 
                <div>
                   <Chart
                     chartType="PieChart"
@@ -514,7 +518,7 @@ function DashboardAdminContent() {
                   />
               </div>
             }
-            { selectDevices === "device-corrupted" &&
+            { selectDevices === "corrupt-device" &&
               <div>
                   <h1>{selectSite} : {selectDevices}</h1>
                   <Chart

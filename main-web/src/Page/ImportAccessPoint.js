@@ -32,10 +32,9 @@ function ImportAccessPointContent() {
     },[])
     
     const navigate = useNavigate();
-    async function handleSubmit(e) {    
+    async function handleSubmit(e) {
         const form = document.querySelector("form");
         const formData = new FormData(form);
-        //console.log(form);
         e.preventDefault();
         axios
           .post("http://localhost:3333/import-accesspoint-csv", formData, {
@@ -48,10 +47,21 @@ function ImportAccessPointContent() {
                 alert("Import CSV Data Complete!")
                 navigate('/dbadmin') 
             }else{
-                alert("Error! Please Try Again.")
+                alert("Error! The columns in csv file or table is not match. Please Try Again.")
             }   
           })
           .catch(error => console.log(error));
+      }
+
+      async function handleChange(e) {
+        e.preventDefault();
+        const files = e.target.files[0]
+        if(files.type === "text/csv"){
+            alert("Upload csv file : " + files.name)
+        }else{
+            alert("Error! " + files.name + " This is not csv file. Please Try Again.")
+            window.location.reload();
+        }  
       }
 
     //UI
@@ -90,6 +100,7 @@ function ImportAccessPointContent() {
                 type="file"
                 name="import-csv"
                 accept="csv"
+                onChange={ handleChange }
                 />
             </div>
             <div 
@@ -98,7 +109,7 @@ function ImportAccessPointContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <button onClick={ handleSubmit} className="btn btn-dark">Import File!</button>
+                <button onClick={ handleSubmit } className="btn btn-dark">Import File!</button>
             </div>
             </form>
         </div>          
