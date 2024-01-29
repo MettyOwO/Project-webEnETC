@@ -12,11 +12,12 @@ function ReportAPContent() {
         const token = localStorage.getItem("token");
         const email = localStorage.getItem("email");
         const site1 = localStorage.getItem("site");
+        const name1 = localStorage.getItem("name");
         fetch("http://localhost:3333/authen", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token, email, site1
+            Authorization: "Bearer " + token, email, site1, name1
           },
         })
           .then((response) => response.json())
@@ -27,6 +28,7 @@ function ReportAPContent() {
               localStorage.removeItem("token");
               localStorage.removeItem("email");
               localStorage.removeItem("site");
+              localStorage.removeItem("name");
               window.location = "/login";
             }
           })
@@ -51,6 +53,10 @@ function ReportAPContent() {
     const [url, SetUrl] = useState('');
     const [num_report, SetNumberReport] = useState('');
 
+    const [id2, SetID2] = useState('');
+    const [model, setModel] = useState('');
+    const username1 = localStorage.getItem("name");
+
     useEffect(() => {
         axios.get('http://localhost:3333/aplistwithid/'+id)
         .then(res => {
@@ -64,6 +70,8 @@ function ReportAPContent() {
             setRole(res.data[0].Role);
             SetNumberReport(res.data[0].num_report);
             setOldMac(res.data[0].MACaddress);
+            SetID2(res.data[0].ID)
+            setModel(res.data[0].Model);
         })
         .catch(err => console.log(err));
     },[id])
@@ -75,11 +83,11 @@ function ReportAPContent() {
         axios
         .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, 
         ipswitch, hostname, role, serial_number, serial_numberOld,
-        detail, url, device_type, num_report, mac_address, mac_addressOld}) 
+        detail, url, device_type, num_report, mac_address, mac_addressOld, username1, model, id2}) 
         .then(res => {
             console.log(res);
             if(res.data.added){
-                alert("Add Corrupt Device Data Complete!")
+                alert("Report Corrupt Device Data Complete!")
                 navigate('/dbusers')
             }else{
                 alert("Error! Please Try Again.")
@@ -176,6 +184,15 @@ function ReportAPContent() {
                     className='form-control'
                     value={hostname} 
                     onChange={e => setHostname(e.target.value)} 
+                    disabled/>
+                </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Model</label>
+                    <input 
+                    className="form-control" 
+                    onChange={e => setModel(e.target.value)}
+                    value={model}
                     disabled/>
                 </div>
 

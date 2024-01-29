@@ -9,30 +9,32 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function ImportAccessPointContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const email = localStorage.getItem("email");
-        const site1 = localStorage.getItem("site");
-        fetch("http://localhost:3333/authen", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token, email, site1
-          },
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("email");
+      const site1 = localStorage.getItem("site");
+      const name1 = localStorage.getItem("name");
+      fetch("http://localhost:3333/authen", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token, email, site1, name1
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "ok") {
+          } else {
+            alert("Authen Failed. Please Try Login Again!");
+            localStorage.removeItem("token");
+            localStorage.removeItem("email");
+            localStorage.removeItem("site");
+            localStorage.removeItem("name");
+            window.location = "/login";
+          }
         })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.status === "ok") {
-            } else {
-              alert("Authen Failed. Please Try Login Again!");
-              localStorage.removeItem("token");
-              localStorage.removeItem("email");
-              localStorage.removeItem("site");
-              window.location = "/login";
-            }
-          })
-          .catch((error) => {
-            console.log("Error:", error);
-          });
+        .catch((error) => {
+          console.log("Error:", error);
+        });
     },[])
     
     const navigate = useNavigate();

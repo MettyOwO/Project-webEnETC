@@ -7,6 +7,8 @@ import { Chart } from "react-google-charts";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import axios from "axios";
 import { useNavigate, useLocation} from "react-router-dom";
+import { Link } from "react-router-dom";
+import { CSVLink } from "react-csv";
 
 function DashboardAdminContent() {
   
@@ -17,11 +19,12 @@ function DashboardAdminContent() {
   //Check Token API
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const name1 = localStorage.getItem("name");
     fetch("http://localhost:3333/authen", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
+        Authorization: "Bearer " + token, name1,
       },
     })
       .then((response) => response.json())
@@ -30,6 +33,7 @@ function DashboardAdminContent() {
         } else {
           alert("Authen Failed. Please Try Login Again!");
           localStorage.removeItem("token");
+          localStorage.removeItem("name");
           window.location = "/login";
         }
       })
@@ -42,6 +46,7 @@ function DashboardAdminContent() {
   const handleLogout = (event) => {
     event.preventDefault();
     localStorage.removeItem("token");
+    localStorage.removeItem("name");
     window.location = "/login";
   };
 
@@ -113,7 +118,6 @@ function DashboardAdminContent() {
     is3D: true,
   };
 
-  
   //Total Device Corrupted Install - AP
   const [dcapCount, setDcApCount] = useState(0);
   useEffect(() => {
@@ -146,24 +150,6 @@ function DashboardAdminContent() {
     is3D: true,
   };
 
-  // //No.1
-  // const [dataccdap, setDataCcdAP] = useState([]);
-  // const [totalSumCcdAp, setTotalSumCcdAP] = useState(0);
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const response = await fetch("http://localhost:3333/aplist");
-  //     const data = await response.json();
-  //     setDataCcdAP(data);
-  //     //console.timeLog(data);
-  //   };
-  //   getData()
-  // }, []);
-  // useEffect(() => {
-  //   const total = dataccdap.reduce((acc, row) => acc + row.num_report, 0);
-  //   setTotalSumCcdAP(total)
-  // }, [dataccdap]);
-  // //No.2
-
   const [siteName,setSiteName] = useState([])
   async function getData() {
     const getSiteName = await axios.get("http://localhost:3333/site_name")
@@ -177,11 +163,22 @@ function DashboardAdminContent() {
   function handleParamUpdate(newValue, type) {
     const site = newValue;
     console.log(newValue);
-    if (type === "AP") {
+    if (type === "AP" && apdata == 0) {
+      alert("No information of Access Point Data. Please Import CSV File!!")
+      navigate('/dbadmin');
+    }else if (type === "AP" && apdata !== 0){
       navigate(`/accesspoint/${site}`, { state: { site } });
-    } else if (type === "SW") {
+    } 
+    if (type === "SW" && swdata == 0) {
+      alert("No information of Switch Data. Please Import CSV File!!")
+      navigate('/dbadmin');
+    }else if (type === "SW" && swdata !== 0){
       navigate(`/switch/${site}`, { state: { site } });
-    } else if (type === "DC") {
+    }
+    if (type === "DC" && dcdata == 0) {
+      alert("No information of Report Device Data.")
+      navigate('/dbadmin');
+    }else if(type === "DC" && dcdata !== 0){
       navigate(`/deviceclist/${site}`, { state: { site } });
     }
   }
@@ -191,10 +188,6 @@ function DashboardAdminContent() {
   const [dataAPSite,setDataAPSite] = useState([])
   const [dataSWSite,setDataSWSite] = useState([])
   const [dataDCSite,setDataDCSite] = useState([])
-
-  const [dataAP,setDataAP] = useState([])
-  const [dataSW,setDataSW] = useState([])
-  const [dataDC,setDataDC] = useState([])
   useEffect(() => {
     
     if((selectSite.length === 0 || selectSite === "Select Site") && selectDevices === "all"){
@@ -297,7 +290,35 @@ function DashboardAdminContent() {
     ]
     return data
   }
+
+  const [apdata, setApdata] = useState([]);
+  const [swdata, setSwdata] = useState([]);
+  const [dcdata, setDcdata] = useState([]);
+  async function getDataAP() {
+    const getAP = await axios.get("http://localhost:3333/aplist");
+    const getSW = await axios.get("http://localhost:3333/swlist");
+    const getDC = await axios.get("http://localhost:3333/deviceclist");
+    const dataSite = [];
+    const dataSite2 = [];
+    const dataSite3 = [];
+    getAP.data.map((item) => {
+        dataSite.push(item);
+    });
+    getSW.data.map((item) => {
+        dataSite2.push(item);
+    });
+    getDC.data.map((item) => {
+        dataSite3.push(item);
+    });
+    setApdata(dataSite);
+    setSwdata(dataSite2);
+    setDcdata(dataSite3);
+  }
+  useEffect(() => {
+    getDataAP();
+  }, []);
   
+  const username1 = localStorage.getItem("name");
   //UI
   return (
     <div>
@@ -307,8 +328,7 @@ function DashboardAdminContent() {
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
-              <Nav.Link href="/users">Users</Nav.Link>
-              <NavDropdown title="Access Point" id="basic-nav-dropdown">
+              <NavDropdown title="Access Point" id="basic-nav-dropdown">              
                 {siteName != "" && (
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("APList", "AP")}
@@ -342,7 +362,7 @@ function DashboardAdminContent() {
                   </NavDropdown.Item>
                 ))}
               </NavDropdown>
-              <NavDropdown title="Corrupt Device" id="basic-nav-dropdown">
+              <NavDropdown title="Corrupt Device List" id="basic-nav-dropdown">
               {siteName != "" && (
                 <NavDropdown.Item
                   onClick={(e) => handleParamUpdate("DCList", "DC")}
@@ -359,22 +379,40 @@ function DashboardAdminContent() {
                   </NavDropdown.Item>
                 ))}
               </NavDropdown>
+              <NavDropdown title="Import CSV File" id="basic-nav-dropdown">          
+                <NavDropdown.Item href="/accesspoint-excel">Access Point</NavDropdown.Item>
+                <NavDropdown.Item href="/switch-excel">Switch</NavDropdown.Item>
+              </NavDropdown>
             </Nav>
             <Nav>
-              <Nav.Link onClick={handleLogout}>
+              {/* <Nav.Link onClick={handleLogout}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"/>
                 <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
               </svg>
               &nbsp; LOG OUT
-              </Nav.Link>
+              </Nav.Link> */}
+              <NavDropdown title={"Profile : " + username1} id="basic-nav-dropdown">         
+              <NavDropdown.Item href="/home">Back to home</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>Log Out</NavDropdown.Item>
+              </NavDropdown>
+              &nbsp;&nbsp;&nbsp;&nbsp;
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
       <Container className="my-3">
+      
+      {/* <Link
+        to={'/home'}
+        className="btn btn-dark"
+        >
+        Back To Home
+        </Link>
+        <br/><br/> */}
+      
       <div className="row">
-        <div className="col">
+        <div className="col">       
           <select className="form-select" onChange={(e) => {setSelectSite(e.target.value)}}>
             <option defaultValue>Select Site</option>
             {siteName != "" && (

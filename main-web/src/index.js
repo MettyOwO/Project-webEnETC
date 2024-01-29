@@ -59,6 +59,11 @@ import UserDeviceCorrupted from './Page/User/DeviceCorrupted';
 import UserReportAP from './Page/User/ReportAP';
 import UserReportSW from './Page/User/ReportSW';
 
+//New
+import Home from './Page/Home';
+import DeviceAPLog from './Page/DeviceLog';
+import UserHome from './Page/User/Home';
+import UserDeviceAPLog from './Page/User/DeviceLog';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -109,6 +114,12 @@ root.render(
       
       <Route path="/add_model2/:device" element={<UserAddModel />} />
       <Route path="/add_datasheet2/:device" element={<UserAddDataSheet />} />
+
+      <Route path="/home" element={<Home />} />
+      <Route path="/device_log/:id" element={<DeviceAPLog />} />
+
+      <Route path="/home2" element={<UserHome />} />
+      <Route path="/device_log2/:id" element={<UserDeviceAPLog />} />
 
     </Routes>
   </BrowserRouter>

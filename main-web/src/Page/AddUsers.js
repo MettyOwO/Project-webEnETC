@@ -9,53 +9,70 @@ import { useNavigate } from "react-router-dom";
 function AddUsersContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-            
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/Login'
-        }
+      const token = localStorage.getItem("token");
+      const name1 = localStorage.getItem("name");
+      fetch("http://localhost:3333/authen", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token, name1,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "ok") {
+          } else {
+            alert("Authen Failed. Please Try Login Again!");
+            localStorage.removeItem("token");
+            localStorage.removeItem("name");
+            window.location = "/login";
+          }
         })
         .catch((error) => {
-        console.log("Error:", error);
+          console.log("Error:", error);
         });
-    },[])    
+  }, []);
     
     //Register API
-    const [role, setUserRole] = useState("Select User Role");
+    const [role, setUserRole] = useState('');
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
-    const [site, setSite] = useState("Select User Site");
+    const [site, setSite] = useState('-');
     const navigate = useNavigate();  
 
     function handleSubmit(event) {
-      event.preventDefault();
-      if (role !== "Select User Role" && email !== '' && password !== '' && name !== ''&& site !== 'Select User Site') {
-        axios
-          .post("http://localhost:3333/register", { email, password, name, role, site })
+      event.preventDefault();    
+      if (role == 'Admin'){
+        if (email !== '' && password !== '' && name !== ''&& role !== '') {
+          axios
+          .post("http://localhost:3333/register", { email, password, name, role, site})
           .then((res) => {
             if (res.data.added) {
-              alert("Add User Success!");
+              alert("Add User : " + name + " Role : " + role + " Success!");
               navigate("/users");
             } else {
               alert("Add User Failed. Please Try Again!");
             }
           })
-          .catch((err) => console.log(err));
+            .catch((err) => console.log(err));      
+        }
+      }else if (role == 'Customer'){
+        if (email !== '' && password !== '' && name !== ''&& role !== '' && site !== '-') {
+          axios
+          .post("http://localhost:3333/register", { email, password, name, role, site})
+          .then((res) => {
+            if (res.data.added) {
+              alert("Add User : " + name + " Role : " + role + " Success!");
+              navigate("/users");
+            } else {
+              alert("Add User Failed. Please Try Again!");
+            }
+          })
+            .catch((err) => console.log(err));     
+        }       
       }else{
-          alert("Please Complete The Information!");
+        alert("Please Complete The Information!");
       }
     }
 
@@ -73,11 +90,11 @@ function AddUsersContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
-                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            <Navbar.Brand href='/home'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+              <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
             </svg>
-            &nbsp; Dashboard
+            &nbsp; Home
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
@@ -135,25 +152,30 @@ function AddUsersContent() {
                 className="form-control"
                 onChange={(e) => setUserRole(e.target.value)}
                 >
-                  <option>Select User Role</option>
+                  <option>Select Role</option>
                   <option>Customer</option>
                   <option>Admin</option>
                 </select>
               </div>
-
+              {role =='Customer' && siteName =='' &&(
+                alert("Not Found Site,Please Add New Site Before Add User Type : Customer!!!"),
+                navigate("/home")
+              )}
+              {role !== 'Admin' && role !== '' &&(
               <div className="mb-4">
                 <label>Site</label>
                 <select
                 className="form-control"
                 onChange={(e) => setSite(e.target.value)}
                 >
-                  <option>Select User Site</option>
-                  <option value="None">None (For Admin)</option>
+                  <option>Select Site</option>
                   {siteName.map((siteName, index) => (
                     <option key={index}>{siteName.name}</option>             
                   ))}
                 </select>
               </div>
+              )}
+
               <div
                 style={{
                 display: "flex",

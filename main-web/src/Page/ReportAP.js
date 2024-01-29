@@ -10,11 +10,12 @@ function ReportAPContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
+        const name1 = localStorage.getItem("name");
         fetch ('http://localhost:3333/authen', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
+                "Authorization": 'Bearer '+ token, name1
             },
         })   
         .then(response => response.json())
@@ -23,6 +24,7 @@ function ReportAPContent() {
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
+            localStorage.removeItem("name");
             window.location = '/login'
         }
         })
@@ -32,6 +34,7 @@ function ReportAPContent() {
     },[])
 
     const {id} = useParams();
+    const [id2, SetID2] = useState('');
     const [site, setSite] = useState('');
     const [device_type, SetDVType] = useState("AP");
     const [build_group, setBuildgroup] = useState('');
@@ -39,6 +42,7 @@ function ReportAPContent() {
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
     const [role, setRole] = useState('');
+    const [model, setModel] = useState('');
     const [serial_number, setSR] = useState('');
     const [serial_numberOld, setSrOld] = useState('');
     const [mac_address, setMac] = useState('');
@@ -46,10 +50,12 @@ function ReportAPContent() {
     const [detail, setDetail] = useState('');
     const [url, SetUrl] = useState('');
     const [num_report, SetNumberReport] = useState('');
+    const username1 = localStorage.getItem("name");
 
     useEffect(() => {
         axios.get('http://localhost:3333/aplistwithid/'+id)
         .then(res => {
+            SetID2(res.data[0].ID)
             setSite(res.data[0].Site);
             setHostname(res.data[0].APname);
             setBuildname(res.data[0].Buildname);
@@ -58,6 +64,7 @@ function ReportAPContent() {
             SetUrl(res.data[0].urlmap);
             setSrOld(res.data[0].Serialnumber);
             setRole(res.data[0].Role);
+            setModel(res.data[0].Model);
             SetNumberReport(res.data[0].num_report);
             setOldMac(res.data[0].MACaddress);
         })
@@ -69,9 +76,9 @@ function ReportAPContent() {
         e.preventDefault();
         if (serial_number !== "" && detail !== "" && mac_address !== ""){
         axios
-        .post('http://localhost:3333/addreport_ap/'+ id, {site, build_group, build_name, 
+        .post('http://localhost:3333/addreport_ap/'+ id, {id2, site, build_group, build_name, 
         ipswitch, hostname, role, serial_number, serial_numberOld,
-        detail, url, device_type, num_report, mac_address, mac_addressOld}) 
+        detail, url, device_type, num_report, mac_address, mac_addressOld, username1, model}) 
         .then(res => {
             console.log(res);
             if(res.data.added){
@@ -157,6 +164,16 @@ function ReportAPContent() {
                 </div>
 
                 <div className='mb-4'>
+                    <label htmlFor=''>Hostname</label>
+                    <input type="text" 
+                    placeholder='' 
+                    className='form-control'
+                    value={hostname} 
+                    onChange={e => setHostname(e.target.value)} 
+                    disabled/>
+                </div>
+
+                <div className='mb-4'>
                     <label>IP Address (IP Switch)</label>
                     <input type="text" 
                     className='form-control'
@@ -166,12 +183,11 @@ function ReportAPContent() {
                 </div>
 
                 <div className='mb-4'>
-                    <label htmlFor=''>Hostname</label>
-                    <input type="text" 
-                    placeholder='' 
-                    className='form-control'
-                    value={hostname} 
-                    onChange={e => setHostname(e.target.value)} 
+                    <label htmlFor=''>Model</label>
+                    <input 
+                    className="form-control" 
+                    onChange={e => setModel(e.target.value)}
+                    value={model}
                     disabled/>
                 </div>
 

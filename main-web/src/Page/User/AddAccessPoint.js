@@ -12,11 +12,12 @@ function AddAPContent() {
         const token = localStorage.getItem("token");
         const email = localStorage.getItem("email");
         const site1 = localStorage.getItem("site");
+        const name1 = localStorage.getItem("name");
         fetch("http://localhost:3333/authen", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token, email, site1
+            Authorization: "Bearer " + token, email, site1, name1
           },
         })
           .then((response) => response.json())
@@ -27,6 +28,7 @@ function AddAPContent() {
               localStorage.removeItem("token");
               localStorage.removeItem("email");
               localStorage.removeItem("site");
+              localStorage.removeItem("name");
               window.location = "/login";
             }
           })

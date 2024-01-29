@@ -12,11 +12,12 @@ function ReportSWContent() {
         const token = localStorage.getItem("token");
         const email = localStorage.getItem("email");
         const site1 = localStorage.getItem("site");
+        const name1 = localStorage.getItem("name");
         fetch("http://localhost:3333/authen", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: "Bearer " + token, email, site1
+            Authorization: "Bearer " + token, email, site1, name1
           },
         })
           .then((response) => response.json())
@@ -27,6 +28,7 @@ function ReportSWContent() {
               localStorage.removeItem("token");
               localStorage.removeItem("email");
               localStorage.removeItem("site");
+              localStorage.removeItem("name");
               window.location = "/login";
             }
           })
@@ -52,6 +54,10 @@ function ReportSWContent() {
     const [mac_address, setMac] = useState('');
     const [mac_addressOld, setOldMac] = useState('');
 
+    const [id2, SetID2] = useState('');
+    const username1 = localStorage.getItem("name");
+    const [model, setModel] = useState('');
+
     useEffect(() => {
         axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
@@ -66,6 +72,8 @@ function ReportSWContent() {
             setRole(res.data[0].role);
             setSrOld(res.data[0].serialno);
             setOldMac(res.data[0].macaddress);
+            SetID2(res.data[0].ID);
+            setModel(res.data[0].model);
         })
         .catch(err => console.log(err));
     },[id])
@@ -76,10 +84,11 @@ function ReportSWContent() {
         if (serial_number !== '' && detail !== '' && mac_address !== ''){
         axios
         .post('http://localhost:3333/addreport_sw/'+ id, {site, device_type, build_group, build_name,
-        ipswitch, hostname, role, serial_numberOld, serial_number, mac_addressOld, mac_address, detail, url, urlconfig, num_report}) 
+        ipswitch, hostname, role, serial_numberOld, serial_number, mac_addressOld, mac_address, detail, url, urlconfig, num_report,
+        username1, model, id2}) 
         .then(res => {
             if(res.data.added){
-                alert("Add Corrupt Device Data Complete!")
+                alert("Report Corrupt Device Data Complete!")
                 navigate('/dbusers')     
             }else{
                 alert("Error! Please Try Again.")
@@ -181,6 +190,15 @@ function ReportSWContent() {
                     className='form-control'
                     value={hostname} 
                     onChange={e => setHostname(e.target.value)} 
+                    disabled/>
+                </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Model</label>
+                    <input 
+                    className="form-control" 
+                    onChange={e => setModel(e.target.value)}
+                    value={model}
                     disabled/>
                 </div>
 

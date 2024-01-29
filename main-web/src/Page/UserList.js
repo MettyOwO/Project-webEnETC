@@ -11,11 +11,12 @@ function UserListContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
+        const name1 = localStorage.getItem("name");
         fetch ('http://localhost:3333/authen', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
+                "Authorization": 'Bearer '+token, name1
             },
         })   
         .then(response => response.json())
@@ -25,6 +26,7 @@ function UserListContent() {
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
+            localStorage.removeItem("name");
             window.location = '/login'
         }
         })
@@ -42,10 +44,14 @@ function UserListContent() {
 
     //User Delete
     const handleDelete = async (id) => {
-        try {           
-            alert("Delete User ID : " + (id) + " Complete")
-            axios.delete('http://localhost:3333/deleteuser/'+id)
-            window.location.reload();          
+        try {
+            if(id === 2){
+             alert("Error, This is a main admin account. can't delete!")
+            }else{
+                alert("Delete User ID : " + (id) + " Complete")
+                axios.delete('http://localhost:3333/deleteuser/'+id)
+                window.location.reload();     
+            }                
         }
         catch(err){            
             console.log(err);        
@@ -56,11 +62,11 @@ function UserListContent() {
     <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href="/dbadmin">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
-                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            <Navbar.Brand href="/home">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
             </svg>
-            &nbsp; Dashboard
+            &nbsp; Home
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
@@ -82,9 +88,9 @@ function UserListContent() {
                 <Link to="/addusers" className='btn btn-success'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
                     <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
-                </svg> &nbsp; User   
-                </Link>&nbsp;&nbsp;
-                <AddSite /><br/><br/>
+                </svg> &nbsp; Account  
+                </Link>
+                <br/><br/>
                     <table className="table table-bordered">
                         <thead className="thead-light">
                             <tr>

@@ -51,13 +51,15 @@ export default function SignIn() {
         if(data.status === 'ok' && role === 'Admin'){
           alert('Login Success! Username : ' + name)
           localStorage.setItem('token', data.token)
-          window.location= '/dbadmin'
+          localStorage.setItem('name', data.name)
+          window.location = '/home'
         }else if(data.status === 'ok' && role === 'Customer'){
           alert('Login Success! Username : ' + name + ' , Site : ' + (data.site))
+          localStorage.setItem('name', data.name)
           localStorage.setItem('token', data.token)
           localStorage.setItem('email', data.email)
           localStorage.setItem('site', data.site)
-          window.location= '/dbusers'
+          window.location= '/home2'
         }else{
           alert('Login Failed. Please Try Again!')
         }

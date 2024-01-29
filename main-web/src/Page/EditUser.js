@@ -9,27 +9,29 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function EditUserContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const name1 = localStorage.getItem("name");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, name1,
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
-    },[])
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("name");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+    }, []);
 
     const {id} = useParams();
     const [name, setName] = useState('');
@@ -79,11 +81,11 @@ function EditUserContent() {
         <div>
         <Navbar variant="dark" bg="dark" expand="lg">
         <Container fluid>
-            <Navbar.Brand href='/dbadmin'>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
-                <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+            <Navbar.Brand href='/home'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/>
             </svg>
-            &nbsp; Dashboard
+            &nbsp; Home
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="navbar-dark-example" />
             <Navbar.Collapse id="navbar-dark-example">
@@ -114,9 +116,13 @@ function EditUserContent() {
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
                     <option>Admin</option>
                     <option>Customer</option>
-                </select>
+                </select> 
                 </div>
-
+                {role =='Customer' && siteName =='' &&(
+                    alert("Not Found Site,Please Add New Site Before Change User Site!!!"),
+                    navigate('/users')
+                )}
+                {role !== 'Admin' && (
                 <div className="mb-4">
                     <label>Site</label>
                     <select
@@ -124,13 +130,12 @@ function EditUserContent() {
                     onChange={(e) => setSite(e.target.value)}
                     value={site}
                     >
-                        <option value="None">None (For Admin)</option>
                         {siteName.map((siteName, index) => (
                             <option key={index}>{siteName.name}</option>             
                         ))}
                 </select>
                 </div>
-
+                )}
                 <div
                     style={{
                     display: 'flex',

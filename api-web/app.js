@@ -125,6 +125,29 @@ app.get("/switchlistwithid/:id", (req, res) => {
 });
 //Switch Data Update
 app.put("/updatesw/:id", (req, res) => {
+  // const sql =
+  //   "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?, macaddress = ?  where ID = ?";
+  // const id = req.params.id;
+  // const values = [
+  //   req.body.role,
+  //   req.body.build_name,
+  //   req.body.build_group,
+  //   req.body.ipswitch,
+  //   req.body.hostname,
+  //   req.body.model,
+  //   req.body.url,
+  //   req.body.urlconfig,
+  //   req.body.serial_number,
+  //   req.body.mac_address
+  // ];
+  // connection.query(sql, [...values, id], (err, result) => {
+  //   if (err) return res.json("Error");
+  //   return res.json({ updated: true });
+  // });
+  const SqlUpdateNumReport = "UPDATE switch SET num_report = ? WHERE ID = ?"
+  const num_report = req.body.num_report;
+  const total_num =  num_report + 1;
+  
   const sql =
     "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?, macaddress = ?  where ID = ?";
   const id = req.params.id;
@@ -139,19 +162,100 @@ app.put("/updatesw/:id", (req, res) => {
     req.body.urlconfig,
     req.body.serial_number,
     req.body.mac_address
+];
+
+  const insertSql3 =
+  "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  const values3 = [
+    req.body.id2,
+    req.body.site,
+    req.body.device_type,
+    req.body.old_hostname,
+    req.body.old_ipswitch,
+    req.body.old_build_group,
+    req.body.old_build_name,
+    req.body.old_model,
+    req.body.old_role,
+    req.body.old_serial_number,
+    req.body.old_mac_address,
+    total_num,
+    req.body.username1
   ];
-  connection.query(sql, [...values, id], (err, result) => {
-    if (err) return res.json("Error");
-    return res.json({ updated: true });
+
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(SqlUpdateNumReport, [total_num, id], (updateErr) => {
+      if (updateErr) {
+        connection.rollback(() => {
+          throw updateErr;
+        });
+      }
+    
+    connection.query(insertSql3, values3, (InsertErr, InsertResult) => {  
+      if (InsertErr) {
+        connection.rollback(() => {
+          throw InsertErr;
+        });
+      }
+
+      connection.query(sql, [...values, id], (UpdateErr, UpdateResult) => {  
+        if (UpdateErr) {
+          connection.rollback(() => {
+            throw UpdateErr;
+          });
+        }
+  
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        connection.rollback(() => {
+          throw commitErr;
+        });
+      }
+      
+      console.log('Transaction Complete.');
+      return res.json({ updated: true });
+    });
+  });
+  });
+  });
   });
 });
 //Switch Data Delete
 app.delete("/deletesw/:id", (req, res) => {
   const sql = "DELETE FROM switch where ID = ?";
+  const sql2 = " DELETE FROM device_log where ID = ? and device_type = 'SW' ";
   const id = req.params.id;
-  connection.query(sql, [id], (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
+  
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(sql, [id], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql2, [id], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+  
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        connection.rollback(() => {
+          throw commitErr;
+        });
+      }
+      console.log('Transaction Complete.');
+      res.json({ added: true });
+    });
   });
 });
 //Switch Data Add
@@ -224,6 +328,10 @@ app.get("/aplistwithid/:id", (req, res) => {
 });
 //AP Update API
 app.put("/updateap/:id", (req, res) => {
+  const SqlUpdateNumReport = "UPDATE accesspoint SET num_report = ? WHERE ID = ?"
+  const num_report = req.body.num_report;
+  const total_num =  num_report + 1;
+  
   const sql =
     "UPDATE accesspoint SET Role = ? , Buildname = ?, Buildgroup = ?, IPswitch = ?, APname = ?, Model = ?, urlmap = ?, Serialnumber = ?, MACaddress = ? where ID = ?";
   const id = req.params.id;
@@ -238,18 +346,99 @@ app.put("/updateap/:id", (req, res) => {
     req.body.serial_number,
     req.body.mac_address
   ];
-  connection.query(sql, [...values, id], (err, result) => {
-    if (err) return res.json("Error");
-    return res.json({ updated: true });
+
+  const insertSql3 =
+  "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  const values3 = [
+    req.body.id2,
+    req.body.site,
+    req.body.device_type,
+    req.body.old_hostname,
+    req.body.old_ipswitch,
+    req.body.old_build_group,
+    req.body.old_build_name,
+    req.body.old_model,
+    req.body.old_role,
+    req.body.old_serial_number,
+    req.body.old_mac_address,
+    total_num,
+    req.body.username1
+  ];
+
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(SqlUpdateNumReport, [total_num, id], (updateErr) => {
+      if (updateErr) {
+        connection.rollback(() => {
+          throw updateErr;
+        });
+      }
+    
+    connection.query(insertSql3, values3, (InsertErr, InsertResult) => {  
+      if (InsertErr) {
+        connection.rollback(() => {
+          throw InsertErr;
+        });
+      }
+
+      connection.query(sql, [...values, id], (UpdateErr, UpdateResult) => {  
+        if (UpdateErr) {
+          connection.rollback(() => {
+            throw UpdateErr;
+          });
+        }
+  
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        connection.rollback(() => {
+          throw commitErr;
+        });
+      }
+      
+      console.log('Transaction Complete.');
+      return res.json({ updated: true });
+    });
+  });
+  });
+  });
   });
 });
 //AP Delete API
 app.delete("/deleteap/:id", (req, res) => {
   const sql = "DELETE FROM accesspoint where ID = ?";
   const id = req.params.id;
-  connection.query(sql, [id], (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.json(result);
+  const sql2 = "DELETE FROM device_log where ID = ?";
+  
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(sql, [id], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql2, [id], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+  
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        connection.rollback(() => {
+          throw commitErr;
+        });
+      }
+      console.log('Transaction Complete.');
+      res.json({ added: true });
+    });
   });
 });
 //AP Add API
@@ -367,7 +556,7 @@ app.get("/deviceclist", (req, res) => {
 });
 app.post("/addreport_ap/:id", (req, res) => {
   const insertSql =
-  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Oldmacaddress, Serialnumber, Macaddress, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress, Macaddress, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const values = [
     req.body.site,
@@ -376,6 +565,7 @@ app.post("/addreport_ap/:id", (req, res) => {
     req.body.build_name,
     req.body.hostname,
     req.body.ipswitch,
+    req.body.model,
     req.body.role,
     req.body.serial_numberOld,
     req.body.serial_number,
@@ -394,6 +584,25 @@ app.post("/addreport_ap/:id", (req, res) => {
   const SqlUpdateNumReport = "UPDATE accesspoint SET num_report = ? WHERE Serialnumber = ?"
   const num_report = req.body.num_report;
   const total_num =  num_report + 1;
+
+  const insertSql2 =
+  "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  const values2 = [
+    req.body.id2,
+    req.body.site,
+    req.body.device_type,
+    req.body.build_group,
+    req.body.build_name,
+    req.body.hostname,
+    req.body.ipswitch,
+    req.body.model,
+    req.body.role,
+    req.body.serial_numberOld,
+    req.body.mac_addressOld,
+    total_num,
+    req.body.username1
+  ];
 
   connection.beginTransaction((err) => {
     if (err) throw err;
@@ -426,6 +635,13 @@ app.post("/addreport_ap/:id", (req, res) => {
               });
             }
 
+            connection.query(insertSql2, values2, (insertErr, insertResult) => {
+              if (insertErr) {
+                connection.rollback(() => {
+                  throw insertErr;
+                });
+              }
+
             connection.commit((commitErr) => {
               if (commitErr) {
                 connection.rollback(() => {
@@ -434,6 +650,7 @@ app.post("/addreport_ap/:id", (req, res) => {
             }
             console.log('Transaction Complete.');
             res.json({ added: true });
+            });
             });
           });  
         });
@@ -444,7 +661,7 @@ app.post("/addreport_ap/:id", (req, res) => {
 
 app.post("/addreport_sw/:id", (req, res) => {
   const insertSql =
-    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Role, Oldserialnumber, Oldmacaddress, Serialnumber, Macaddress, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress,  Macaddress, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   
     const values = [
     req.body.site,
@@ -453,6 +670,7 @@ app.post("/addreport_sw/:id", (req, res) => {
     req.body.build_name,
     req.body.hostname,
     req.body.ipswitch,
+    req.body.model,
     req.body.role,
     req.body.serial_numberOld,
     req.body.serial_number,
@@ -473,6 +691,25 @@ app.post("/addreport_sw/:id", (req, res) => {
   const num_report = req.body.num_report;
   const total_num =  num_report + 1;
 
+  const insertSql2 =
+  "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+  const values2 = [
+    req.body.id2,
+    req.body.site,
+    req.body.device_type,
+    req.body.build_group,
+    req.body.build_name,
+    req.body.hostname,
+    req.body.ipswitch,
+    req.body.model,
+    req.body.role,
+    req.body.serial_numberOld,
+    req.body.mac_addressOld,
+    total_num,
+    req.body.username1
+  ];
+
   connection.beginTransaction((err) => {
     if (err) throw err;
 
@@ -504,6 +741,13 @@ app.post("/addreport_sw/:id", (req, res) => {
               });
             }
 
+            connection.query(insertSql2, values2, (insertErr, insertResult) => {
+              if (insertErr) {
+                connection.rollback(() => {
+                  throw insertErr;
+                });
+              }
+
             connection.commit((commitErr) => {
               if (commitErr) {
                 connection.rollback(() => {
@@ -513,6 +757,7 @@ app.post("/addreport_sw/:id", (req, res) => {
             console.log('Transaction Complete.');
             res.json({ added: true });
             });
+          });
           });  
         });
       });
@@ -616,9 +861,95 @@ app.get("/site_name", (req, res) => {
     return res.send(result);
   });
 });
+app.get("/site2", (req, res) => {
+  const sql = "SELECT * FROM sitename";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result);
+  });
+});
+app.get("/site3/:name", (req, res) => {
+  const sql = "SELECT * FROM sitename where name = ?";
+  const name = req.params.name;
+  connection.query(sql, [name], (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result);
+  });
+});
+app.delete("/deletesite/:name", (req, res) => {
+  const name = req.params.name;
+  const sql = "DELETE FROM sitename where name = ?";
+  const sql2 = "DELETE FROM accesspoint where Site = ?";
+  const sql3 = "DELETE FROM switch where site = ?";
+  const sql4 = "DELETE FROM device_corrupted where Site = ?";
+  const sql5 = "DELETE FROM device_log where site = ?";
+  const sql6 = "DELETE FROM users where site = ?";
+  
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(sql, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql2, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+    
+    connection.query(sql3, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql4, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql5, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql6, [name], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+  
+    connection.commit((commitErr) => {
+      if (commitErr) {
+        connection.rollback(() => {
+          throw commitErr;
+        });
+      }
+      console.log('Transaction Complete.');
+      res.json({ added: true });
+    });
+  });
+});
 app.post("/addsite", (req, res) => {
-  const sql = "INSERT INTO sitename (name) VALUES (?)";
-  const values = [req.body.site];
+  const sql = "INSERT INTO sitename (name, address) VALUES (?)";
+  const values = [req.body.site, req.body.address];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
     return res.json({ added: true });
@@ -753,6 +1084,15 @@ app.put("/updateconfiglink2/:id", (req, res) => {
       }
     }
   );
+});
+
+app.get("/device_log/:id", (req, res) => {
+  const sql = "SELECT * FROM device_log where ID = ?";
+  const id = req.params.id;
+  connection.query(sql,[id], (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.json(result);
+  });
 });
 
 app.listen(3333, jsonParser, function () {

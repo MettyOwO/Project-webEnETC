@@ -18,11 +18,12 @@ function DashboardContent() {
     const token = localStorage.getItem("token");
     const email = localStorage.getItem("email");
     const site1 = localStorage.getItem("site");
+    const name1 = localStorage.getItem("name");
     fetch("http://localhost:3333/authen", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token, email, site1
+        Authorization: "Bearer " + token, email, site1, name1
       },
     })
       .then((response) => response.json())
@@ -33,6 +34,7 @@ function DashboardContent() {
           localStorage.removeItem("token");
           localStorage.removeItem("email");
           localStorage.removeItem("site");
+          localStorage.removeItem("name");
           window.location = "/login";
         }
       })
@@ -47,6 +49,7 @@ function DashboardContent() {
     localStorage.removeItem("token");
     localStorage.removeItem("email");
     localStorage.removeItem("site");
+    localStorage.removeItem("name");
     window.location = "/login";
   };
 
@@ -169,18 +172,6 @@ function DashboardContent() {
     getData();
   }, []);
 
-  function handleParamUpdate(newValue, type) {
-    const site = newValue;
-    console.log(newValue);
-    if (type === "AP") {
-      navigate(`/useraccesspoint/${site}`, { state: { site } });
-    } else if (type === "SW") {
-      navigate(`/userswitch/${site}`, { state: { site } });
-    } else if (type === "DC") {
-      navigate(`/userdeviceclist/${site}`, { state: { site } });
-    }
-  }
-
   const [selectDevices,setSelectDevices] = useState([])
   const [selectSite,setSelectSite] = useState([])
   const [dataAPSite,setDataAPSite] = useState([])
@@ -288,6 +279,57 @@ function DashboardContent() {
     return data
   }
   
+  function handleParamUpdate(newValue, type) {
+    const site = newValue;
+    console.log(newValue);
+    if (type === "AP" && apdata == 0) {
+      alert("No information of Access Point Data. Please Import CSV File!!")
+      navigate('/dbusers');
+    }else if (type === "AP" && apdata !== 0){
+      navigate(`/useraccesspoint/${site}`, { state: { site } });
+    } 
+    if (type === "SW" && swdata == 0) {
+      alert("No information of Switch Data. Please Import CSV File!!")
+      navigate('/dbusers');
+    }else if (type === "SW" && swdata !== 0){
+      navigate(`/userswitch/${site}`, { state: { site } });
+    }
+    if (type === "DC" && dcdata == 0) {
+      alert("No information of Report Device Data.")
+      navigate('/dbusers');
+    }else if(type === "DC" && dcdata !== 0){
+      navigate(`/userdeviceclist/${site}`, { state: { site } });
+    }
+  }
+
+  const [apdata, setApdata] = useState([]);
+  const [swdata, setSwdata] = useState([]);
+  const [dcdata, setDcdata] = useState([]);
+  async function getDataAP() {
+    const getAP = await axios.get("http://localhost:3333/aplist");
+    const getSW = await axios.get("http://localhost:3333/swlist");
+    const getDC = await axios.get("http://localhost:3333/deviceclist");
+    const dataSite = [];
+    const dataSite2 = [];
+    const dataSite3 = [];
+    getAP.data.map((item) => {
+        dataSite.push(item);
+    });
+    getSW.data.map((item) => {
+        dataSite2.push(item);
+    });
+    getDC.data.map((item) => {
+        dataSite3.push(item);
+    });
+    setApdata(dataSite);
+    setSwdata(dataSite2);
+    setDcdata(dataSite3);
+  }
+  useEffect(() => {
+    getDataAP();
+  }, []);
+  
+  const username1 = localStorage.getItem("name");
   //UI
   return (
     <div>
@@ -297,39 +339,32 @@ function DashboardContent() {
           <Navbar.Toggle aria-controls="navbar-dark-example" />
           <Navbar.Collapse id="navbar-dark-example">
             <Nav className="me-auto">
-              <NavDropdown title="Access Point" id="basic-nav-dropdown">
-                <NavDropdown.Item
-                  onClick={(e) => handleParamUpdate("APList", "AP")}
-                >
-                  {siteName2}
-                </NavDropdown.Item>
-
-              </NavDropdown>
-              <NavDropdown title="Switch" id="basic-nav-dropdown">
-                <NavDropdown.Item
-                  onClick={(e) => handleParamUpdate("SWList", "SW")}
-                >
-                  {siteName2}
-                </NavDropdown.Item>
-
-              </NavDropdown>
-              <NavDropdown title="Corrupt Device" id="basic-nav-dropdown">
-                <NavDropdown.Item
-                  onClick={(e) => handleParamUpdate("DCList", "DC")}
-                >
-                  {siteName2}
-                </NavDropdown.Item>
-
+              <Nav.Link onClick={(e) => handleParamUpdate("APList", "AP")}>
+                Access Point
+              </Nav.Link>
+              <Nav.Link onClick={(e) => handleParamUpdate("SWList", "SW")}>
+                Switch
+              </Nav.Link>
+              <Nav.Link onClick={(e) => handleParamUpdate("DCList", "DC")}>
+                Corrupt Device List
+              </Nav.Link>
+              <NavDropdown title="Import CSV File" id="basic-nav-dropdown">          
+                <NavDropdown.Item href="/accesspoint-excel2">Access Point</NavDropdown.Item>
+                <NavDropdown.Item href="/switch-excel2">Switch</NavDropdown.Item>
               </NavDropdown>
             </Nav>
             <Nav>
-              <Nav.Link onClick={handleLogout}>
+              {/* <Nav.Link onClick={handleLogout}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"/>
                 <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
               </svg>
-              &nbsp; LOG OUT
-              </Nav.Link>
+              &nbsp; LOG OUT */}
+              {/* </Nav.Link> */}
+              <NavDropdown title={"Profile : " + username1} id="basic-nav-dropdown">         
+                <NavDropdown.Item onClick={handleLogout}>Log Out</NavDropdown.Item>
+              </NavDropdown>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </Nav>
           </Navbar.Collapse>
         </Container>

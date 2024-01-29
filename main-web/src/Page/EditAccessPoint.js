@@ -10,11 +10,12 @@ function EditAPContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
+        const name1 = localStorage.getItem("name");
         fetch ('http://localhost:3333/authen', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
+                "Authorization": 'Bearer '+ token, name1
             },
         })   
         .then(response => response.json())
@@ -23,13 +24,14 @@ function EditAPContent() {
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
+            localStorage.removeItem("name");
             window.location = '/login'
         }
         })
         .catch((error) => {
         console.log("Error:", error);
         });
-        getDataAPModel()
+        getDataAPModel();
     },[])
 
     //Access Point List With AP_ID API
@@ -43,6 +45,22 @@ function EditAPContent() {
     const [serial_number, setSRNumber] = useState('');
     const [mac_address, setMacNumber] = useState('');
     const [url, setUrl] = useState("");
+    const username1 = localStorage.getItem("name");
+    const [id2, SetID2] = useState('');
+    const [num_report, SetNumberReport] = useState('');
+    const [site, setSite] = useState('');
+
+    //old-device-detail
+    const [old_hostname, setOldHostname] = useState('');
+    const [old_ipswitch, setOldIpswitch] = useState('');
+    const [old_build_name, setOldBuildname] = useState('');
+    const [old_build_group, setOldBuildgroup] = useState('');
+    const [old_model, setOldModel] = useState('');
+    const [old_role, setOldRole] = useState('');
+    const [old_serial_number, setOldSRNumber] = useState('');
+    const [old_mac_address, setOldMacNumber] = useState('');
+    const [device_type, SetDVType] = useState("AP");
+
     useEffect(() => {
         axios
         .get('http://localhost:3333/aplistwithid/'+id)
@@ -56,6 +74,19 @@ function EditAPContent() {
             setSRNumber(res.data[0].Serialnumber);
             setMacNumber(res.data[0].MACaddress);
             setUrl(res.data[0].urlmap);
+            SetNumberReport(res.data[0].num_report);
+            SetID2(res.data[0].ID)
+            setSite(res.data[0].Site);
+            
+            //Old
+            setOldHostname(res.data[0].APname);
+            setOldIpswitch(res.data[0].IPswitch);
+            setOldBuildname(res.data[0].Buildname);
+            setOldBuildgroup(res.data[0].Buildgroup);
+            setOldModel(res.data[0].Model);
+            setOldRole(res.data[0].Role);
+            setOldSRNumber(res.data[0].Serialnumber);
+            setOldMacNumber(res.data[0].MACaddress);
         })
         .catch(err => console.log(err));
     },[id])
@@ -68,11 +99,12 @@ function EditAPContent() {
         && serial_number !== '' && mac_address !== '') {
             axios
             .put('http://localhost:3333/updateap/'+id, {role, build_name, build_group,
-            ipswitch, model, hostname, url, serial_number, mac_address}) 
+            ipswitch, model, hostname, url, serial_number, mac_address, username1, id2, num_report, site, 
+            old_hostname, old_build_name, old_build_group, old_ipswitch, old_model, old_role, old_serial_number, old_mac_address,
+            device_type}) 
             .then(res => {
                 if(res.data.updated){
                     alert("Update Access Point ID : " + (id) + " Complete!")
-                    //navigate('/accesspoint')
                     navigate('/dbadmin')     
                 }else{
                     alert("Error! Please Try Again.")

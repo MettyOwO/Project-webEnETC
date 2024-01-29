@@ -9,26 +9,28 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 function AddSWContent() {
     //Check Token API
     useEffect(() => {
-        const token = localStorage.getItem('token')
-        fetch ('http://localhost:3333/authen', {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
-            },
-        })   
-        .then(response => response.json())
-        .then(data => {
-        if(data.status === 'ok'){
-        }else{
-            alert('Authen Failed. Please Try Login Again!')
-            localStorage.removeItem('token')
-            window.location = '/login'
-        }
+        const token = localStorage.getItem("token");
+        const name1 = localStorage.getItem("name");
+        fetch("http://localhost:3333/authen", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token, name1,
+          },
         })
-        .catch((error) => {
-        console.log("Error:", error);
-        });
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "ok") {
+            } else {
+              alert("Authen Failed. Please Try Login Again!");
+              localStorage.removeItem("token");
+              localStorage.removeItem("name");
+              window.location = "/login";
+            }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
         getDataSite()
         getDataSWModel()
     },[])

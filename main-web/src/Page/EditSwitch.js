@@ -10,11 +10,12 @@ function EditSWContent() {
     //Check Token API
     useEffect(() => {
         const token = localStorage.getItem('token')
+        const name1 = localStorage.getItem("name");
         fetch ('http://localhost:3333/authen', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": 'Bearer '+token
+                "Authorization": 'Bearer '+token, name1
             },
         })   
         .then(response => response.json())
@@ -23,6 +24,7 @@ function EditSWContent() {
         }else{
             alert('Authen Failed. Please Try Login Again!')
             localStorage.removeItem('token')
+            localStorage.removeItem("name");
             window.location = '/login'
         }
         })
@@ -32,18 +34,35 @@ function EditSWContent() {
         getDataSWModel()
     },[])
 
-    //Access Point List With AP_ID API
+    //Switch List With AP_ID API
     const {id} = useParams();
     const [hostname, setHostname] = useState('');
     const [ipswitch, setIpswitch] = useState('');
     const [build_name, setBuildname] = useState('');
     const [build_group, setBuildgroup] = useState('');
-    const [model, setModel] = useState("Select SW Model");
-    const [role, setRole] = useState("Select SW Role");
+    const [model, setModel] = useState("");
+    const [role, setRole] = useState("");
     const [url, setUrl] = useState("");
     const [urlconfig, setUrlConfig] = useState("");
     const [serial_number, setSRNumber] = useState('');
     const [mac_address, setMacNumber] = useState('');
+
+    const username1 = localStorage.getItem("name");
+    const [id2, SetID2] = useState('');
+    const [num_report, SetNumberReport] = useState('');
+    const [site, setSite] = useState('');
+
+    //Old
+    const [old_hostname, setOldHostname] = useState('');
+    const [old_ipswitch, setOldIpswitch] = useState('');
+    const [old_build_name, setOldBuildname] = useState('');
+    const [old_build_group, setOldBuildgroup] = useState('');
+    const [old_model, setOldModel] = useState("");
+    const [old_role, setOldRole] = useState("");
+    const [old_serial_number, setOldSRNumber] = useState('');
+    const [old_mac_address, setOldMacNumber] = useState('');
+    const [device_type, SetDVType] = useState("SW");
+
     useEffect(() => {
         axios
         .get('http://localhost:3333/switchlistwithid/'+id)
@@ -58,6 +77,20 @@ function EditSWContent() {
             setUrlConfig(res.data[0].urlconfig);
             setSRNumber(res.data[0].serialno);
             setMacNumber(res.data[0].macaddress);
+
+            SetNumberReport(res.data[0].num_report);
+            SetID2(res.data[0].ID)
+            setSite(res.data[0].site);
+
+            //Old
+            setOldHostname(res.data[0].hostname);
+            setOldIpswitch(res.data[0].ip);
+            setOldBuildname(res.data[0].buildname);
+            setOldBuildgroup(res.data[0].buildgroup);
+            setOldModel(res.data[0].model);
+            setOldRole(res.data[0].role);
+            setOldSRNumber(res.data[0].serialno);
+            setOldMacNumber(res.data[0].macaddress);
         })
         .catch(err => console.log(err));
     },[])
@@ -70,7 +103,9 @@ function EditSWContent() {
         && build_group !== '' && serial_number !== '' && mac_address !== ''){
         axios
         .put('http://localhost:3333/updatesw/'+id, {role, build_name, build_group,
-         ipswitch, model, hostname ,url, urlconfig, serial_number, mac_address}) 
+         ipswitch, model, hostname ,url, urlconfig, serial_number, mac_address,
+        username1, id2, num_report, site, old_hostname, old_build_name, old_build_group,
+        old_ipswitch, old_model, old_role, old_serial_number, old_mac_address, device_type}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update Switch ID : " + (id) + " Complete!")

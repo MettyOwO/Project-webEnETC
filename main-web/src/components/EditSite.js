@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
+import {  Link, useNavigate, useParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -7,10 +7,9 @@ import axios from 'axios';
 
 function Example2() { 
   const [show, setShow] = useState(false);
-  const [site, setSite] = useState("");
-  const [address, setAddress] = useState("");
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  
+  //const handleShow = () => setShow(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -36,7 +35,7 @@ function Example2() {
     .catch((error) => {
     console.log("Error:", error);
     });
-    },[])
+  },[])
 
     const navigate = useNavigate();
     function handleSubmit(event) {
@@ -47,8 +46,7 @@ function Example2() {
           .then((res) => {
             if (res.data.added) {
               alert("Add Site : " + (site) + " Complete!");
-              //navigate("/home");
-              window.location.reload();
+              navigate("/home");
             } else {
               alert("Error! Please Try Again.");
             }
@@ -59,9 +57,16 @@ function Example2() {
       }
     }
 
+    const [site, setSite] = useState("");
+    const [address, setAddress] = useState("");
+
+    function handleShow () {
+      setShow(true);
+    }
+
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
+      <Button variant="warning" onClick={handleShow}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
         <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
       </svg> &nbsp; Site
@@ -69,7 +74,7 @@ function Example2() {
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add New Site</Modal.Title>
+          <Modal.Title>Edit Site</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -80,15 +85,17 @@ function Example2() {
                 placeholder="Please Enter site name"
                 autoFocus
                 onChange={(e)=>{setSite(e.target.value)}}
+                value={site}
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Address</Form.Label>
+              <Form.Label>Detail</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Please Enter address of site"
+                placeholder="Please Enter detail of site"
                 autoFocus
                 onChange={(e)=>{setAddress(e.target.value)}}
+                value={address}
               />
             </Form.Group>               
           </Form>
@@ -98,7 +105,7 @@ function Example2() {
             Close
           </Button>
           <Button variant="primary" onClick={handleSubmit}>
-            Add Site!
+            Update!
           </Button>
         </Modal.Footer>
       </Modal>
