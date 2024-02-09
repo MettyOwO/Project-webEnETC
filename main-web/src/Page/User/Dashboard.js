@@ -155,7 +155,6 @@ function DashboardContent() {
   };
 
   const [siteName,setSiteName] = useState([]);
-  const [siteName2,setSiteName2] = useState([]);
   async function getData() {
     const getSiteName = await axios.get("http://localhost:3333/site_name")
     const siteLocation = localStorage.getItem("site");
@@ -166,7 +165,6 @@ function DashboardContent() {
       }
     })
     setSiteName(dataSite);
-    setSiteName2(siteLocation);
   }
   useEffect(() => {
     getData();

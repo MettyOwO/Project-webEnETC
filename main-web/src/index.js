@@ -64,6 +64,7 @@ import Home from './Page/Home';
 import DeviceAPLog from './Page/DeviceLog';
 import UserHome from './Page/User/Home';
 import UserDeviceAPLog from './Page/User/DeviceLog';
+import EditSite from './Page/EditSite';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -120,6 +121,7 @@ root.render(
 
       <Route path="/home2" element={<UserHome />} />
       <Route path="/device_log2/:id" element={<UserDeviceAPLog />} />
+      <Route path="/site/:id" element={<EditSite />} />
 
     </Routes>
   </BrowserRouter>

@@ -83,10 +83,10 @@ function Example2() {
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Address</Form.Label>
+              <Form.Label>Contact Customer</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Please Enter address of site"
+                placeholder="Please Enter Contact Ex.UserContact Tel 0xx-xxx-xxxx"
                 autoFocus
                 onChange={(e)=>{setAddress(e.target.value)}}
               />

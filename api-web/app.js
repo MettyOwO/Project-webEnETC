@@ -1,4 +1,4 @@
-var express = require("express");
+var express = require("express"); //framework
 var cors = require("cors");
 var app = express();
 var bodyParser = require("body-parser");
@@ -868,14 +868,14 @@ app.get("/site2", (req, res) => {
     return res.send(result);
   });
 });
-app.get("/site3/:name", (req, res) => {
-  const sql = "SELECT * FROM sitename where name = ?";
-  const name = req.params.name;
-  connection.query(sql, [name], (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result);
-  });
-});
+// app.get("/site3/:name", (req, res) => {
+//   const sql = "SELECT * FROM sitename where name = ?";
+//   const name = req.params.name;
+//   connection.query(sql, [name], (err, result) => {
+//     if (err) return res.json({ Error: err });
+//     return res.send(result);
+//   });
+// });
 app.delete("/deletesite/:name", (req, res) => {
   const name = req.params.name;
   const sql = "DELETE FROM sitename where name = ?";
@@ -1094,6 +1094,34 @@ app.get("/device_log/:id", (req, res) => {
     return res.json(result);
   });
 });
+
+app.get("/site/:id", (req, res) => {
+  const sql = "SELECT * FROM sitename where ID = ?";
+  const id = req.params.id;
+  connection.query(sql,[id], (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.json(result);
+  });
+});
+
+app.put("/updatesite/:id", (req, res) => {
+  const sql = "UPDATE sitename SET name = ?, address = ? where ID = ?";
+  const id = req.params.id;
+  const values = [req.body.name, req.body.address];
+  connection.query(sql, [...values, id], (err, result) => {
+    if (err) return res.json("Error");
+    return res.json({ updated: true });
+  });
+});
+
+// app.get("/responsible", (req, res) => {
+//   const sql = "select distinct r.name, r.site from responsible r inner join sitename s where s.name = r.site";
+//   connection.query(sql, (err, result) => {
+//     console.log(result);
+//     if (err) return res.json({ Error: err });
+//     return res.json(result);  
+//   });
+// });
 
 app.listen(3333, jsonParser, function () {
   console.log("CORS-enabled web server listening on port 3333");

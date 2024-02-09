@@ -56,12 +56,25 @@ function HomeContent() {
   };
   
   const [siteName,setSiteName] = useState([])
-  const [siteName2,setSiteName2] = useState([])
+  const [responsibleName,setResponsible] = useState([])
   async function getData() {
-    const getSiteName = await axios.get("http://localhost:3333/site_name")
-    const getDataSite = await axios.get("http://localhost:3333/site2")
-    setSiteName(getDataSite.data)
-    setSiteName2(getSiteName.data)
+    const getSiteName = await axios.get("http://localhost:3333/site2")
+    const getResponsibileName = await axios.get("http://localhost:3333/users")
+    const siteLocation = localStorage.getItem("site");
+    const dataSite = []
+    const dataSite2 = []
+    getSiteName.data.map((item)=>{    
+      if(siteLocation === item.name){
+        dataSite.push(item)
+      }
+    })
+    getResponsibileName.data.map((item)=>{    
+      if(siteLocation === item.site){
+        dataSite2.push(item)
+      }
+    })
+    setResponsible(dataSite2)
+    setSiteName(dataSite)
   }
   useEffect(() => {
     getData();
@@ -79,13 +92,6 @@ function HomeContent() {
             <Nav className="me-auto">
             </Nav>
             <Nav>
-              {/* <Nav.Link onClick={handleLogout}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0z"/>
-                <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
-              </svg>
-              &nbsp; LOG OUT */}
-              {/* </Nav.Link> */}
               <NavDropdown title={"Profile : " + username1} id="basic-nav-dropdown">         
                 <NavDropdown.Item onClick={handleLogout}>Log Out</NavDropdown.Item>
               </NavDropdown>
@@ -110,17 +116,23 @@ function HomeContent() {
                     <thead className="thead-light">
                     <tr>
                         <th scope="col">Name</th>
-                        <th scope="col">Address</th>
+                        <th scope="col">Contact Customer</th>
                         <th scope="col">Responsible</th>
                         <th scope="col">View</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {siteName.map((siteName, index) => (
+                    {siteName.map((item, index) => (
                     <tr key={index}>
-                        <td>{siteName.name}</td>
-                        <td>{siteName.address}</td>
-                        <td>{siteName.responsible}</td>
+                        <td>{item.name}</td>
+                        <td>{item.address}</td>
+                        <td>
+                          {responsibleName.map((item, index) => (
+                        <td key={index}>
+                          {item.name},                        
+                        </td>
+                        ))} 
+                        </td>
                         <td>
                           <Link
                           to={'/dbusers'}
@@ -132,7 +144,7 @@ function HomeContent() {
                         </Link>
                         </td>
                     </tr>
-                    ))} 
+                    ))}
                     </tbody>
                 </table>
             </div>
