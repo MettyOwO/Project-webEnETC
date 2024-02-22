@@ -52,6 +52,7 @@ function Example(test1) {
         await axios.put(`http://localhost:3333/updateswlink/${id}`, {
             url : url
         })
+        alert("Add URL : " + (url) + " Complete!");
         handleClose();
         window.location.reload();
     }
@@ -62,6 +63,7 @@ function Example(test1) {
         await axios.put(`http://localhost:3333/updatedclink/${id}`, {
             url : url
         })
+        alert("Add URL : " + (url) + " Complete!");
         handleClose();
         window.location.reload();
     }
@@ -72,6 +74,7 @@ function Example(test1) {
       await axios.put(`http://localhost:3333/updateconfiglink/${id}`, {
           url : url
       })
+      alert("Add URL : " + (url) + " Complete!");
       handleClose();
       window.location.reload();
     }
@@ -119,7 +122,7 @@ function Example(test1) {
               <Form.Label>URL</Form.Label>
               <Form.Control
                 type="text"
-                placeholder=""
+                placeholder="enter url"
                 autoFocus
                 onChange={(e)=>{setUrl(e.target.value)}}
               />

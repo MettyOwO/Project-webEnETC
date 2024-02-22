@@ -93,7 +93,7 @@ function DeviceLogContent() {
                 <th scope="col">Role</th>
                 <th scope="col">Serial No.</th>
                 <th scope="col">Mac Address</th>
-                <th scope="col">No. Report/Edit</th>
+                <th scope="col">Total Num</th>
                 <th scope="col">Latest by</th>
               </tr>
             </thead>
@@ -101,10 +101,10 @@ function DeviceLogContent() {
             {list.map((list, index) => (
                 <tr key={index}>
                   <td>{list.site}</td>
-                  <td>{list.old_hostname}</td>
-                  <td>{list.old_ip}</td>
                   <td>{list.old_build_group}</td>
                   <td>{list.old_build_name}</td>
+                  <td>{list.old_hostname}</td>
+                  <td>{list.old_ip}</td>
                   <td>{list.old_model}</td> 
                   <td>{list.old_role}</td>
                   <td>{list.old_serial}</td>

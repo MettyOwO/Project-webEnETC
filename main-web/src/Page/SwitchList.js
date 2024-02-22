@@ -122,6 +122,40 @@ function SwitchContent() {
         }
     }
 
+    const [num_sw, setNumSwitch] = useState(0);
+    const [num_sw_site,setDataSWSite] = useState([])
+    useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const fetchData = await axios.get("http://localhost:3333/total_num_sw");
+        setNumSwitch(fetchData.data.numsw);
+      } catch (err) {}
+    };
+    fetchCount();
+      
+    axios.get('http://localhost:3333/getSiteSW/' + paramPath).then(res => {
+        const data = res.data
+        let accessCount = 0
+        let distributeCount = 0
+        data.map((item) => {
+          if(item.role === "Access"){
+            accessCount++
+          }
+          if(item.role === "Distribute"){
+            distributeCount++
+          }
+        })
+        let sum = accessCount + distributeCount
+        setDataSWSite(sum)
+      }).catch(err => console.log(err))
+  
+    }, []);
+
+    if(num_sw_site === 0 && num_sw === 0){
+        alert("Failed! Can't Found Switch Data.")
+        navigate('/dbadmin') 
+    }
+
     //UI
     return (
         <div>
@@ -162,10 +196,10 @@ function SwitchContent() {
                     justifyContent: 'center',
                 }}>
                     {paramPath !== "SWList" && <>
-                        <h2>Switch {paramPath} List</h2>
+                        <h2>Switch List ({paramPath}) : {num_sw_site} Units</h2>
                     </>}
                     {paramPath === "SWList" && <>
-                        <h2>Switch List</h2>
+                        <h2>Switch List : {num_sw} Units</h2>
                     </>}
                 </div> 
                 
@@ -212,6 +246,7 @@ function SwitchContent() {
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">Site</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">Hostname</th>
@@ -230,6 +265,7 @@ function SwitchContent() {
                     <tbody>
                     {swlist.map ((swlist,index) => (                       
                         <tr key={index}>
+                            <td>{swlist.site}</td>
                             <td>{swlist.buildgroup}</td>
                             <td>{swlist.buildname}</td>
                             <td>{swlist.hostname}</td>

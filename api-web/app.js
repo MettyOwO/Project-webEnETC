@@ -125,25 +125,6 @@ app.get("/switchlistwithid/:id", (req, res) => {
 });
 //Switch Data Update
 app.put("/updatesw/:id", (req, res) => {
-  // const sql =
-  //   "UPDATE switch SET role = ? , buildname = ?, buildgroup = ?, ip = ?, hostname = ?, model = ?, urlmap = ?, urlconfig = ?, serialno = ?, macaddress = ?  where ID = ?";
-  // const id = req.params.id;
-  // const values = [
-  //   req.body.role,
-  //   req.body.build_name,
-  //   req.body.build_group,
-  //   req.body.ipswitch,
-  //   req.body.hostname,
-  //   req.body.model,
-  //   req.body.url,
-  //   req.body.urlconfig,
-  //   req.body.serial_number,
-  //   req.body.mac_address
-  // ];
-  // connection.query(sql, [...values, id], (err, result) => {
-  //   if (err) return res.json("Error");
-  //   return res.json({ updated: true });
-  // });
   const SqlUpdateNumReport = "UPDATE switch SET num_report = ? WHERE ID = ?"
   const num_report = req.body.num_report;
   const total_num =  num_report + 1;
@@ -225,7 +206,8 @@ app.put("/updatesw/:id", (req, res) => {
 //Switch Data Delete
 app.delete("/deletesw/:id", (req, res) => {
   const sql = "DELETE FROM switch where ID = ?";
-  const sql2 = " DELETE FROM device_log where ID = ? and device_type = 'SW' ";
+  const sql2 = "DELETE FROM device_log where ID = ? and device_type = 'SW' ";
+  const sql3 = "DELETE FROM replacement_device where ID = ? and device_type = 'SW'";
   const id = req.params.id;
   
   connection.beginTransaction((err) => {
@@ -261,7 +243,7 @@ app.delete("/deletesw/:id", (req, res) => {
 //Switch Data Add
 app.post("/addsw", (req, res) => {
   const sql =
-    "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model, serialno, macaddress) VALUES (?)";
+  "INSERT INTO switch (site, buildname, buildgroup, ip, hostname, role, model, serialno, macaddress) VALUES (?, ?, ?, ?, ? ,? ,? ,? ,?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -273,9 +255,55 @@ app.post("/addsw", (req, res) => {
     req.body.serial_number,
     req.body.mac_address
   ];
-  connection.query(sql, [values], (err) => {
-    if (err) return res.json("Error");
-    return res.json({ added: true });
+
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(sql, values, (insertErr, insertResult) => {
+      if (insertErr) {
+        connection.rollback(() => {
+          throw insertErr;
+        });
+      }
+      console.log(insertResult.insertId);
+      
+      const sql2 =
+      "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+      const values2 = [
+        insertResult.insertId,
+        req.body.site,
+        req.body.device_type,
+        req.body.hostname,
+        req.body.ipswitch,
+        req.body.build_group,
+        req.body.build_name,
+        req.body.model,
+        req.body.role,
+        req.body.serial_number,
+        req.body.mac_address,
+        0,
+        req.body.username1
+      ];
+
+      connection.query(sql2, values2, (insertErr, insertResult2) => {
+        if (insertErr) {
+          connection.rollback(() => {
+            throw insertErr;
+          });
+        }
+
+      connection.commit((commitErr) => {
+        if (commitErr) {
+          connection.rollback(() => {
+            throw commitErr;
+          });
+        }
+        console.log('Transaction Complete.');
+        res.json({ added: true });
+      })
+      });
+    });
   });
 });
 
@@ -311,6 +339,13 @@ app.post("/import-switch-csv", upload.single("import-csv"), (req, res) => {
 //Access Point API
 //AP List
 app.get("/aplist", (req, res) => {
+  const sql = "SELECT * FROM accesspoint";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json("Error");
+    return res.json(result);
+  });
+});
+app.get("/aplistcount", (req, res) => {
   const sql = "SELECT * FROM accesspoint";
   connection.query(sql, (err, result) => {
     if (err) return res.json("Error");
@@ -409,7 +444,8 @@ app.put("/updateap/:id", (req, res) => {
 app.delete("/deleteap/:id", (req, res) => {
   const sql = "DELETE FROM accesspoint where ID = ?";
   const id = req.params.id;
-  const sql2 = "DELETE FROM device_log where ID = ?";
+  const sql2 = "DELETE FROM device_log where ID = ? and device_type = 'AP'";
+  const sql3 = "DELETE FROM replacement_device where ID = ? and device_type = 'AP'";
   
   connection.beginTransaction((err) => {
     if (err) throw err;
@@ -423,6 +459,14 @@ app.delete("/deleteap/:id", (req, res) => {
     })
 
     connection.query(sql2, [id], (DeleteErr, DeleteResult) => {  
+      if (DeleteErr) {
+        connection.rollback(() => {
+          throw DeleteErr;
+        });
+      }
+    })
+
+    connection.query(sql3, [id], (DeleteErr, DeleteResult) => {  
       if (DeleteErr) {
         connection.rollback(() => {
           throw DeleteErr;
@@ -444,7 +488,7 @@ app.delete("/deleteap/:id", (req, res) => {
 //AP Add API
 app.post("/addap", (req, res) => {
   const sql =
-    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model, Serialnumber, MACaddress) VALUES (?)";
+    "INSERT INTO accesspoint (Site, Buildname, Buildgroup, IPswitch, APname, Role, Model, Serialnumber, MACaddress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const values = [
     req.body.site,
     req.body.build_name,
@@ -456,9 +500,55 @@ app.post("/addap", (req, res) => {
     req.body.serial_number,
     req.body.mac_address
   ];
-  connection.query(sql, [values], (err) => {
-    if (err) return res.json("Error");
-    return res.json({ added: true });
+
+  connection.beginTransaction((err) => {
+    if (err) throw err;
+
+    connection.query(sql, values, (insertErr, insertResult) => {
+      if (insertErr) {
+        connection.rollback(() => {
+          throw insertErr;
+        });
+      }
+      console.log(insertResult.insertId);
+      
+      const sql2 =
+      "INSERT INTO device_log (ID, site, device_type, old_hostname, old_ip, old_build_group, old_build_name, old_model, old_role, old_serial, old_mac, num_device_change, report_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+      const values2 = [
+        insertResult.insertId,
+        req.body.site,
+        req.body.device_type,
+        req.body.hostname,
+        req.body.ipswitch,
+        req.body.build_group,
+        req.body.build_name,
+        req.body.model,
+        req.body.role,
+        req.body.serial_number,
+        req.body.mac_address,
+        0,
+        req.body.username1
+      ];
+
+      connection.query(sql2, values2, (insertErr, insertResult2) => {
+        if (insertErr) {
+          connection.rollback(() => {
+            throw insertErr;
+          });
+        }
+
+      connection.commit((commitErr) => {
+        if (commitErr) {
+          connection.rollback(() => {
+            throw commitErr;
+          });
+        }
+        console.log('Transaction Complete.');
+        res.json({ added: true });
+      })
+      });
+    });
   });
 });
 //AP Import Excel
@@ -548,7 +638,7 @@ app.put("/updateuser/:id", (req, res) => {
 
 //device corrupted api
 app.get("/deviceclist", (req, res) => {
-  const sql = "SELECT * FROM device_corrupted";
+  const sql = "SELECT * FROM replacement_device";
   connection.query(sql, (err, result) => {
     if (err) return res.json("Error");
     return res.json(result);
@@ -556,9 +646,10 @@ app.get("/deviceclist", (req, res) => {
 });
 app.post("/addreport_ap/:id", (req, res) => {
   const insertSql =
-  "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress, Macaddress, Details, urlmap) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  "INSERT INTO replacement_device (ID ,Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress, Macaddress, Details, note, urlmap) VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
   const values = [
+    req.body.id2,
     req.body.site,
     req.body.device_type,
     req.body.build_group,
@@ -572,6 +663,7 @@ app.post("/addreport_ap/:id", (req, res) => {
     req.body.mac_addressOld,
     req.body.mac_address,
     req.body.detail,
+    req.body.note,
     req.body.url
   ];
 
@@ -592,10 +684,10 @@ app.post("/addreport_ap/:id", (req, res) => {
     req.body.id2,
     req.body.site,
     req.body.device_type,
-    req.body.build_group,
-    req.body.build_name,
     req.body.hostname,
     req.body.ipswitch,
+    req.body.build_group,
+    req.body.build_name,
     req.body.model,
     req.body.role,
     req.body.serial_numberOld,
@@ -661,9 +753,10 @@ app.post("/addreport_ap/:id", (req, res) => {
 
 app.post("/addreport_sw/:id", (req, res) => {
   const insertSql =
-    "INSERT INTO device_corrupted (Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress,  Macaddress, Details, urlmap, urlconfig) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    "INSERT INTO replacement_device (ID ,Site, device_type, Buildgroup, Buildname, Hostname, Ipaddress, Model, Role, Oldserialnumber, Serialnumber, Oldmacaddress,  Macaddress, Details, note, urlmap, urlconfig) VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   
     const values = [
+    req.body.id2,
     req.body.site,
     req.body.device_type,
     req.body.build_group,
@@ -677,6 +770,7 @@ app.post("/addreport_sw/:id", (req, res) => {
     req.body.mac_addressOld,
     req.body.mac_address,
     req.body.detail,
+    req.body.note,
     req.body.url,
     req.body.urlconfig,
   ];
@@ -698,10 +792,10 @@ app.post("/addreport_sw/:id", (req, res) => {
     req.body.id2,
     req.body.site,
     req.body.device_type,
-    req.body.build_group,
-    req.body.build_name,
     req.body.hostname,
     req.body.ipswitch,
+    req.body.build_group,
+    req.body.build_name,
     req.body.model,
     req.body.role,
     req.body.serial_numberOld,
@@ -766,7 +860,7 @@ app.post("/addreport_sw/:id", (req, res) => {
 });
 
 app.delete("/deletedc/:id", (req, res) => {
-  const sql = "DELETE FROM device_corrupted where ID = ?";
+  const sql = "DELETE FROM replacement_device where ID = ?";
   const id = req.params.id;
   connection.query(sql, [id], (err, result) => {
     if (err) return res.json({ Error: err });
@@ -792,7 +886,7 @@ app.get("/getSiteSW/:site", (req, res) => {
   });
 });
 app.get("/getSiteDC/:site", (req, res) => {
-  const sql = "SELECT * FROM device_corrupted WHERE Site = ?";
+  const sql = "SELECT * FROM replacement_device WHERE Site = ?";
   const site = req.params.site;
   connection.query(sql, [site], (err, result) => {
     if (err) return res.json({ Error: err });
@@ -801,52 +895,26 @@ app.get("/getSiteDC/:site", (req, res) => {
 });
 
 //Count Switch
-app.get("/total_switch_as", (req, res) => {
-  const sql = "SELECT COUNT(ID) as numswitch FROM switch where role = 'Access'";
+app.get("/total_num_sw", (req, res) => {
+  const sql = "SELECT COUNT(ID) as numsw FROM switch";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result[0]);
   });
 });
-app.get("/total_switch_ds", (req, res) => {
-  const sql =
-    "SELECT COUNT(ID) as numswitch2 FROM switch where role = 'Distribute'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result[0]);
-  });
-});
-
 //Count Access Point
-app.get("/total_ap_in", (req, res) => {
+app.get("/total_num_ap", (req, res) => {
   const sql =
-    "SELECT COUNT(ID) as numap FROM accesspoint where Role = 'Indoor'";
+    "SELECT COUNT(ID) as numap FROM accesspoint";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result[0]);
   });
 });
-app.get("/total_ap_out", (req, res) => {
+//Count Replace Device
+app.get("/total_num_dc", (req, res) => {
   const sql =
-    "SELECT COUNT(ID) as numap2 FROM accesspoint where Role = 'Outdoor'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result[0]);
-  });
-});
-
-//Count Device Corrupted
-app.get("/total_dc_ap", (req, res) => {
-  const sql =
-    "SELECT COUNT(ID) as numdcap FROM device_corrupted where device_type = 'AP'";
-  connection.query(sql, (err, result) => {
-    if (err) return res.json({ Error: err });
-    return res.send(result[0]);
-  });
-});
-app.get("/total_dc_sw", (req, res) => {
-  const sql =
-    "SELECT COUNT(ID) as numdcsw FROM device_corrupted where device_type = 'SW'";
+    "SELECT COUNT(ID) as numdc FROM replacement_device";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result[0]);
@@ -855,33 +923,26 @@ app.get("/total_dc_sw", (req, res) => {
 
 //Site
 app.get("/site_name", (req, res) => {
-  const sql = "SELECT DISTINCT name FROM sitename";
+  const sql = "SELECT DISTINCT name FROM site";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result);
   });
 });
 app.get("/site2", (req, res) => {
-  const sql = "SELECT * FROM sitename";
+  const sql = "SELECT * FROM site";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result);
   });
 });
-// app.get("/site3/:name", (req, res) => {
-//   const sql = "SELECT * FROM sitename where name = ?";
-//   const name = req.params.name;
-//   connection.query(sql, [name], (err, result) => {
-//     if (err) return res.json({ Error: err });
-//     return res.send(result);
-//   });
-// });
+
 app.delete("/deletesite/:name", (req, res) => {
   const name = req.params.name;
-  const sql = "DELETE FROM sitename where name = ?";
+  const sql = "DELETE FROM site where name = ?";
   const sql2 = "DELETE FROM accesspoint where Site = ?";
   const sql3 = "DELETE FROM switch where site = ?";
-  const sql4 = "DELETE FROM device_corrupted where Site = ?";
+  const sql4 = "DELETE FROM replacement_device where Site = ?";
   const sql5 = "DELETE FROM device_log where site = ?";
   const sql6 = "DELETE FROM users where site = ?";
   
@@ -948,8 +1009,8 @@ app.delete("/deletesite/:name", (req, res) => {
   });
 });
 app.post("/addsite", (req, res) => {
-  const sql = "INSERT INTO sitename (name, address) VALUES (?)";
-  const values = [req.body.site, req.body.address];
+  const sql = "INSERT INTO site (name, contact_name, contact_tel) VALUES (?)";
+  const values = [req.body.site, req.body.contact_name, req.body.contact_tel];
   connection.query(sql, [values], (err) => {
     if (err) return res.json("Error");
     return res.json({ added: true });
@@ -959,6 +1020,13 @@ app.post("/addsite", (req, res) => {
 //AP Model&Datasheet
 app.get("/ap_model", (req, res) => {
   const sql = "SELECT * FROM model where type = 'AP'";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result);
+  });
+});
+app.get("/ap_model2", (req, res) => {
+  const sql = "SELECT DISTINCT role FROM model where type = 'AP'";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result);
@@ -991,6 +1059,13 @@ app.post("/adddatasheet", (req, res) => {
 //SW Model&Datasheet
 app.get("/sw_model", (req, res) => {
   const sql = "SELECT * FROM model where type = 'SW'";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result);
+  });
+});
+app.get("/sw_model2", (req, res) => {
+  const sql = "SELECT DISTINCT role FROM model where type = 'SW'";
   connection.query(sql, (err, result) => {
     if (err) return res.json({ Error: err });
     return res.send(result);
@@ -1042,7 +1117,7 @@ app.put("/updatedclink/:id", (req, res) => {
   const id = req.params.id;
   //console.log(req.body);
   connection.query(
-    "UPDATE device_corrupted SET urlmap = ? WHERE ID = ?",
+    "UPDATE replacement_device SET urlmap = ? WHERE ID = ?",
     [url, id],
     (err, result) => {
       if (err) {
@@ -1074,7 +1149,7 @@ app.put("/updateconfiglink2/:id", (req, res) => {
   const id = req.params.id;
   //console.log(req.body);
   connection.query(
-    "UPDATE device_corrupted SET urlconfig = ? WHERE ID = ?",
+    "UPDATE replacement_device SET urlconfig = ? WHERE ID = ?",
     [url, id],
     (err, result) => {
       if (err) {
@@ -1096,7 +1171,7 @@ app.get("/device_log/:id", (req, res) => {
 });
 
 app.get("/site/:id", (req, res) => {
-  const sql = "SELECT * FROM sitename where ID = ?";
+  const sql = "SELECT * FROM site where ID = ?";
   const id = req.params.id;
   connection.query(sql,[id], (err, result) => {
     if (err) return res.json({ Error: err });
@@ -1105,23 +1180,73 @@ app.get("/site/:id", (req, res) => {
 });
 
 app.put("/updatesite/:id", (req, res) => {
-  const sql = "UPDATE sitename SET name = ?, address = ? where ID = ?";
+  const sql = "UPDATE site SET name = ?, contact_name = ?, contact_tel = ? where ID = ?";
   const id = req.params.id;
-  const values = [req.body.name, req.body.address];
+  const values = [req.body.name, req.body.contact_name, req.body.contact_tel];
   connection.query(sql, [...values, id], (err, result) => {
     if (err) return res.json("Error");
     return res.json({ updated: true });
   });
 });
 
-// app.get("/responsible", (req, res) => {
-//   const sql = "select distinct r.name, r.site from responsible r inner join sitename s where s.name = r.site";
-//   connection.query(sql, (err, result) => {
-//     console.log(result);
-//     if (err) return res.json({ Error: err });
-//     return res.json(result);  
-//   });
-// });
+//Total Replace AP List
+app.get("/total_ap_replace1", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_ap_replace1 FROM replacement_device where device_type = 'AP' and Details = 'โดนน้ำ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_ap_replace2", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_ap_replace2 FROM replacement_device where device_type = 'AP' and Details = 'ไฟช็อต' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_ap_replace3", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_ap_replace3 FROM replacement_device where device_type = 'AP' and Details = 'พอร์ตไม่จ่ายไฟ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_ap_replace4", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_ap_replace4 FROM replacement_device where device_type = 'AP' and Details = 'อื่นๆ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+//Total Replace SW List
+app.get("/total_sw_replace1", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_sw_replace1 FROM replacement_device where device_type = 'SW' and Details = 'โดนน้ำ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_sw_replace2", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_sw_replace2 FROM replacement_device where device_type = 'Sw' and Details = 'ไฟช็อต' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_sw_replace3", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_sw_replace3 FROM replacement_device where device_type = 'Sw' and Details = 'พอร์ตไม่จ่ายไฟ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
+app.get("/total_sw_replace4", (req, res) => {
+  const sql = "SELECT COUNT(ID) as num_sw_replace4 FROM replacement_device where device_type = 'SW' and Details = 'อื่นๆ' ";
+  connection.query(sql, (err, result) => {
+    if (err) return res.json({ Error: err });
+    return res.send(result[0]);
+  });
+});
 
 app.listen(3333, jsonParser, function () {
   console.log("CORS-enabled web server listening on port 3333");

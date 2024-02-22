@@ -35,12 +35,14 @@ function EditSiteContent() {
 
     const {id} = useParams();
     const [name, setName] = useState('');
-    const [address, setAddress] = useState("");
+    const [contact_name, setContactName] = useState("");
+    const [contact_tel, setContactTel] = useState("");
     useEffect(() => {
         axios.get('http://localhost:3333/site/'+id)
         .then(res => {
             setName(res.data[0].name);
-            setAddress(res.data[0].address);         
+            setContactName(res.data[0].contact_name);
+            setContactTel(res.data[0].contact_tel);               
         })
         .catch(err => console.log(err));
     },[id])
@@ -49,8 +51,8 @@ function EditSiteContent() {
     const navigate = useNavigate();
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (name !== '' && address !== '') {
-        axios.put('http://localhost:3333/updatesite/'+id, {name ,address}) 
+        if (name !== '' && contact_name !== '' && contact_tel !== '') {
+        axios.put('http://localhost:3333/updatesite/'+id, {name ,contact_name, contact_tel}) 
         .then(res => {
             if(res.data.updated){
                 alert("Update Site Data ID : " + (id) + " Complete!")
@@ -102,9 +104,15 @@ function EditSiteContent() {
 
                 
                 <div className='mb-4'>
-                    <label htmlFor=''>Contact Customer</label>
+                    <label htmlFor=''>Contact Name</label>
                     <input type="text" placeholder='' className='form-control'
-                    value={address} onChange={e => setAddress(e.target.value)}/>
+                    value={contact_name} onChange={e => setContactName(e.target.value)}/>
+                </div>
+
+                <div className='mb-4'>
+                    <label htmlFor=''>Contact Name</label>
+                    <input type="text" placeholder='' className='form-control'
+                    value={contact_tel} onChange={e => setContactTel(e.target.value)}/>
                 </div>
 
                 <div

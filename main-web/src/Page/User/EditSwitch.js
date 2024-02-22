@@ -124,9 +124,12 @@ function EditSWContent() {
     }
     
     const [sw_models, setSwModel] = useState([]);
+    const [sw_models2, setSwModel2] = useState([]);
     async function getDataSWModel() {
       const getModel = await axios.get("http://localhost:3333/sw_model");
+      const getModel2 = await axios.get("http://localhost:3333/sw_model2");
       setSwModel(getModel.data);
+      setSwModel2(getModel2.data);
     }
 
     //UI
@@ -215,8 +218,8 @@ function EditSWContent() {
                     className="form-control" 
                     value={role} 
                     onChange={e => setRole(e.target.value)}>             
-                        {sw_models.map((sw_models, index) => (
-                            <option key={index}>{sw_models.role}</option>
+                        {sw_models2.map((sw_models2, index) => (
+                            <option key={index}>{sw_models2.role}</option>
                         ))}
                     </select>
                 </div>

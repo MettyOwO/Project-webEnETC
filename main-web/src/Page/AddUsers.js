@@ -45,45 +45,73 @@ function AddUsersContent() {
       event.preventDefault();    
       if (role == 'Admin'){
         if (email !== '' && password !== '' && name !== ''&& role !== '') {
-          axios
-          .post("http://localhost:3333/register", { email, password, name, role, site})
-          .then((res) => {
-            if (res.data.added) {
-              alert("Add User : " + name + " Role : " + role + " Success!");
-              navigate("/users");
-            } else {
+          const lowercaseInputValue = email.toLowerCase();
+          const lowercaseArray = userEmail.map(element => element.toLowerCase());
+          // Check if the lowercaseInputValue exists in the lowercaseArray
+          if (lowercaseArray.includes(lowercaseInputValue)) {
+            // If it already exists, show an alert
+            alert(`Email : "${email}" already exists in database. Please try again!`);
+          }
+          else {
+            axios
+            .post("http://localhost:3333/register", { email, password, name, role, site})
+            .then((res) => {
+              if (res.data.added) {
+                alert("Add User : " + name + " Role : " + role + " Success!");
+                navigate("/users");
+              } 
+              else {
               alert("Add User Failed. Please Try Again!");
-            }
-          })
-            .catch((err) => console.log(err));      
-        }
-      }else if (role == 'Customer'){
-        if (email !== '' && password !== '' && name !== ''&& role !== '' && site !== '-') {
-          axios
-          .post("http://localhost:3333/register", { email, password, name, role, site})
-          .then((res) => {
-            if (res.data.added) {
-              alert("Add User : " + name + " Role : " + role + " Success!");
-              navigate("/users");
-            } else {
-              alert("Add User Failed. Please Try Again!");
-            }
-          })
-            .catch((err) => console.log(err));     
+              }
+            })
+          .catch((err) => console.log(err));      
+          }
         }       
-      }else{
-        alert("Please Complete The Information!");
       }
+      else if (role == 'Customer'){
+        if (email !== '' && password !== '' && name !== ''&& role !== '' && site !== '-') {
+          const lowercaseInputValue = email.toLowerCase();
+          const lowercaseArray = userEmail.map(element => element.toLowerCase());
+          // Check if the lowercaseInputValue exists in the lowercaseArray
+          if (lowercaseArray.includes(lowercaseInputValue)) {
+            // If it already exists, show an alert
+            alert(`Email : "${email}" already exists in database. Please try again!`);
+          }else {
+            axios
+            .post("http://localhost:3333/register", { email, password, name, role, site})
+            .then((res) => {
+              if (res.data.added) {
+                alert("Add User : " + name + " Role : " + role + " Success!");
+                navigate("/users");
+              } else {
+                alert("Add User Failed. Please Try Again!");
+              }
+            })
+          .catch((err) => console.log(err));     
+        }                   
+      }     
     }
-
+    else{
+      alert("Please Complete The Information!");
+    }
+  }
+  
     const [siteName,setSiteName] = useState([])
-    async function getDataSite() {
+    const [userEmail,setUserEmail] = useState([])
+    async function getData() {
       const getSiteName = await axios.get("http://localhost:3333/site_name")
+      const getEmail = await axios.get("http://localhost:3333/users")
+      const dataEmail = []
+      getEmail.data.map((item)=>{    
+          dataEmail.push(item.email)
+      })
       setSiteName(getSiteName.data)
+      setUserEmail(dataEmail)
     }
     useEffect(() => {
-      getDataSite();
+      getData();
     }, []);
+    console.log(userEmail)
 
     //UI
     return (

@@ -35,8 +35,6 @@ function AddSWContent() {
           .catch((error) => {
             console.log("Error:", error);
           });
-        getDataSite()
-        getDataSWModel()
     },[])
 
     const [hostname, setHostname] = useState('');
@@ -49,14 +47,36 @@ function AddSWContent() {
     const [mac_address, setMacNumber] = useState('');
     const navigate = useNavigate();
 
+    const username1 = localStorage.getItem("name");
+    const [device_type, SetDVType] = useState("SW");
+
     function handleSubmit(event) {        
         event.preventDefault();        
         if(hostname !== '' && ipswitch !== '' && build_name !== ''
         && build_group !== '' && role !== "Select SW Role" && model !== "Select SW Model"
         && serial_number !== '' && mac_address !== ''){
+            const lowercaseInputValue1 = hostname.toLowerCase();
+            const lowercaseArray1 = sw_list1.map(element => element.toLowerCase());
+            const lowercaseInputValue2 = serial_number.toLowerCase();
+            const lowercaseArray2 = sw_list2.map(element => element.toLowerCase());
+            const lowercaseInputValue3 = mac_address.toLowerCase();
+            const lowercaseArray3 = sw_list3.map(element => element.toLowerCase());
+            // Check if the lowercaseInputValue exists in the lowercaseArray
+            if (lowercaseArray1.includes(lowercaseInputValue1)) {
+                // If it already exists, show an alert
+                alert(`Hostname : "${hostname}" already exists in database. Please try again!`);
+            }
+            else if (lowercaseArray2.includes(lowercaseInputValue2)) {
+                // If it already exists, show an alert
+                alert(`Serial Number : "${serial_number}" already exists in database. Please try again!`);
+            }
+            else if (lowercaseArray3.includes(lowercaseInputValue3)) {
+                // If it already exists, show an alert
+                alert(`Mac Address : "${mac_address}" already exists in database. Please try again!`);
+            }else{        
         axios
         .post('http://localhost:3333/addsw', {site ,build_name, build_group, ipswitch, hostname, role, model
-        ,serial_number, mac_address})        
+        ,serial_number, mac_address, username1, device_type})        
         .then(res => {            
             if(res.data.added){
                 alert("Add Switch Data Complete!")
@@ -66,22 +86,43 @@ function AddSWContent() {
             }       
         })
         .catch(err => console.log(err));
-        }else{
+        }}else{
             alert("Please Complete The Information!");
         } 
     }
 
-    const [site, setSite] = useState([]);
-    async function getDataSite(){
-        const siteLocation = localStorage.getItem("site");
-        setSite(siteLocation)
-    };
-
     const [sw_models, setSwModel] = useState([]);
-    async function getDataSWModel() {
+    const [sw_models2, setSwModel2] = useState([]);
+    const [site, setSite] = useState([]);
+
+    const [sw_list1, setSwList1] = useState([]);
+    const [sw_list2, setSwList2] = useState([]);
+    const [sw_list3, setSwList3] = useState([]);
+    async function getData() {
       const getModel = await axios.get("http://localhost:3333/sw_model");
+      const getModel2 = await axios.get("http://localhost:3333/sw_model2");
+      const siteLocation = localStorage.getItem("site");
+      
+      const getSwList = await axios.get("http://localhost:3333/swlist");
+      const SWdata1 = []
+      const SWdata2 = []
+      const SWdata3 = []
+      getSwList.data.map((item)=>{    
+        SWdata1.push(item.hostname)
+        SWdata2.push(item.serialno)
+        SWdata3.push(item.macaddress)
+    })
+    setSwList1(SWdata1);
+    setSwList2(SWdata2);
+    setSwList3(SWdata3);
+
+      setSite(siteLocation)
       setSwModel(getModel.data);
+      setSwModel2(getModel2.data);
     }
+    useEffect(() => {
+        getData()
+    }, []);
 
     return (
     <div>
@@ -179,8 +220,8 @@ function AddSWContent() {
                 <select className="form-control" 
                 onChange={e => setRole(e.target.value)}>
                     <option>Select SW Role</option>
-                    {sw_models.map((sw_models, index) => (
-                    <option key={index}>{sw_models.role}</option>
+                    {sw_models2.map((sw_models2, index) => (
+                    <option key={index}>{sw_models2.role}</option>
                     ))}
                 </select>
             </div>

@@ -39,16 +39,41 @@ function AddDataSheetContent() {
 
   const location = useLocation();
   const [paramPath] = useState(location.state.device);
-  // const [typeAP, setTypeAP] = useState("AP");
-  // const [typeSW, setTypeSW] = useState("SW");
   const [type, setType] = useState(paramPath);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const navigate = useNavigate();
 
+  const [datasheet_name,setDatasheetName] = useState([])
+  const [datasheet_name2,setDatasheetName2] = useState([])
+  async function getData() {
+    const getDatasheet1 = await axios.get("http://localhost:3333/ap_datasheet")
+    const getDatasheet2 = await axios.get("http://localhost:3333/sw_datasheet")
+    const datasheet = []
+    const datasheet2 = []
+    getDatasheet1.data.map((item)=>{    
+      datasheet.push(item.name)
+    })
+    getDatasheet2.data.map((item)=>{    
+      datasheet2.push(item.name)
+    })
+    setDatasheetName(datasheet)
+    setDatasheetName2(datasheet2)
+  }
+  useEffect(() => {
+    getData();
+  }, []);
+
   function handleSubmit(event) {
     event.preventDefault();
-    if (name !== "" && url !== "" && paramPath === "AP") {   
+    if (name !== "" && url !== "" && paramPath === "AP") {
+      const lowercaseInputValue = name.toLowerCase();
+      const lowercaseArray = datasheet_name.map(element => element.toLowerCase());
+      // Check if the lowercaseInputValue exists in the lowercaseArray
+      if (lowercaseArray.includes(lowercaseInputValue)) {
+        // If it already exists, show an alert
+        alert(`Datasheet Name : "${name}" already exists in database. Please try again!`);
+      }else{
       axios
         .post("http://localhost:3333/adddatasheet", { type, name, url })
         .then((res) => {
@@ -60,8 +85,15 @@ function AddDataSheetContent() {
           }
         })
         .catch((err) => console.log(err));
-    }else if (name !== "" && url !== "" && paramPath === "SW")
+    }}else if (name !== "" && url !== "" && paramPath === "SW")
       {
+        const lowercaseInputValue = name.toLowerCase();
+        const lowercaseArray = datasheet_name2.map(element => element.toLowerCase());
+        // Check if the lowercaseInputValue exists in the lowercaseArray
+        if (lowercaseArray.includes(lowercaseInputValue)) {
+          // If it already exists, show an alert
+          alert(`Datasheet Name : "${name}" already exists in database. Please try again!`);
+        }else{
         axios
         .post("http://localhost:3333/adddatasheet", { type, name, url })
         .then((res) => {
@@ -74,7 +106,7 @@ function AddDataSheetContent() {
         })
         .catch((err) => console.log(err));
       }
-    else{
+    }else{
       alert("Please Complete The Information!");
     }
   }

@@ -35,6 +35,7 @@ export default function SignIn() {
       email: data.get('email'),
       password: data.get('password'),
     }
+    console.log(jsonData.email)
     //Login API
     fetch ('http://localhost:3333/login',{
       method: "POST",
@@ -46,6 +47,9 @@ export default function SignIn() {
       
       .then(response => response.json())  
       .then(data =>{
+        if(jsonData.email.length === 0 || jsonData.password.length === 0) {
+          alert("Error! please enter email and password again.")
+        }else{
         const role = data.role;
         const name = data.name;
         if(data.status === 'ok' && role === 'Admin'){
@@ -61,9 +65,9 @@ export default function SignIn() {
           localStorage.setItem('site', data.site)
           window.location= '/home2'
         }else{
-          alert('Login Failed. Please Try Again!')
+          alert(`Login Failed. email : "${jsonData.email}" don't exists in database or password is not correct. Please Try Again!`)
         }
-      })
+      }})
     .catch((error) =>{
       console.log("Error:", error);
     });

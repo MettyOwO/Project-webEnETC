@@ -54,6 +54,8 @@ function ReportSWContent() {
     const username1 = localStorage.getItem("name");
     const [model, setModel] = useState('');
 
+    const [note, setNote] = useState('');
+
     useEffect(() => {
         axios.get('http://localhost:3333/switchlistwithid/'+id)
         .then(res => {
@@ -81,10 +83,10 @@ function ReportSWContent() {
         axios
         .post('http://localhost:3333/addreport_sw/'+ id, {site, device_type, build_group, build_name,
         ipswitch, hostname, role, serial_numberOld, serial_number, mac_addressOld, mac_address, detail, url, urlconfig, 
-        num_report, username1, model, id2}) 
+        num_report, username1, model, id2, note}) 
         .then(res => {
             if(res.data.added){
-                alert("Report Corrupt Device Data Complete!")
+                alert("Report Switch Replacement Device Data Complete!")
                 navigate('/dbadmin')     
             }else{
                 alert("Error! Please Try Again.")
@@ -250,15 +252,29 @@ function ReportSWContent() {
                 </div>
 
                 <div className='mb-4'>
-                    <label>Detail</label>
-                    <input 
-                    type="text" 
-                    className='form-control'
-                    placeholder='Enter Detail of Corrupt Device' 
-                    onChange={e => setDetail(e.target.value)}
-                    required/>
+                <label htmlFor='Select Details'>Details Of Replace</label>
+                <select 
+                    className="form-control" 
+                    onChange={e => setDetail(e.target.value)}>
+                    <option defaultValue>Select Details</option>
+                    <option>โดนน้ำ</option>
+                    <option>ไฟช็อต</option>
+                    <option>พอร์ตไม่จ่ายไฟ</option>
+                    <option>อื่นๆ</option>                     
+                </select>
                 </div>
 
+                {detail == "อื่นๆ" && (
+                    <div className='mb-4'>
+                        <label>Note</label>
+                        <input 
+                        type="text" 
+                        className='form-control'
+                        placeholder='Enter Note For Detail' 
+                        onChange={e => setNote(e.target.value)}
+                        required/>
+                    </div>
+                )}  
                 <div
                     style={{
                     display: 'flex',

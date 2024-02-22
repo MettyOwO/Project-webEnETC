@@ -31,8 +31,6 @@ function AddAPContent() {
           .catch((error) => {
             console.log("Error:", error);
           });
-        getDataSite()
-        getDataAPModel()
     },[])
 
     const [hostname, setHostname] = useState('');
@@ -46,46 +44,94 @@ function AddAPContent() {
     const [model, setModel] = useState("Select AP Model");
     const navigate = useNavigate();
 
+    const username1 = localStorage.getItem("name");
+    const [device_type, SetDVType] = useState("AP");
+
     function handleSubmit(event) {        
         event.preventDefault();
         if (site !== "Select Site" && hostname !== '' 
             && ipswitch !== '' && build_name !== '' 
             && build_group !== '' && role !== "Select AP Role" && model !== "Select AP Model" && serial_number !== ''
-            && mac_address !== ''){      
-            axios.post('http://localhost:3333/addap', {site, build_name, build_group,
-            ipswitch, hostname, role, model, serial_number, mac_address})        
-            .then(res => {            
+            && mac_address !== '')
+        {      
+            const lowercaseInputValue1 = hostname.toLowerCase();
+            const lowercaseArray1 = ap_list1.map(element => element.toLowerCase());
+            const lowercaseInputValue2 = serial_number.toLowerCase();
+            const lowercaseArray2 = ap_list2.map(element => element.toLowerCase());
+            const lowercaseInputValue3 = mac_address.toLowerCase();
+            const lowercaseArray3 = ap_list3.map(element => element.toLowerCase());
+            // Check if the lowercaseInputValue exists in the lowercaseArray
+            if (lowercaseArray1.includes(lowercaseInputValue1)) {
+                // If it already exists, show an alert
+                alert(`Hostname : "${hostname}" already exists in database. Please try again!`);
+            }
+            else if (lowercaseArray2.includes(lowercaseInputValue2)) {
+                // If it already exists, show an alert
+                alert(`Serial Number : "${serial_number}" already exists in database. Please try again!`);
+            }
+            else if (lowercaseArray3.includes(lowercaseInputValue3)) {
+                // If it already exists, show an alert
+                alert(`Mac Address : "${mac_address}" already exists in database. Please try again!`);
+            }
+            else{
+                axios.post('http://localhost:3333/addap', {site, build_name, build_group,
+                ipswitch, hostname, role, model, serial_number, mac_address, username1, device_type})        
+                .then(res => {            
                 if(res.data.added){
                     alert("Add Access Point Data Complete!")
-                    navigate('/dbadmin') 
+                navigate('/dbadmin') 
                 }else{
                     alert("Error! Please Try Again.")
                 }       
             })
             .catch(err => console.log(err));
-        }else{
+            }                
+        }
+        else{
             alert("Please Complete The Information!");
-        }    
+       }  
     }
-
+      
     const [siteName,setSiteName] = useState([])
-    async function getDataSite(){
-        const getSiteName = await axios.get("http://localhost:3333/site_name")
-        setSiteName(getSiteName.data)
-    };
-
     const [ap_models, setApModel] = useState([]);
-    async function getDataAPModel() {
-      const getModel = await axios.get("http://localhost:3333/ap_model");
-      setApModel(getModel.data);
-    }
-    
+    const [ap_models2, setApModel2] = useState([]);
+    const [ap_list1, setApList1] = useState([]);
+    const [ap_list2, setApList2] = useState([]);
+    const [ap_list3, setApList3] = useState([]);
+    async function getData(){
+        const getSiteName = await axios.get("http://localhost:3333/site_name")
+        const getModel = await axios.get("http://localhost:3333/ap_model");
+        const getModel2 = await axios.get("http://localhost:3333/ap_model2");
+        const getApList = await axios.get("http://localhost:3333/aplist");
+        const APdata1 = []
+        const APdata2 = []
+        const APdata3 = []
+        getApList.data.map((item)=>{    
+            APdata1.push(item.APname)
+            APdata2.push(item.Serialnumber)
+            APdata3.push(item.MACaddress)
+        })
+        setApList1(APdata1);
+        setApList2(APdata2);
+        setApList3(APdata3);
+
+        setApModel(getModel.data);
+        setApModel2(getModel2.data);
+        setSiteName(getSiteName.data)
+      }
+    useEffect(() => {
+        getData()
+    }, []);
+    console.log(ap_list1);
+    console.log(ap_list2);
+    console.log(ap_list3);
+
     return (
     <div>
     <Navbar variant="dark" bg="dark" expand="lg">
     <Container fluid>
     <Navbar.Brand href='/dbadmin'>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-back" viewBox="0 0 16 16">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-back" viewBox="0 0 16 16">
             <path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
         </svg>
         &nbsp; Dashboard
@@ -118,8 +164,8 @@ function AddAPContent() {
                         <option key={index}>{siteName.name}</option>           
                     ))}
                 </select>
-            </div>          
-            
+            </div>
+               
             <div className='mb-4'>
                 <label>Building Group</label>
                 <input type="text" 
@@ -177,8 +223,8 @@ function AddAPContent() {
                 <select className="form-control" 
                 onChange={e => setRole(e.target.value)}>
                     <option>Select AP Role</option>
-                    {ap_models.map((ap_models, index) => (
-                    <option key={index}>{ap_models.role}</option>
+                    {ap_models2.map((ap_models2, index) => (
+                    <option key={index}>{ap_models2.role}</option>
                     ))}
                 </select>
             </div>

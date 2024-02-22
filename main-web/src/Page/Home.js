@@ -59,20 +59,7 @@ function HomeContent() {
   useEffect(() => {
     getData();
   }, []);
-
-  // const [responsibleName,setResponsible] = useState([])
-  // async function getData2() {
-    
-  //   const getResponsibileName = await axios.get("http://localhost:3333/responsible")
-  //   setResponsible(getResponsibileName.data)
-  // }
-
-  // useEffect(() => {
-  //   getData2();
-  // }, []);
-  // useEffect(() => {
-  // }, [responsibleName]);
-
+  console.log(siteName);
 
   const handleDelete = async (name) => {
     try {
@@ -136,7 +123,6 @@ function HomeContent() {
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col">Contact Customer</th>
-                        {/* <th scope="col">Responsible</th> */}
                         <th scope="col">Edit & Delete</th>
                     </tr>
                     </thead>
@@ -144,16 +130,7 @@ function HomeContent() {
                     {siteName.map((siteName, index) => (
                     <tr key={index}>
                         <td>{siteName.name}</td>
-                        <td>{siteName.address}</td>                        
-                        
-                        {/* <td>
-                          {responsibleName.map((item, index) => (
-                        <td key={index}>
-                          {item.name},                       
-                        </td>
-                        ))} 
-                        </td> */}
-                        
+                        <td>Name : {siteName.contact_name} Tel : {siteName.contact_tel}</td>                        
                         <td>
                           <button
                           className="btn btn-danger ms-2"

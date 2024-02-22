@@ -51,6 +51,7 @@ function ReportAPContent() {
     const [url, SetUrl] = useState('');
     const [num_report, SetNumberReport] = useState('');
     const username1 = localStorage.getItem("name");
+    const [note, setNote] = useState('');
 
     useEffect(() => {
         axios.get('http://localhost:3333/aplistwithid/'+id)
@@ -78,11 +79,11 @@ function ReportAPContent() {
         axios
         .post('http://localhost:3333/addreport_ap/'+ id, {id2, site, build_group, build_name, 
         ipswitch, hostname, role, serial_number, serial_numberOld,
-        detail, url, device_type, num_report, mac_address, mac_addressOld, username1, model}) 
+        detail, url, device_type, num_report, mac_address, mac_addressOld, username1, model, note}) 
         .then(res => {
             console.log(res);
             if(res.data.added){
-                alert("Report Corrupt Device Data Complete!")
+                alert("Report Access Point Replacement Device Data Complete!")
                 navigate('/dbadmin')
             }else{
                 alert("Error! Please Try Again.")
@@ -241,15 +242,31 @@ function ReportAPContent() {
                     onChange={e => setMac(e.target.value)}
                     required/>
                 </div>
-
+                
                 <div className='mb-4'>
-                    <label>Detail</label>
-                    <input type="text" 
-                    className='form-control'
-                    placeholder='Enter Detail' 
-                    onChange={e => setDetail(e.target.value)}
-                    required/>
+                <label htmlFor='Select Details'>Details Of Replace</label>
+                <select 
+                    className="form-control" 
+                    onChange={e => setDetail(e.target.value)}>
+                    <option defaultValue>Select Details</option>
+                    <option>โดนน้ำ</option>
+                    <option>ไฟช็อต</option>
+                    <option>พอร์ตไม่จ่ายไฟ</option>
+                    <option>อื่นๆ</option>                     
+                </select>
                 </div>
+                
+                {detail == "อื่นๆ" && (
+                    <div className='mb-4'>
+                        <label>Note</label>
+                        <input 
+                        type="text" 
+                        className='form-control'
+                        placeholder='Enter Note For Detail' 
+                        onChange={e => setNote(e.target.value)}
+                        required/>
+                    </div>
+                )}  
                 <div
                     style={{
                     display: 'flex',

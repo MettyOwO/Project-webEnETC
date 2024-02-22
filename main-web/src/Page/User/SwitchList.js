@@ -122,7 +122,32 @@ function UserSwitchContent() {
         } else if (type === "Datasheet") {
             navigate(`/add_datasheet2/${device}`, { state: { device } });
         }
-    }    
+    }
+    
+    const [num_sw_site,setDataSWSite] = useState([])
+    const siteLocation2 = localStorage.getItem("site");
+    useEffect(() => {   
+    axios.get('http://localhost:3333/getSiteSW/' + siteLocation2).then(res => {
+        const data = res.data
+        let accessCount = 0
+        let distributeCount = 0
+        data.map((item) => {
+          if(item.role === "Access"){
+            accessCount++
+          }
+          if(item.role === "Distribute"){
+            distributeCount++
+          }
+        })
+        let sum = accessCount + distributeCount
+        setDataSWSite(sum)
+      }).catch(err => console.log(err))
+    }, []);
+
+    if(num_sw_site === 0){
+        alert("Failed! Can't Found Switch Data.")
+        navigate('/dbusers') 
+    }
       
     //UI
     return (
@@ -165,7 +190,7 @@ function UserSwitchContent() {
                     justifyContent: 'center',
                 }}>
                     {paramPath === "SWList" && <>
-                        <h2>Switch {siteName2} List</h2>
+                        <h2>Switch List ({siteName2}) : {num_sw_site} Units</h2>
                     </>}
                 </div> 
                 
@@ -190,6 +215,7 @@ function UserSwitchContent() {
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">Site</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">Hostname</th>
@@ -208,6 +234,7 @@ function UserSwitchContent() {
                     <tbody>
                     {swlist.map ((swlist,index) => (                       
                         <tr key={index}>
+                            <td>{swlist.site}</td>
                             <td>{swlist.buildgroup}</td>
                             <td>{swlist.buildname}</td>
                             <td>{swlist.hostname}</td>

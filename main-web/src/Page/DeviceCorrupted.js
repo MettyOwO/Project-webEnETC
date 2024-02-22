@@ -5,7 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useLocation } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import AddUrl from "../components/AddUrl";
 import SearchBar from "../components/SearchBar";
 import { CSVLink } from "react-csv";
@@ -42,8 +42,9 @@ function DCContent() {
         getDataDC()
     },[])
 
+    const navigate = useNavigate();
     async function getDataDC(){
-        const getDc = await axios.get('http://localhost:3333/deviceclist')   
+        const getDc = await axios.get('http://localhost:3333/deviceclist')
         const dataSite = []
         console.log(getDc.data);
         getDc.data.map((item)=>{
@@ -90,6 +91,39 @@ function DCContent() {
         }
     }
 
+    const [num_dc, setNumDC] = useState(0);
+    const [num_dc_site, setDcdata2] = useState([]);
+    useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const fetchData = await axios.get("http://localhost:3333/total_num_dc");
+        setNumDC(fetchData.data.numdc);
+      } catch (err) {}
+    };
+    fetchCount();
+      
+    axios.get('http://localhost:3333/getSiteDC/' + paramSite).then(res => {
+        const data = res.data
+        let ApData = 0
+        let SwData = 0
+        data.map((item) => {
+          if(item.device_type === "AP"){
+            ApData++
+          }
+          if(item.device_type === "SW"){
+            SwData++
+          }          
+        })
+        let sum = ApData + SwData
+        setDcdata2(sum)
+      }).catch(err => console.log(err))         
+    }, []);
+
+    if(num_dc_site === 0 && num_dc === 0){
+        alert("Failed! Can't Found Replacement Device Data.")
+        navigate('/dbadmin') 
+    }
+
     //UI
     return (
         <div>       
@@ -118,10 +152,10 @@ function DCContent() {
                     justifyContent: 'center',
                 }}>
                     {paramSite !== "DCList" && <>
-                    <h2>Corrupt Device {paramSite} List</h2>
+                    <h2>Replacement Device List {paramSite}</h2>
                     </>}
                     {paramSite === "DCList" && <>
-                    <h2>Corrupt Device List</h2>
+                    <h2>Replacement Device List</h2>
                     </>}               
                 </div><br/>
                 {/* // Search bar */}
@@ -130,7 +164,7 @@ function DCContent() {
                 {paramSite !== "DCList" && <>
                 <CSVLink
                     data={deviceclist}
-                    filename={`Corrupt Device ${paramSite}`}
+                    filename={`Replacement Device ${paramSite}`}
                     className="btn btn-success"
                 >
                     Export &nbsp;
@@ -143,7 +177,7 @@ function DCContent() {
                 {paramSite === "DCList" && <>
                 <CSVLink
                     data={deviceclist}
-                    filename="Corrupt Device"
+                    filename="Replacement Device"
                     className="btn btn-success"
                 >
                     Export &nbsp;
@@ -164,10 +198,6 @@ function DCContent() {
                             <th scope="col">Hostname</th>
                             <th scope="col">Model</th>
                             <th scope="col">Role</th>
-                            {/*
-                            <th scope="col">Old Serial No.</th>
-                            <th scope="col">Old Mac Address</th>
-                            */}
                             <th scope="col">Replace Serial No.</th>
                             <th scope="col">Replace Mac Address</th>
                             <th scope="col">Detail</th>
@@ -187,13 +217,14 @@ function DCContent() {
                                 <td>{deviceclist.Hostname}</td>
                                 <td>{deviceclist.Model}</td>
                                 <td>{deviceclist.Role}</td>
-                                {/*
-                                <td>{deviceclist.Oldserialnumber}</td>
-                                <td>{deviceclist.Oldmacaddress}</td>
-                                */}
                                 <td>{deviceclist.Serialnumber}</td>
                                 <td>{deviceclist.Macaddress}</td>
-                                <td>{deviceclist.Details}</td>
+                                {deviceclist.Details === "อื่นๆ" && (
+                                    <td>{deviceclist.note}</td>
+                                )}
+                                {deviceclist.Details !== "อื่นๆ" && (
+                                    <td>{deviceclist.Details}</td>
+                                )}
                                 <td>{deviceclist.Datatime1}</td>
                                 {deviceclist.urlmap && <>
                                     <td><Link to={deviceclist.urlmap} className="btn btn-info" target="_blank">

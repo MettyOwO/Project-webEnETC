@@ -35,8 +35,6 @@ function AddAPContent() {
           .catch((error) => {
             console.log("Error:", error);
           });
-        getDataSite()
-        getDataAPModel()
     },[])
 
     const [hostname, setHostname] = useState('');
@@ -49,13 +47,36 @@ function AddAPContent() {
     const [model, setModel] = useState("Select AP Model");
     const navigate = useNavigate();
 
+    const username1 = localStorage.getItem("name");
+    const [device_type, SetDVType] = useState("AP");
+
     function handleSubmit(event) {        
         event.preventDefault();
         if (hostname !== '' && ipswitch !== '' && build_name !== '' 
             && build_group !== '' && role !== "Select AP Role" && model !== "Select AP Model" 
-            && serial_number !== '' && mac_address !== ''){      
+            && serial_number !== '' && mac_address !== ''){            
+                const lowercaseInputValue1 = hostname.toLowerCase();
+                const lowercaseArray1 = ap_list1.map(element => element.toLowerCase());
+                const lowercaseInputValue2 = serial_number.toLowerCase();
+                const lowercaseArray2 = ap_list2.map(element => element.toLowerCase());
+                const lowercaseInputValue3 = mac_address.toLowerCase();
+                const lowercaseArray3 = ap_list3.map(element => element.toLowerCase());
+                // Check if the lowercaseInputValue exists in the lowercaseArray
+                if (lowercaseArray1.includes(lowercaseInputValue1)) {
+                    // If it already exists, show an alert
+                    alert(`Hostname : "${hostname}" already exists in database. Please try again!`);
+                }
+                else if (lowercaseArray2.includes(lowercaseInputValue2)) {
+                    // If it already exists, show an alert
+                    alert(`Serial Number : "${serial_number}" already exists in database. Please try again!`);
+                }
+                else if (lowercaseArray3.includes(lowercaseInputValue3)) {
+                    // If it already exists, show an alert
+                    alert(`Mac Address : "${mac_address}" already exists in database. Please try again!`);
+                }
+                else{
             axios.post('http://localhost:3333/addap', {site, build_name, build_group,
-            ipswitch, hostname, role, model, serial_number, mac_address})        
+            ipswitch, hostname, role, model, serial_number, mac_address, device_type, username1})        
             .then(res => {            
                 if(res.data.added){
                     alert("Add Access Point Data Complete!")
@@ -65,22 +86,43 @@ function AddAPContent() {
                 }       
             })
             .catch(err => console.log(err));
-        }else{
+        }}else{
             alert("Please Complete The Information!");
         }    
     }
 
-    const [site, setSite] = useState([]);
-    async function getDataSite(){
-        const siteLocation = localStorage.getItem("site");
-        setSite(siteLocation)
-    };
-
     const [ap_models, setApModel] = useState([]);
-    async function getDataAPModel() {
+    const [ap_models2, setApModel2] = useState([]);
+    const [site, setSite] = useState([]);
+
+    const [ap_list1, setApList1] = useState([]);
+    const [ap_list2, setApList2] = useState([]);
+    const [ap_list3, setApList3] = useState([]);
+    async function getData() {
       const getModel = await axios.get("http://localhost:3333/ap_model");
+      const getModel2 = await axios.get("http://localhost:3333/ap_model2");
+      const siteLocation = localStorage.getItem("site");
+
+      const getApList = await axios.get("http://localhost:3333/aplist");
+      const APdata1 = []
+      const APdata2 = []
+      const APdata3 = []
+      getApList.data.map((item)=>{    
+          APdata1.push(item.APname)
+          APdata2.push(item.Serialnumber)
+          APdata3.push(item.MACaddress)
+      })
+      setApList1(APdata1);
+      setApList2(APdata2);
+      setApList3(APdata3);
+      
+      setSite(siteLocation)
       setApModel(getModel.data);
+      setApModel2(getModel2.data);
     }
+    useEffect(() => {
+        getData()
+    }, []);
     
     return (
     <div>
@@ -178,8 +220,8 @@ function AddAPContent() {
                 <select className="form-control" 
                 onChange={e => setRole(e.target.value)}>
                     <option>Select AP Role</option>
-                    {ap_models.map((ap_models, index) => (
-                    <option key={index}>{ap_models.role}</option>
+                    {ap_models2.map((ap_models2, index) => (
+                    <option key={index}>{ap_models2.role}</option>
                     ))}
                 </select>
             </div>

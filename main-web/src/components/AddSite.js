@@ -8,7 +8,8 @@ import axios from 'axios';
 function Example2() { 
   const [show, setShow] = useState(false);
   const [site, setSite] = useState("");
-  const [address, setAddress] = useState("");
+  const [contact_name, setContactName] = useState("");
+  const [contact_tel, setContactTel] = useState("");
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -38,12 +39,32 @@ function Example2() {
     });
     },[])
 
-    const navigate = useNavigate();
+    const [siteName,setSiteName] = useState([])
+    async function getData() {
+      const getDataSite = await axios.get("http://localhost:3333/site2")
+      const dataSite = []
+      getDataSite.data.map((item)=>{    
+          dataSite.push(item.name)
+      })
+      setSiteName(dataSite)
+    }
+    useEffect(() => {
+      getData();
+    }, []);
+
     function handleSubmit(event) {
       event.preventDefault();
-      if (site !== "") {
-        axios
-          .post("http://localhost:3333/addsite", { site, address })
+      if (site !== "" && contact_name !== "" && contact_tel !== "") {
+        const lowercaseInputValue = site.toLowerCase();
+        const lowercaseArray = siteName.map(element => element.toLowerCase());
+        // Check if the lowercaseInputValue exists in the lowercaseArray
+        if (lowercaseArray.includes(lowercaseInputValue)) {
+          // If it already exists, show an alert
+          alert(`Site : "${site}" already exists in database. Please try again!`);
+        }
+        else {
+          axios
+          .post("http://localhost:3333/addsite", { site, contact_name, contact_tel })
           .then((res) => {
             if (res.data.added) {
               alert("Add Site : " + (site) + " Complete!");
@@ -54,8 +75,10 @@ function Example2() {
             }
           })
           .catch((err) => console.log(err));
-      }else{
-          alert("Please Complete The Information!");
+        }
+      }
+      else{
+        alert("Please Complete The Information!");
       }
     }
 
@@ -83,14 +106,23 @@ function Example2() {
               />
             </Form.Group>
             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-              <Form.Label>Contact Customer</Form.Label>
+              <Form.Label>Contact Name</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Please Enter Contact Ex.UserContact Tel 0xx-xxx-xxxx"
+                placeholder="Please Enter Contact Name Ex.Name1"
                 autoFocus
-                onChange={(e)=>{setAddress(e.target.value)}}
+                onChange={(e)=>{setContactName(e.target.value)}}
               />
-            </Form.Group>               
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+              <Form.Label>Contact Tel.</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Please Enter Contact Tel Ex.0xx-xxx-xxxx"
+                autoFocus
+                onChange={(e)=>{setContactTel(e.target.value)}}
+              />
+            </Form.Group>           
           </Form>
         </Modal.Body>
         <Modal.Footer>

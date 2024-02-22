@@ -117,9 +117,12 @@ function EditAPContent() {
     }
 
     const [ap_models, setApModel] = useState([]);
+    const [ap_models2, setApModel2] = useState([]);
     async function getDataAPModel() {
       const getModel = await axios.get("http://localhost:3333/ap_model");
+      const getModel2 = await axios.get("http://localhost:3333/ap_model2");
       setApModel(getModel.data);
+      setApModel2(getModel2.data);
     }
 
     //UI
@@ -204,8 +207,8 @@ function EditAPContent() {
                     className="form-control" 
                     value={role} 
                     onChange={e => setRole(e.target.value)}>             
-                        {ap_models.map((ap_models, index) => (
-                            <option key={index}>{ap_models.role}</option>
+                        {ap_models2.map((ap_models2, index) => (
+                            <option key={index}>{ap_models2.role}</option>
                         ))}
                     </select>
                 </div>

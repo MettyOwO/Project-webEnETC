@@ -128,7 +128,32 @@ function UserAPContent() {
       getDataAP();
     }
     console.log(searchTerm);
-    };    
+    };
+
+    const [num_ap_site,setDataAPSite] = useState([])
+    const siteLocation2 = localStorage.getItem("site");
+    useEffect(() => {  
+      axios.get('http://localhost:3333/getSiteAP/' + siteLocation2).then(res => {
+        const data = res.data
+        let inDoorCount = 0
+        let outDoorCount = 0
+        data.map((item) => {
+          if(item.Role === 'Indoor'){
+            inDoorCount++
+          }
+          if(item.Role === 'Outdoor'){
+            outDoorCount++
+          }
+        })
+        let sum = inDoorCount + outDoorCount;
+        setDataAPSite(sum)
+      }).catch(err => console.log(err))  
+    }, []);
+  
+    if(num_ap_site === 0){
+        alert("Failed! Can't Found Access Point Data.")
+        navigate('/dbadmin') 
+    }
 
     //UI
     return (
@@ -173,7 +198,7 @@ function UserAPContent() {
                     justifyContent: 'center',
                 }}>
                     {paramPath === "APList" && <>
-                    <h2>Access Point {siteName2} List</h2>
+                    <h2>Access Point List ({siteName2}) : {num_ap_site} Units</h2>
                     </>}                   
                 </div> 
                 {/* // Search bar */}
@@ -198,6 +223,7 @@ function UserAPContent() {
                 <table className="table table-bordered">
                     <thead className="thead-light">
                         <tr>
+                            <th scope="col">Site</th>
                             <th scope="col">Building Group</th>
                             <th scope="col">Building Name</th>
                             <th scope="col">IP Address</th>
@@ -215,6 +241,7 @@ function UserAPContent() {
                     <tbody>
                         { aplist.map ((aplist,index) => (
                             <tr key={index}>
+                                <td>{aplist.Site}</td>
                                 <td>{aplist.Buildgroup}</td>
                                 <td>{aplist.Buildname}</td>
                                 <td>{aplist.IPswitch}</td>

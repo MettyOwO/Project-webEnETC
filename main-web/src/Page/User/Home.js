@@ -125,7 +125,7 @@ function HomeContent() {
                     {siteName.map((item, index) => (
                     <tr key={index}>
                         <td>{item.name}</td>
-                        <td>{item.address}</td>
+                        <td>Name : {item.contact_name} Tel : {item.contact_tel}</td>
                         <td>
                           {responsibleName.map((item, index) => (
                         <td key={index}>
