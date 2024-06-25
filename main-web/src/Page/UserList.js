@@ -125,7 +125,7 @@ function UserListContent() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                    <h2>Users List</h2>
+                    <h2>Staff List</h2>
                 </div> 
                 Filter : &nbsp;&nbsp; <SearchBar data={userlist} onSearch={handleSearch} />
                 <br/>

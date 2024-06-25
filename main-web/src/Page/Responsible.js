@@ -143,7 +143,7 @@ function ResponsibleContent() {
             <thead className="thead-light">
               <tr>
                 <th scope="col">Site</th>
-                <th scope="col">Username</th>
+                <th scope="col">Name</th>
                 {role === "Admin" && (
                   <th scope="col">Delete Responsible</th>
                 )}

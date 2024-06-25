@@ -61,7 +61,7 @@ function EditUserContent() {
                 axios.put('http://localhost:3333/updateuser/'+id, {name ,role, tel, epid, type}) 
                 .then(res => {
                     if(res.data.updated){
-                        alert("Update User Data ID : " + (id) + " Complete!")
+                        alert("Update Staff Data ID : " + (id) + " Complete!")
                         navigate('/users')    
                     }else{
                         alert("Error! Please Try Again.")
@@ -72,7 +72,7 @@ function EditUserContent() {
                 axios.put('http://localhost:3333/updateuser/'+id, {name ,role, tel, epid, type}) 
                 .then(res => {
                     if(res.data.updated){
-                        alert("Update User Data ID : " + (id) + " Complete!")
+                        alert("Update Staff Data ID : " + (id) + " Complete!")
                         navigate('/users')    
                     }else{
                         alert("Error! Please Try Again.")
@@ -119,7 +119,7 @@ function EditUserContent() {
             alignItems: 'center',
             justifyContent: 'center',
             }}>
-                <h2>Edit User Profile</h2>
+                <h2>Edit Staff Profile</h2>
             </div> 
 
                 <div className='mb-4'>
@@ -132,7 +132,7 @@ function EditUserContent() {
                 <label htmlFor=''>Role</label>
                 <select class="form-control" value={role} onChange={e => setRole(e.target.value)}>
                     <option>Admin</option>
-                    <option>User</option>
+                    <option>Staff</option>
                 </select> 
                 </div>
 
