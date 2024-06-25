@@ -1,0 +1,3 @@
+﻿Site,Building Group,Building Name,Floor,Switch Name,IP Switch,Model,Series AP,AP ID,VLAN,AP Name,AP Box,Cable Name,Serial Number,MAC Address,Role,url
+KKU,อุทยานเกษตร,อาคารสำนักงานอุทยานเทคโนโลยีการเกษตร,1,KKU65_AGg1_FL1-Dist01,10.248.31.254,AirEngine6760R-51E,9,,3218,KKU65_AGg1_FL1-AP09(OUT),B4,FL1-AP09(OUT),6R2290016411,CC208C5F8BC0,Outdoor,https://drive.google.com/drive/folders/1B2iEFqwJbzOEfeLxEw-E_QhFlYx9yMiZ
+KKU,อาคารแก่นกัลปพฤกษ์,อาคารแก่นกัลปพฤกษ์,1,KKU65_KKp_FL2-SW01,10.248.7.2,AirEngine5761-21,8,,3218,KKU65_KKp_FL1-AP08,85,FL1-AP08,2102354VQK6RNB004372,14230AC7F1F0,Indoor,https://drive.google.com/drive/folders/12oS2rq6q_i2OVl0vSo-qAvTeB3RHtWq0
